@@ -1,0 +1,24 @@
+{
+  "name": "planit",
+  "private": true,
+  "version": "0.9.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bunx --bun vite",
+    "prod": "bunx --bun vite build",
+    "lint": "eslint --ext .js,.vue --fix src"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.0.2",
+    "dayjs": "^1.11.10",
+    "vite": "^5.0.10",
+    "vite-plugin-pwa": "^0.19.7",
+    "vue": "^3.4.3",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "eslint-config-prettier": "^9.1.0"
+  }
+}
