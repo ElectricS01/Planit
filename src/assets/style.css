@@ -46,3 +46,34 @@ body {
   overflow-y: auto;
   text-align: center;
 }
+
+.navbar {
+  overflow: hidden;
+  background-color: rgba(40, 42, 43, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.navbar a {
+  height: 20px;
+  float: left;
+  color: white;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin: 4px;
+  font-size: 17px;
+  transition: background-color 1s ease;
+}
+
+.navbar a.active {
+  background-color: rgba(255, 255, 255, 0.075);
+}
+
+.light-mode .navbar a.active {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+
