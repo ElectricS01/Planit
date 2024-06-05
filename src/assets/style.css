@@ -15,7 +15,7 @@ body {
 }
 
 .container-flex::-webkit-scrollbar-thumb {
-  background-color: rgba(40, 42, 43, 0.75);
+  background-color: #282a2bbf;
   border-radius: 3px;
   transition:
     background-color 1s ease,
@@ -23,7 +23,7 @@ body {
 }
 
 .container-flex::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(49, 52, 53, 0.75);
+  background-color: #313435bf;
 }
 
 .container {
@@ -90,7 +90,7 @@ body {
 
 .navbar {
   overflow: hidden;
-  background-color: rgba(40, 42, 43, 0.75);
+  background-color: #282a2bbf;
   position: fixed;
   top: 0;
   left: 0;
@@ -111,11 +111,11 @@ body {
 }
 
 .navbar a.active {
-  background-color: rgba(255, 255, 255, 0.075);
+  background-color: #ffffff13;
 }
 
 .light-mode .navbar a.active {
-  background-color: rgba(0, 0, 0, 0.075);
+  background-color: #00000013;
 }
 
 .icon-mobile {
@@ -160,7 +160,7 @@ body {
 
 .menu {
   width: fit-content;
-  background-color: rgba(40, 42, 43, 0.75);
+  background-color: #282a2bbf;
   margin: 16px;
   z-index: 2;
   padding: 16px;
