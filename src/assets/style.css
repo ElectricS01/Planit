@@ -118,3 +118,62 @@ body {
   background-color: rgba(0, 0, 0, 0.075);
 }
 
+.icon-mobile {
+  display: none;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
+
+@media screen and (max-width: 360px) {
+  .navbar a:not(:first-child) {
+    display: none;
+    margin: 4px;
+  }
+
+  .icon-mobile {
+    line-height: 24px;
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+    margin: 4px 4px 4px 0;
+    border-radius: 4px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: block;
+    text-align: center;
+    font-size: 17px;
+    cursor: pointer;
+  }
+
+  .navbar.responsive a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+
+  .mode-switch {
+    right: 44px;
+  }
+}
+
+.menu {
+  width: fit-content;
+  background-color: rgba(40, 42, 43, 0.75);
+  margin: 16px;
+  z-index: 2;
+  padding: 16px;
+  border-radius: 8px;
+  opacity: 0;
+  animation:
+    slideIn-menu 1s forwards,
+    fadeIn 1s forwards;
+  align-content: center;
+}
+
+a {
+  text-decoration: none;
+  color: #00a8fc;
+}
+
