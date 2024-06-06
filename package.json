@@ -1,7 +1,7 @@
 {
   "name": "planit",
   "private": true,
-  "version": "0.9.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite",
@@ -11,6 +11,7 @@
   "dependencies": {
     "@vitejs/plugin-vue": "^5.0.2",
     "dayjs": "^1.11.10",
+    "pinia": "^2.1.7",
     "vite": "^5.0.10",
     "vite-plugin-pwa": "^0.19.7",
     "vue": "^3.4.3",

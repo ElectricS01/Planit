@@ -108,6 +108,10 @@ body {
   margin: 4px;
   font-size: 17px;
   transition: background-color 1s ease;
+
+  &.right {
+    float: right;
+  }
 }
 
 .navbar a.active {
@@ -116,6 +120,35 @@ body {
 
 .light-mode .navbar a.active {
   background-color: #00000013;
+}
+
+.mode-switch {
+  padding: 8px;
+  margin: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+  transition:
+    background-color 1s ease,
+    fill 1s ease;
+}
+
+.icon-mobile:hover {
+  background-color: #ffffff1a;
+  transition:
+    background-color 0.25s ease,
+    fill 1s ease;
+}
+
+.light-mode .icon-mobile:hover {
+  background-color: #0000001a;
+  transition:
+    background-color 0.25s ease,
+    fill 1s ease;
+}
+
+.navbar a:not(:first-child) {
+  margin: 4px 4px 4px 0;
 }
 
 .icon-mobile {
@@ -154,6 +187,7 @@ body {
   }
 
   .mode-switch {
+    position: absolute;
     right: 44px;
   }
 }
@@ -175,5 +209,31 @@ body {
 a {
   text-decoration: none;
   color: #00a8fc;
+}
+
+.title {
+  font-size: 36px;
+  margin-top: 12px;
+  animation:
+    slideIn 1s forwards,
+    fadeIn 1s forwards;
+}
+
+@keyframes slideIn {
+  0% {
+    margin-top: 12px;
+  }
+  100% {
+    margin-top: 48px;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 

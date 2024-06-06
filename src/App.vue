@@ -4,6 +4,7 @@
       <router-link
         to="/"
         :class="{ active: active('/') }"
+        title="Planit Home Page"
         @click="responsiveNavbar()"
       >
         Home
@@ -11,9 +12,17 @@
       <router-link
         to="/about"
         :class="{ active: active('/about') }"
+        title="About Planit"
         @click="responsiveNavbar()"
       >
         About
+      </router-link>
+      <router-link
+        class="right chat-button"
+        to="/login"
+        title="Login to Planit"
+      >
+        Login
       </router-link>
       <icons
         :icon="isDarkMode === 'true' ? 'sun' : 'moon'"
