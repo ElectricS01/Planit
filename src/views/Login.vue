@@ -4,6 +4,6 @@
 </template>
 
 <script setup>
-import { useDataStore } from "@/stores/main"
+import { useDataStore } from "../store.js"
 const store = useDataStore()
 </script>
