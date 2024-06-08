@@ -206,9 +206,25 @@ body {
   align-content: center;
 }
 
+.menu-button {
+  cursor: pointer;
+  color: white;
+  background-color: rgba(40, 42, 43, 0.75);
+  padding: 8px;
+  border-radius: 4px;
+  animation: fadeIn 1s forwards;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
+
 a {
   text-decoration: none;
   color: #00a8fc;
+}
+
+.small {
+  margin: 8px 0;
 }
 
 .title {
@@ -217,6 +233,10 @@ a {
   animation:
     slideIn 1s forwards,
     fadeIn 1s forwards;
+}
+
+.title-small {
+  animation: fadeIn 1s forwards;
 }
 
 @keyframes slideIn {
