@@ -6,30 +6,46 @@ Planit is a modern and advanced project management software solution developed b
 
 #### https://planit.electrics01.com
 
-### Project setup
+## Frontend setup
 
-```
+### Installs dependencies
+
+```bash
 bun i
 ```
 
 ### Compiles and hot-reloads for development
 
-```
+```bash
 bun dev
 ```
 
 ### Compiles and minifies for production
 
-```
+```bash
 bun prod
 ```
 
 ### Lints and fixes files
 
-```
+```bash
 bun lint
 ```
 
-### Customize configuration
+### Customise configuration
 
 See [Configuration Reference](https://vitejs.dev/config/).
+
+## Backend setup
+
+To install dependencies:
+
+```bash
+bun i
+```
+
+To run:
+
+```bash
+bun run index.ts
+```
