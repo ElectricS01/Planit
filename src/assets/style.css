@@ -188,8 +188,17 @@ body {
 
   .mode-switch {
     position: absolute;
+    top: 0;
     right: 44px;
   }
+}
+
+.menu-grid {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .menu {
@@ -197,7 +206,7 @@ body {
   background-color: #282a2bbf;
   margin: 16px;
   z-index: 2;
-  padding: 16px;
+  padding: 25px;
   border-radius: 8px;
   opacity: 0;
   animation:
@@ -206,16 +215,64 @@ body {
   align-content: center;
 }
 
+.small-menu {
+  width: min(100% - 20px, 436px);
+  background-color: #282a2bbf;
+  margin: 16px;
+  z-index: 2;
+  padding: 32px 32px 18px;
+  border-radius: 8px;
+  opacity: 0;
+  animation:
+    slideIn-menu 1s forwards,
+    fadeIn 1s forwards;
+  align-content: center;
+}
+
+button {
+  cursor: pointer;
+  margin: 2px 4px;
+  font-size: 17px;
+  color: white;
+  background-color: #282a2bbf;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
+
 .menu-button {
   cursor: pointer;
   color: white;
-  background-color: rgba(40, 42, 43, 0.75);
+  background-color: #282a2bbf;
   padding: 8px;
   border-radius: 4px;
   animation: fadeIn 1s forwards;
   transition:
     background-color 1s ease,
     color 1s ease;
+}
+
+input {
+  color: white;
+  font-size: 16px;
+  width: 100%;
+  padding: 4px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #3d3d3d40;
+}
+
+.light-mode input {
+  background-color: #5b5b5b40;
+}
+
+input:focus {
+  outline: 1px solid white;
 }
 
 a {
@@ -225,6 +282,12 @@ a {
 
 .small {
   margin: 8px 0;
+}
+
+.text-small {
+  color: #fff;
+  font-size: 10px;
+  text-align: left;
 }
 
 .title {
@@ -245,6 +308,15 @@ a {
   }
   100% {
     margin-top: 48px;
+  }
+}
+
+@keyframes slideIn-menu {
+  0% {
+    margin-top: 0;
+  }
+  100% {
+    margin-top: 16px;
   }
 }
 
