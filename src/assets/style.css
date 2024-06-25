@@ -332,6 +332,7 @@ a {
   }
 }
 
+
 p,
 a,
 .menu,
@@ -341,6 +342,11 @@ a,
     color 1s ease,
     filter 0.3s ease;
 }
+
+.light-mode svg {
+  fill: black;
+}
+
 .light-mode .icon-mobile,
 .light-mode .menu-button,
 .light-mode p,
@@ -350,6 +356,7 @@ a,
     background-color 1s ease,
     color 1s ease;
 }
+
 .light-mode .menu,
 .light-mode .menu-button,
 .light-mode .navbar {
@@ -358,3 +365,4 @@ a,
     background-color 1s ease,
     color 1s ease;
 }
+
