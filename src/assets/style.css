@@ -305,6 +305,10 @@ a {
   animation: fadeIn 1s forwards;
 }
 
+.title-menu {
+  font-size: 36px;
+}
+
 @keyframes slideIn {
   0% {
     margin-top: 12px;
