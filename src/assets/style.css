@@ -140,6 +140,9 @@ body {
     fill 1s ease;
 }
 
+.light-mode .mode-switch:hover,
+.light-mode .menu-button:hover,
+.light-mode .navbar a:hover,
 .light-mode .icon-mobile:hover {
   background-color: #0000001a;
   transition:
@@ -329,3 +332,29 @@ a {
   }
 }
 
+p,
+a,
+.menu,
+.navbar {
+  transition:
+    background-color 1s ease,
+    color 1s ease,
+    filter 0.3s ease;
+}
+.light-mode .icon-mobile,
+.light-mode .menu-button,
+.light-mode p,
+.light-mode a {
+  color: black;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
+.light-mode .menu,
+.light-mode .menu-button,
+.light-mode .navbar {
+  background-color: rgba(255, 255, 255, 0.6);
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
