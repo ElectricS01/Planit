@@ -64,7 +64,6 @@ const submit = async () => {
     .post("/api/register", {
       email: email.toLowerCase().trim(),
       password: password.trim(),
-      userAgent: navigator.userAgent,
       username: username.trim()
     })
     .then((res) => {
@@ -75,7 +74,6 @@ const submit = async () => {
       router.push("/home")
     })
     .catch((e) => {
-      console.log(e)
       store.error = `Error ${e.request.status}, ${
         e.response.data.message || e.request.statusMessage
       }`

@@ -24,17 +24,8 @@
           type="password"
           @keydown.enter="submit"
         />
-        <div style="display: flex; justify-content: space-between">
-          <div class="text-small">
-            <router-link class="text-small" to="/reset">
-              Forgot Password?
-            </router-link>
-          </div>
-          <div class="text-small">
-            <router-link class="text-small" to="/register">
-              Register?
-            </router-link>
-          </div>
+        <div class="text-small">
+          <router-link class="text-small" to="/register">Register?</router-link>
         </div>
         <button @click="submit">Enter</button>
       </div>
@@ -58,7 +49,6 @@ const submit = () => {
   axios
     .post("/api/login", {
       password: password.trim(),
-      userAgent: navigator.userAgent,
       username: username.toLowerCase().trim()
     })
     .then((res) => {

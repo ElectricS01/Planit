@@ -107,7 +107,9 @@ body {
   border-radius: 4px;
   margin: 4px;
   font-size: 17px;
-  transition: background-color 1s ease;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
 
   &.right {
     float: right;
@@ -133,6 +135,7 @@ body {
     fill 1s ease;
 }
 
+.mode-switch:hover,
 .navbar a:hover,
 .menu-button:hover,
 .icon-mobile:hover {
@@ -340,7 +343,6 @@ a {
 
 
 p,
-a,
 .menu,
 .navbar {
   transition:
@@ -355,12 +357,8 @@ a,
 
 .light-mode .icon-mobile,
 .light-mode .menu-button,
-.light-mode p,
-.light-mode a {
+.light-mode p {
   color: black;
-  transition:
-    background-color 1s ease,
-    color 1s ease;
 }
 
 .light-mode .menu,
