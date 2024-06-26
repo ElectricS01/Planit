@@ -44,11 +44,33 @@
 
 <script setup>
 import { useDataStore } from "../store.js"
+import axios from "axios"
+import { useRouter } from "vue-router"
+
 const store = useDataStore()
+const router = useRouter()
 
 let username = ""
 let password = ""
 
 const submit = () => {
+  store.error = ""
+  axios
+    .post("/api/login", {
+      password: password.trim(),
+      userAgent: navigator.userAgent,
+      username: username.toLowerCase().trim()
+    })
+    .then((res) => {
+      localStorage.setItem("token", res.data.token)
+      Object.assign(axios.defaults, {
+        headers: { Authorization: res.data.token }
+      })
+      router.push("/home")
+    })
+    .catch((e) => {
+      store.error = e.response.data.message
+      setTimeout(store.errorFalse, 5000)
+    })
 }
 </script>

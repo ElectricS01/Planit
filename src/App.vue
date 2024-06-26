@@ -31,6 +31,11 @@
       />
       <div class="icon-mobile" @click="responsiveNavbar()">☰</div>
     </div>
+    <transition>
+      <p v-if="store.error" class="error-banner">
+        {{ store.error }}
+      </p>
+    </transition>
   </header>
   <main :class="isDarkMode === 'true' ? 'dark-mode' : 'light-mode'">
     <div class="background-container">
@@ -49,9 +54,11 @@
 <script setup>
 import Icons from "./components/Icons.vue"
 import { useRoute } from "vue-router"
+import { useDataStore } from "./store.js"
 import { ref } from "vue"
 
 const route = useRoute()
+const store = useDataStore()
 
 const isDarkMode = ref("true")
 const loaded = ref(false)

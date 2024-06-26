@@ -133,6 +133,8 @@ body {
     fill 1s ease;
 }
 
+.navbar a:hover,
+.menu-button:hover,
 .icon-mobile:hover {
   background-color: #ffffff1a;
   transition:
