@@ -357,7 +357,8 @@ p,
 
 .light-mode .icon-mobile,
 .light-mode .menu-button,
-.light-mode p {
+.light-mode p,
+.light-mode .navbar a {
   color: black;
 }
 
