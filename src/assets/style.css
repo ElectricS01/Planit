@@ -116,14 +116,6 @@ body {
   }
 }
 
-.navbar a.active {
-  background-color: #ffffff13;
-}
-
-.light-mode .navbar a.active {
-  background-color: #00000013;
-}
-
 .mode-switch {
   padding: 8px;
   margin: 4px;
@@ -137,6 +129,7 @@ body {
 
 .mode-switch:hover,
 .navbar a:hover,
+button:hover,
 .menu-button:hover,
 .icon-mobile:hover {
   background-color: #ffffff1a;
@@ -146,6 +139,7 @@ body {
 }
 
 .light-mode .mode-switch:hover,
+.light-mode button:hover,
 .light-mode .menu-button:hover,
 .light-mode .navbar a:hover,
 .light-mode .icon-mobile:hover {
@@ -263,6 +257,18 @@ button {
     color 1s ease;
 }
 
+button:active,
+.menu-button:active,
+.navbar a.active {
+  background-color: #ffffff13;
+}
+
+.light-mode button:active,
+.light-mode .menu-button:active,
+.light-mode .navbar a.active {
+  background-color: #00000013;
+}
+
 input {
   color: white;
   font-size: 16px;
@@ -342,7 +348,10 @@ a {
 }
 
 
+.text-small,
 p,
+label,
+input,
 .menu,
 .navbar {
   transition:
@@ -355,14 +364,21 @@ p,
   fill: black;
 }
 
+.light-mode input,
 .light-mode .icon-mobile,
+.light-mode button,
 .light-mode .menu-button,
+.light-mode .text-small,
 .light-mode p,
+.light-mode label,
 .light-mode .navbar a {
   color: black;
 }
 
+.light-mode input,
 .light-mode .menu,
+.light-mode .small-menu,
+.light-mode button,
 .light-mode .menu-button,
 .light-mode .navbar {
   background-color: rgba(255, 255, 255, 0.6);

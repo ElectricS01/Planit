@@ -18,12 +18,12 @@ serve({
     const url = new URL(request.url)
 
     if (url.pathname === "/api/register" && request.method === "POST") {
-      const text = JSON.parse(await request.text())
+      const body = JSON.parse(await request.text())
 
       if (
-        text.username.length < 1 ||
-        text.password.length < 1 ||
-        text.email.length < 1
+        body.username.length < 1 ||
+        body.password.length < 1 ||
+        body.email.length < 1
       ) {
         return new Response(JSON.stringify({ message: "Form not complete" }), {
           headers: { "Content-Type": "application/json" },
@@ -33,7 +33,7 @@ serve({
       if (
         await Users.findOne({
           where: {
-            username: text.username
+            username: body.username
           }
         })
       ) {
@@ -45,7 +45,7 @@ serve({
       if (
         await Users.findOne({
           where: {
-            email: text.email
+            email: body.email
           }
         })
       ) {
@@ -55,23 +55,58 @@ serve({
         })
       }
       const user = await Users.create({
-        email: text.email,
+        email: body.email,
         emailToken: cryptoRandomString({
           length: 128
         }),
-        password: await argon2.hash(text.password),
-        username: text.username
+        password: await argon2.hash(body.password),
+        username: body.username
       })
       emailLibrary
         .sendEmail(
           "support@electrics01.com",
-          text.email,
+          body.email,
           `Hi ${user.username}, Verify your email address`,
           `Hi ${user.username},\n\nThank You for signing up to Planit\n\nPlease click the link below to verify your email address:\nhttps://planit.electrics01.com/verify?token=${user.emailToken}\n\nIf you did not request this email, please ignore it.\n\nThanks,\n\nElectrics01 Support Team`
         )
         .catch((e) => {
           console.log("Error occurred while sending email:", e)
         })
+      const session = await Sessions.create({
+        token: cryptoRandomString({ length: 128 }),
+        userAgent: request.headers.get("User-Agent"),
+        userId: user.id
+      })
+      return new Response(JSON.stringify({ token: session.token }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200
+      })
+    } else if (url.pathname === "/api/login" && request.method === "POST") {
+      const body = JSON.parse(await request.text())
+
+      if (body.username.length < 1 || body.password.length < 1) {
+        return new Response(JSON.stringify({ message: "Form not complete" }), {
+          headers: { "Content-Type": "application/json" },
+          status: 400
+        })
+      }
+      const user = await Users.findOne({
+        where: {
+          username: body.username
+        }
+      })
+      if (!user) {
+        return new Response(JSON.stringify({ message: "User not found" }), {
+          headers: { "Content-Type": "application/json" },
+          status: 400
+        })
+      }
+      if (!(await argon2.verify(user.password, body.password))) {
+        return new Response(JSON.stringify({ message: "Incorrect password" }), {
+          headers: { "Content-Type": "application/json" },
+          status: 401
+        })
+      }
       const session = await Sessions.create({
         token: cryptoRandomString({ length: 128 }),
         userAgent: request.headers.get("User-Agent"),

@@ -4,4 +4,3 @@
     <router-link to="/" class="menu-button">Go to Home</router-link>
   </div>
 </template>
-<script setup></script>
