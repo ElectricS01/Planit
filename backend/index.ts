@@ -3,8 +3,11 @@ import { serve } from "bun"
 import argon2 from "argon2"
 import cryptoRandomString from "crypto-random-string"
 
+import auth from "./lib/auth"
 import nodemailerLibrary from "./lib/mailer"
 
+import Permissions from "./models/permissions"
+import Projects from "./models/projects"
 import Users from "./models/users"
 import Sessions from "./models/sessions"
 
@@ -16,10 +19,9 @@ serve({
   port: 3000,
   async fetch(request) {
     const url = new URL(request.url)
+    const body = JSON.parse(await request.text())
 
     if (url.pathname === "/api/register" && request.method === "POST") {
-      const body = JSON.parse(await request.text())
-
       if (
         body.username.length < 1 ||
         body.password.length < 1 ||
@@ -82,8 +84,6 @@ serve({
         status: 200
       })
     } else if (url.pathname === "/api/login" && request.method === "POST") {
-      const body = JSON.parse(await request.text())
-
       if (body.username.length < 1 || body.password.length < 1) {
         return new Response(JSON.stringify({ message: "Form not complete" }), {
           headers: { "Content-Type": "application/json" },
@@ -115,6 +115,65 @@ serve({
       return new Response(JSON.stringify({ token: session.token }), {
         headers: { "Content-Type": "application/json" },
         status: 200
+      })
+    } else if (
+      url.pathname === "/api/create-project" &&
+      request.method === "POST"
+    ) {
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+      if (!body.name) {
+        return new Response(
+          JSON.stringify({ message: "Project name not specified" }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 400
+          }
+        )
+      }
+      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+        return new Response(
+          JSON.stringify({ message: "Icon is not a valid URL" }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 400
+          }
+        )
+      }
+      if (body.name.length > 30) {
+        return new Response(
+          JSON.stringify({ message: "Project name too long" }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 400
+          }
+        )
+      }
+      if (body.description.length > 500) {
+        return new Response(
+          JSON.stringify({ message: "Project description too long" }),
+          {
+            headers: { "Content-Type": "application/json" },
+            status: 400
+          }
+        )
+      }
+      const newProject = await Projects.create({
+        description: body.description,
+        icon: body.icon,
+        name: body.name,
+        owner: user.id
+      })
+      await Permissions.create({
+        projectId: newProject.id,
+        type: 0,
+        userId: newProject.owner
+      })
+      return new Response(JSON.stringify({ project: newProject }), {
+        headers: { "Content-Type": "application/json" },
+        status: 400
       })
     } else {
       return new Response("Not Found", { status: 404 })

@@ -17,7 +17,7 @@ export default class Sessions extends Model {
 
   @ForeignKey(() => Users)
   @Column({
-    type: DataType.NUMBER
+    type: DataType.INTEGER
   })
   userId!: number
 
