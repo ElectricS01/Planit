@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       expiredAt: {
-        type: Sequelize.STRING
+        type: Sequelize.DATE
       }
     })
   },

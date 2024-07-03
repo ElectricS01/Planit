@@ -11,7 +11,7 @@ import Permissions from "./permissions"
 import Users from "./users"
 
 @Table
-export default class Chats extends Model {
+export default class Projects extends Model {
   @Column({
     allowNull: false,
     type: DataType.STRING

@@ -75,6 +75,7 @@ serve({
           console.log("Error occurred while sending email:", e)
         })
       const session = await Sessions.create({
+        expiredAt: Date.now() + 15552000000,
         token: cryptoRandomString({ length: 128 }),
         userAgent: request.headers.get("User-Agent"),
         userId: user.id
@@ -108,11 +109,26 @@ serve({
         })
       }
       const session = await Sessions.create({
+        expiredAt: Date.now() + 15552000000,
         token: cryptoRandomString({ length: 128 }),
         userAgent: request.headers.get("User-Agent"),
         userId: user.id
       })
-      return new Response(JSON.stringify({ token: session.token }), {
+      const projects = await Projects.findAll({
+        attributes: ["id", "name", "description", "icon", "owner"],
+        include: [
+          {
+            attributes: ["type"],
+            model: Permissions,
+            where: { userId: user.id }
+          },
+          {
+            attributes: ["id", "username", "avatar"],
+            model: Users
+          }
+        ]
+      })
+      return new Response(JSON.stringify({ token: session, projects }), {
         headers: { "Content-Type": "application/json" },
         status: 200
       })

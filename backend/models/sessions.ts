@@ -25,7 +25,7 @@ export default class Sessions extends Model {
   user!: Users
 
   @Column({
-    type: DataType.DATE
+    type: DataType.STRING
   })
   userAgent!: string
 

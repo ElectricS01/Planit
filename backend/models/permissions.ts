@@ -10,7 +10,7 @@ import Projects from "./projects"
 import Users from "./users"
 
 @Table
-export default class ChatAssociations extends Model {
+export default class Permissions extends Model {
   @ForeignKey(() => Users)
   @Column({
     allowNull: false,
