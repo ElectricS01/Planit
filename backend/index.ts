@@ -142,6 +142,7 @@ serve({
           headers: { "Content-Type": "application/json" },
           status: 200
         }
+      )
     } else if (
       url.pathname === "/api/create-project" &&
       request.method === "POST"
