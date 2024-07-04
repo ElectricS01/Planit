@@ -128,10 +128,20 @@ serve({
           }
         ]
       })
-      return new Response(JSON.stringify({ token: session, projects }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200
-      })
+      return new Response(
+        JSON.stringify({
+          token: session.token,
+          user: {
+            ...user.toJSON(),
+            emailToken: undefined,
+            password: undefined
+          },
+          projects
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          status: 200
+        }
     } else if (
       url.pathname === "/api/create-project" &&
       request.method === "POST"
