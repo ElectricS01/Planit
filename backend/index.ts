@@ -19,9 +19,41 @@ serve({
   port: 3000,
   async fetch(request) {
     const url = new URL(request.url)
-    const body = JSON.parse(await request.text())
+    const text = await request.text()
+    const body = text ? JSON.parse(text) : ""
 
-    if (url.pathname === "/api/register" && request.method === "POST") {
+    if (url.pathname === "/api/user" && request.method === "GET") {
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+      const projects = await Projects.findAll({
+        attributes: ["id", "name", "description", "icon", "owner"],
+        include: [
+          {
+            attributes: ["type"],
+            model: Permissions,
+            where: { userId: user.id }
+          },
+          {
+            attributes: ["id", "username", "avatar"],
+            model: Users
+          }
+        ]
+      })
+      return new Response(
+        JSON.stringify({
+          ...user.toJSON(),
+          emailToken: undefined,
+          password: undefined,
+          projects
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          status: 200
+        }
+      )
+    } else if (url.pathname === "/api/register" && request.method === "POST") {
       if (
         body.username.length < 1 ||
         body.password.length < 1 ||
@@ -131,11 +163,9 @@ serve({
       return new Response(
         JSON.stringify({
           token: session.token,
-          user: {
-            ...user.toJSON(),
-            emailToken: undefined,
-            password: undefined
-          },
+          ...user.toJSON(),
+          emailToken: undefined,
+          password: undefined,
           projects
         }),
         {
