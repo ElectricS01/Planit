@@ -10,6 +10,7 @@ import Permissions from "./models/permissions"
 import Projects from "./models/projects"
 import Users from "./models/users"
 import Sessions from "./models/sessions"
+import Notifications from "./models/notifications"
 
 sequelize
 
@@ -41,12 +42,18 @@ serve({
           }
         ]
       })
+      const notifications = await Notifications.findAll({
+        where: {
+          userId: user.id
+        }
+      })
       return new Response(
         JSON.stringify({
           ...user.toJSON(),
           emailToken: undefined,
           password: undefined,
-          projects
+          projects,
+          notifications
         }),
         {
           headers: { "Content-Type": "application/json" },
