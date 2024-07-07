@@ -56,6 +56,7 @@ import Icons from "./components/Icons.vue"
 import { useRoute } from "vue-router"
 import { useDataStore } from "./store.js"
 import { ref } from "vue"
+import axios from "axios"
 
 const route = useRoute()
 const store = useDataStore()
@@ -71,6 +72,16 @@ if (localStorage.getItem("isDarkMode")) {
 }
 if (localStorage.getItem("isDarkMode") !== "true") {
   document.body.style.backgroundColor = "white"
+}
+Object.assign(axios.defaults, {
+  headers: { Authorization: localStorage.getItem("token") }
+})
+if (localStorage.getItem("token")) {
+  store.getUser()
+} else {
+  store.userData.switcherHistory =
+    JSON.parse(localStorage.getItem("switcherHistory")) || []
+  store.sortSwitcher()
 }
 
 const active = (routePattern) => {
