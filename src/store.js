@@ -95,6 +95,7 @@ export const useDataStore = defineStore("store", () => {
     error,
     errorFalse,
     getUser,
+    sortSwitcher,
     userData,
     quickSwitcherShown,
     switcherItems
