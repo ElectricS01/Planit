@@ -18,6 +18,15 @@
         About
       </router-link>
       <router-link
+        v-if="store.userData.id"
+        class="right chat-icon"
+        to="/home"
+        title="Settings"
+      >
+        Projects
+      </router-link>
+      <router-link
+        v-else
         class="right chat-button"
         to="/login"
         title="Login to Planit"

@@ -231,6 +231,22 @@ button:hover,
   align-content: center;
 }
 
+.error-banner {
+  margin: 0;
+  font-size: 16px;
+  overflow: hidden;
+  background-color: #ff2f2f;
+  position: fixed;
+  top: 48px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  text-align: left;
+  padding: 4px 24px;
+}
+
 button {
   cursor: pointer;
   margin: 2px 4px;
