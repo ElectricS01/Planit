@@ -60,6 +60,8 @@ body {
   width: 200%;
   height: 200%;
   background-size: cover;
+  -webkit-user-select: none;
+  user-select: none;
   filter: brightness(1) blur(10px) saturate(1);
   animation: moveImage 180s infinite alternate;
   transition:
@@ -125,6 +127,14 @@ body {
   transition:
     background-color 1s ease,
     fill 1s ease;
+}
+
+.navbar a.active {
+  background-color: #ffffff13;
+}
+
+.light-mode .navbar a.active {
+  background-color: #00000013;
 }
 
 .mode-switch:hover,
@@ -274,14 +284,12 @@ button {
 }
 
 button:active,
-.menu-button:active,
-.navbar a.active {
+.menu-button:active {
   background-color: #ffffff13;
 }
 
 .light-mode button:active,
-.light-mode .menu-button:active,
-.light-mode .navbar a.active {
+.light-mode .menu-button:active {
   background-color: #00000013;
 }
 
@@ -369,11 +377,11 @@ p,
 label,
 input,
 .menu,
+.small-menu,
 .navbar {
   transition:
     background-color 1s ease,
-    color 1s ease,
-    filter 0.3s ease;
+    color 1s ease;
 }
 
 .light-mode svg {

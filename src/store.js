@@ -16,6 +16,7 @@ const switcherPages = [
 
 export const useDataStore = defineStore("store", () => {
   const error = ref("")
+  const loadingProjects = ref(true)
   const userData = ref({})
   const quickSwitcherShown = ref(false)
   const switcherItems = ref(switcherPages)
@@ -53,6 +54,18 @@ export const useDataStore = defineStore("store", () => {
       return searchesB - searchesA
     })
   }
+  const sortProjects = () => {
+    userData.value.projects.sort((a, b) => {
+      if (a?.latest && b?.latest) {
+        return new Date(b.latest) - new Date(a.latest)
+      } else if (a?.latest) {
+        return -1
+      } else if (b?.latest) {
+        return 1
+      }
+      return 0
+    })
+  }
   const getUser = () => {
     axios
       .get("/api/user")
@@ -73,7 +86,7 @@ export const useDataStore = defineStore("store", () => {
             ])
           )
           loadingChats.value = false
-          chatSort()
+          sortProjects()
           if (
             route.path.startsWith("/chat") &&
             !userData.value.chatsList.find(
@@ -95,9 +108,11 @@ export const useDataStore = defineStore("store", () => {
     error,
     errorFalse,
     getUser,
-    sortSwitcher,
-    userData,
+    loadingProjects,
     quickSwitcherShown,
-    switcherItems
+    sortProjects,
+    sortSwitcher,
+    switcherItems,
+    userData
   }
 })

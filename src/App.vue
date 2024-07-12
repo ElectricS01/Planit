@@ -29,6 +29,7 @@
         v-else
         class="right chat-button"
         to="/login"
+        :class="{ active: active('/login') }"
         title="Login to Planit"
       >
         Login
