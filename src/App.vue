@@ -109,11 +109,9 @@ let toggleMode = () => {
   if (localStorage.getItem("isDarkMode") !== "true") {
     localStorage.setItem("isDarkMode", "true")
     document.body.style.backgroundColor = "#181a1b"
-    console.log(isDarkMode.value === "true" ? "sun" : "moon")
   } else {
     localStorage.setItem("isDarkMode", "false")
     document.body.style.backgroundColor = "white"
-    console.log(isDarkMode.value === "true" ? "sun" : "moon")
   }
   isDarkMode.value = localStorage.getItem("isDarkMode")
 }

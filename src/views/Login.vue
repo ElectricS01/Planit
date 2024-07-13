@@ -77,7 +77,7 @@ const submit = () => {
       router.push("/home")
     })
     .catch((e) => {
-      store.error = e.response.data.message
+      store.error = e.response.data.message || e.message
       setTimeout(store.errorFalse, 5000)
     })
 }

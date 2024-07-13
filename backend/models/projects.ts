@@ -35,6 +35,12 @@ export default class Projects extends Model {
   })
   owner!: number
 
+  @Column({
+    allowNull: false,
+    type: DataType.DATE
+  })
+  latest!: number
+
   @HasMany(() => Permissions)
   permissions!: Permissions[]
 

@@ -92,9 +92,7 @@ const submit = async () => {
       router.push("/home")
     })
     .catch((e) => {
-      store.error = `Error ${e.request.status}, ${
-        e.response.data.message || e.request.statusMessage
-      }`
+      store.error = e.response.data.message || e.message
       setTimeout(store.errorFalse, 5000)
     })
 }

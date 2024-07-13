@@ -257,6 +257,16 @@ button:hover,
   padding: 4px 24px;
 }
 
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
 button {
   cursor: pointer;
   margin: 2px 4px;

@@ -227,6 +227,7 @@ serve({
       const newProject = await Projects.create({
         description: body.description,
         icon: body.icon,
+        latest: Date.now(),
         name: body.name,
         owner: user.id
       })
