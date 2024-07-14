@@ -17,7 +17,7 @@ sequelize
 const emailLibrary = new nodemailerLibrary()
 
 serve({
-  port: 3000,
+  port: 3100,
   async fetch(request) {
     const url = new URL(request.url)
     const text = await request.text()
@@ -246,4 +246,4 @@ serve({
   }
 })
 
-console.log("Server is running on http://localhost:3000")
+console.log("Server is running on http://localhost:3100")
