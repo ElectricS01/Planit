@@ -23,7 +23,7 @@ serve({
     const text = await request.text()
     const body = text ? JSON.parse(text) : ""
 
-    if (url.pathname === "/api/user" && request.method === "GET") {
+    if (url.pathname === "/api-planit/user" && request.method === "GET") {
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -60,7 +60,10 @@ serve({
           status: 200
         }
       )
-    } else if (url.pathname === "/api/register" && request.method === "POST") {
+    } else if (
+      url.pathname === "/api-planit/register" &&
+      request.method === "POST"
+    ) {
       if (
         body.username.length < 1 ||
         body.password.length < 1 ||
@@ -123,7 +126,10 @@ serve({
         headers: { "Content-Type": "application/json" },
         status: 200
       })
-    } else if (url.pathname === "/api/login" && request.method === "POST") {
+    } else if (
+      url.pathname === "/api-planit/login" &&
+      request.method === "POST"
+    ) {
       if (body.username.length < 1 || body.password.length < 1) {
         return new Response(JSON.stringify({ message: "Form not complete" }), {
           headers: { "Content-Type": "application/json" },
@@ -181,7 +187,7 @@ serve({
         }
       )
     } else if (
-      url.pathname === "/api/create-project" &&
+      url.pathname === "/api-planit/create-project" &&
       request.method === "POST"
     ) {
       const user = await auth(request)
