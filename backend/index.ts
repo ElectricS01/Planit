@@ -71,9 +71,9 @@ serve({
       request.method === "POST"
     ) {
       if (
-        body.username.length < 1 ||
-        body.password.length < 1 ||
-        body.email.length < 1
+        body?.username.length < 1 ||
+        body?.password.length < 1 ||
+        body?.email.length < 1
       ) {
         return new Response("Form not complete", {
           headers,
