@@ -1,0 +1,9 @@
+[Unit]
+Description=Planit Backend Service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/html/planit/backend
+ExecStart=bun prod
+Restart=always
+RestartSec=10
