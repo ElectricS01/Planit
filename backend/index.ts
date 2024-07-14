@@ -71,9 +71,12 @@ serve({
       request.method === "POST"
     ) {
       if (
-        body?.username.length < 1 ||
-        body?.password.length < 1 ||
-        body?.email.length < 1
+        !body.username ||
+        body.username.length < 1 ||
+        !body.password ||
+        body.password.length < 1 ||
+        !body.email ||
+        body.email.length < 1
       ) {
         return new Response("Form not complete", {
           headers,
@@ -136,7 +139,12 @@ serve({
       url.pathname === "/api-planit/login" &&
       request.method === "POST"
     ) {
-      if (body.username.length < 1 || body.password.length < 1) {
+      if (
+        !body.username ||
+        !body.password ||
+        body.username.length < 1 ||
+        body.password.length < 1
+      ) {
         return new Response("Form not complete", {
           headers,
           status: 400
