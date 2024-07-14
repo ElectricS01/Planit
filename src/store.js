@@ -68,7 +68,7 @@ export const useDataStore = defineStore("store", () => {
   }
   const getUser = () => {
     axios
-      .get("/api/user")
+      .get("/api-planit/user")
       .then(async (res) => {
         if (typeof res.data === "object") userData.value = res.data
         if (!userData.value.saveSwitcher) {

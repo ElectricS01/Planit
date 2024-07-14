@@ -22,7 +22,7 @@ export default defineConfig({
   server: {
     port: 8080,
     proxy: {
-      "/api": "http://localhost:3100"
+      "/api-planit": "http://electrics01.com"
     }
   }
 })

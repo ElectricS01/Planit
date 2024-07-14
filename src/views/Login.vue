@@ -47,7 +47,7 @@ let password = ""
 const submit = () => {
   store.error = ""
   axios
-    .post("/api/login", {
+    .post("/api-planit/login", {
       password: password.trim(),
       username: username.toLowerCase().trim()
     })
@@ -77,7 +77,7 @@ const submit = () => {
       router.push("/home")
     })
     .catch((e) => {
-      store.error = e.response.data.message || e.message
+      store.error = e.response.data || e.message
       setTimeout(store.errorFalse, 5000)
     })
 }

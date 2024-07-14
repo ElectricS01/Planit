@@ -16,6 +16,12 @@ sequelize
 
 const emailLibrary = new nodemailerLibrary()
 
+const headers = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "https://planit.electrics01.com",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
+}
+
 serve({
   port: 3100,
   async fetch(request) {
@@ -56,7 +62,7 @@ serve({
           notifications
         }),
         {
-          headers: { "Content-Type": "application/json" },
+          headers,
           status: 200
         }
       )
@@ -69,8 +75,8 @@ serve({
         body.password.length < 1 ||
         body.email.length < 1
       ) {
-        return new Response(JSON.stringify({ message: "Form not complete" }), {
-          headers: { "Content-Type": "application/json" },
+        return new Response("Form not complete", {
+          headers,
           status: 400
         })
       }
@@ -81,8 +87,8 @@ serve({
           }
         })
       ) {
-        return new Response(JSON.stringify({ message: "Username is taken" }), {
-          headers: { "Content-Type": "application/json" },
+        return new Response("Username is taken", {
+          headers,
           status: 400
         })
       }
@@ -93,8 +99,8 @@ serve({
           }
         })
       ) {
-        return new Response(JSON.stringify({ message: "Email is taken" }), {
-          headers: { "Content-Type": "application/json" },
+        return new Response("Email is taken", {
+          headers,
           status: 400
         })
       }
@@ -123,7 +129,7 @@ serve({
         userId: user.id
       })
       return new Response(JSON.stringify({ token: session.token }), {
-        headers: { "Content-Type": "application/json" },
+        headers,
         status: 200
       })
     } else if (
@@ -131,8 +137,8 @@ serve({
       request.method === "POST"
     ) {
       if (body.username.length < 1 || body.password.length < 1) {
-        return new Response(JSON.stringify({ message: "Form not complete" }), {
-          headers: { "Content-Type": "application/json" },
+        return new Response("Form not complete", {
+          headers,
           status: 400
         })
       }
@@ -142,14 +148,14 @@ serve({
         }
       })
       if (!user) {
-        return new Response(JSON.stringify({ message: "User not found" }), {
-          headers: { "Content-Type": "application/json" },
+        return new Response("User not found", {
+          headers,
           status: 400
         })
       }
       if (!(await argon2.verify(user.password, body.password))) {
-        return new Response(JSON.stringify({ message: "Incorrect password" }), {
-          headers: { "Content-Type": "application/json" },
+        return new Response("Incorrect password", {
+          headers,
           status: 401
         })
       }
@@ -182,7 +188,7 @@ serve({
           projects
         }),
         {
-          headers: { "Content-Type": "application/json" },
+          headers,
           status: 200
         }
       )
@@ -195,40 +201,28 @@ serve({
         return user
       }
       if (!body.name) {
-        return new Response(
-          JSON.stringify({ message: "Project name not specified" }),
-          {
-            headers: { "Content-Type": "application/json" },
-            status: 400
-          }
-        )
+        return new Response("Project name not specified", {
+          headers,
+          status: 400
+        })
       }
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
-        return new Response(
-          JSON.stringify({ message: "Icon is not a valid URL" }),
-          {
-            headers: { "Content-Type": "application/json" },
-            status: 400
-          }
-        )
+        return new Response("Icon is not a valid URL", {
+          headers,
+          status: 400
+        })
       }
       if (body.name.length > 30) {
-        return new Response(
-          JSON.stringify({ message: "Project name too long" }),
-          {
-            headers: { "Content-Type": "application/json" },
-            status: 400
-          }
-        )
+        return new Response("Project name too long", {
+          headers,
+          status: 400
+        })
       }
       if (body.description.length > 500) {
-        return new Response(
-          JSON.stringify({ message: "Project description too long" }),
-          {
-            headers: { "Content-Type": "application/json" },
-            status: 400
-          }
-        )
+        return new Response("Project description too long", {
+          headers,
+          status: 400
+        })
       }
       const newProject = await Projects.create({
         description: body.description,
@@ -243,7 +237,7 @@ serve({
         userId: newProject.owner
       })
       return new Response(JSON.stringify({ project: newProject }), {
-        headers: { "Content-Type": "application/json" },
+        headers,
         status: 400
       })
     } else {
