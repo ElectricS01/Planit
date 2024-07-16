@@ -1,5 +1,0 @@
-[[redirects]]
-  force = true
-  from = "/api-planit/*"
-  status = 200
-  to = "https://electrics01.com"

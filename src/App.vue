@@ -20,7 +20,7 @@
       <router-link
         v-if="store.userData.id"
         class="right chat-icon"
-        to="/home"
+        to="/projects"
         title="Settings"
       >
         Projects

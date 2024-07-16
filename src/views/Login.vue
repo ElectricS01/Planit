@@ -74,7 +74,7 @@ const submit = () => {
         store.loadingProjects = false
         store.sortProjects()
       }
-      router.push("/home")
+      router.push("/projects")
     })
     .catch((e) => {
       store.error = e.response.data || e.message

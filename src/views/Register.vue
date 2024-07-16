@@ -72,6 +72,7 @@ const submit = async () => {
         headers: { Authorization: res.data.token }
       })
       store.userData = res.data
+      store.userData.projects = []
       if (!store.userData.saveSwitcher) {
         store.userData.switcherHistory =
           JSON.parse(localStorage.getItem("switcherHistory")) || []
@@ -89,7 +90,7 @@ const submit = async () => {
         store.loadingProjects = false
         store.sortProjects()
       }
-      router.push("/home")
+      router.push("/projects")
     })
     .catch((e) => {
       store.error = e.response.data || e.message
