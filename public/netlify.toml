@@ -1,4 +1,5 @@
-[[headers]]
-  for = "/*"
-  [headers.values]
-    access-control-allow-origin = "*"
+[[redirects]]
+  force = true
+  from = "/api-planit/*"
+  status = 200
+  to = "https://ekectrics01.com/*"
