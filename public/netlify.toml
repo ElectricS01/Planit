@@ -2,4 +2,4 @@
   force = true
   from = "/api-planit/*"
   status = 200
-  to = "https://ekectrics01.com/*"
+  to = "https://electrics01.com"
