@@ -131,10 +131,18 @@ serve({
         userAgent: request.headers.get("User-Agent"),
         userId: user.id
       })
-      return new Response(JSON.stringify({ token: session.token }), {
-        headers,
-        status: 200
-      })
+      return new Response(
+        JSON.stringify({
+          token: session.token,
+          ...user.toJSON(),
+          emailToken: undefined,
+          password: undefined
+        }),
+        {
+          headers,
+          status: 200
+        }
+      )
     } else if (
       url.pathname === "/api-planit/login" &&
       request.method === "POST"

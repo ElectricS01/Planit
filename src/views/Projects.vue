@@ -2,21 +2,79 @@
   <div class="container-flex">
     <div class="menu">
       <p class="title-menu">Projects</p>
-      <p>All projects which you own or have access to</p>
-      <div
-        v-for="(project, index) in store.userData.projects"
-        :id="'project-' + index"
-        :key="project.id"
-      >
-        <div class="spacer" />
-        <p class="medium">
-          {{ project.title }}
+      <p class="title-sub">Your projects</p>
+      <div class="spacer" />
+      <div class="menu-section">
+        <div class="box">
+          <div class="project-item" @click="">
+            <img
+              src="https://i.electrics01.com/i/d81dabf74c88.png"
+              alt="Create a new project"
+              class="grid-image"
+            />
+            <div class="small-container">
+              <p class="text-medium">Create a New Project</p>
+              <div class="spacer" />
+              <p class="text-medium-grey">
+                Create a New Planit Project, Customise Permissions, Add Graphs
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          v-for="(project, index) in store.userData.projects"
+          :id="'project-' + index"
+          :key="project.id"
+          class="box"
+        >
+          <router-link class="project-item" to="/projects">
+            <img
+              src="https://i.electrics01.com/i/d81dabf74c88.png"
+              alt="Create a new project"
+              class="grid-image"
+            />
+            <div class="small-container">
+              <p class="text-medium">
+                {{ project.title }}
+              </p>
+              <p class="text-medium-grey">{{ project.description }}</p>
+              <div class="project">
+                <p>{{ displayTime(project.start, false) }}</p>
+                <p>{{ displayTime(project.end, true) }}</p>
+              </div>
+            </div>
+          </router-link>
+        </div>
+      </div>
+      <p class="title-sub">Shared with you</p>
+      <div class="spacer" />
+      <div class="menu-section">
+        <p v-if="!store.userData.projects?.length">
+          You don't have any projects shared with you
         </p>
-        <p>{{ project.description }}</p>
-
-        <div class="project">
-          <p>{{ displayTime(project.start, false) }}</p>
-          <p>{{ displayTime(project.end, true) }}</p>
+        <div
+          v-for="(project, index) in store.userData.projects"
+          :id="'project-' + index"
+          :key="project.id"
+          class="box"
+        >
+          <router-link class="project-item" to="/projects"">
+            <img
+              src="https://i.electrics01.com/i/d81dabf74c88.png"
+              alt="Create a new project"
+              class="grid-image"
+            />
+            <div class="small-container">
+              <p class="text-medium">
+                {{ project.title }}
+              </p>
+              <p class="text-medium-grey">{{ project.description }}</p>
+              <div class="project">
+                <p>{{ displayTime(project.start, false) }}</p>
+                <p>{{ displayTime(project.end, true) }}</p>
+              </div>
+            </div>
+          </router-link>
         </div>
       </div>
     </div>

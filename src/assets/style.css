@@ -47,6 +47,10 @@ body {
   text-align: center;
 }
 
+.small-container {
+  margin: 16px;
+}
+
 .background-container {
   position: fixed;
   width: 100%;
@@ -141,6 +145,7 @@ body {
 .navbar a:hover,
 button:hover,
 .menu-button:hover,
+.project-item:hover,
 .icon-mobile:hover {
   background-color: #ffffff1a;
   transition:
@@ -151,6 +156,7 @@ button:hover,
 .light-mode .mode-switch:hover,
 .light-mode button:hover,
 .light-mode .menu-button:hover,
+.light-mode .project-item:hover,
 .light-mode .navbar a:hover,
 .light-mode .icon-mobile:hover {
   background-color: #0000001a;
@@ -241,6 +247,18 @@ button:hover,
   align-content: center;
 }
 
+.menu-section {
+  text-align: left;
+  height: 257px;
+  width: calc(100vw - 82px);
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .error-banner {
   margin: 0;
   font-size: 16px;
@@ -265,6 +283,26 @@ button:hover,
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+.project-item {
+  text-align: center;
+  background-color: #282a2bbf;
+  border-radius: 15px;
+  overflow: hidden;
+  width: 276px;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
+
+.grid-image {
+  width: 256px;
+  height: 144px;
+  object-fit: cover;
+  object-position: top;
+  margin: 10px 0 0;
+  border-radius: 10px;
 }
 
 button {
@@ -293,12 +331,21 @@ button {
     color 1s ease;
 }
 
+.spacer {
+  width: 100%;
+  border-bottom: 1px solid #ffffff13;
+  margin: 10px 0;
+}
+
 button:active,
+.project-item:active,
 .menu-button:active {
   background-color: #ffffff13;
 }
 
+.light-mode .spacer,
 .light-mode button:active,
+.light-mode .project-item:active,
 .light-mode .menu-button:active {
   background-color: #00000013;
 }
@@ -328,6 +375,11 @@ a {
   color: #00a8fc;
 }
 
+.medium {
+  font-size: 20px;
+  margin: 4px;
+}
+
 .small {
   margin: 8px 0;
 }
@@ -336,6 +388,17 @@ a {
   color: #fff;
   font-size: 10px;
   text-align: left;
+}
+
+.text-medium {
+  color: #fff;
+  height: 19px;
+}
+
+.text-medium-grey {
+  color: #a9a9a9;
+  font-size: 12px;
+  height: 19px;
 }
 
 .title {
@@ -348,6 +411,10 @@ a {
 
 .title-small {
   animation: fadeIn 1s forwards;
+}
+
+.title-sub {
+  font-size: 24px;
 }
 
 .title-menu {
@@ -414,6 +481,7 @@ input,
 .light-mode .small-menu,
 .light-mode button,
 .light-mode .menu-button,
+.light-mode .project-item,
 .light-mode .navbar {
   background-color: rgba(255, 255, 255, 0.6);
   transition:
