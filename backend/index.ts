@@ -17,9 +17,7 @@ sequelize
 const emailLibrary = new nodemailerLibrary()
 
 const headers = {
-  "Content-Type": "application/json",
-  "Access-Control-Allow-Origin": "https://planit.electrics01.com",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
+  "Content-Type": "application/json"
 }
 
 serve({
@@ -29,7 +27,7 @@ serve({
     const text = await request.text()
     const body = text ? JSON.parse(text) : ""
 
-    if (url.pathname === "/api-planit/user" && request.method === "GET") {
+    if (url.pathname === "/api/user" && request.method === "GET") {
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -67,7 +65,7 @@ serve({
         }
       )
     } else if (
-      url.pathname === "/api-planit/register" &&
+      url.pathname === "/api/register" &&
       request.method === "POST"
     ) {
       if (
@@ -144,7 +142,7 @@ serve({
         }
       )
     } else if (
-      url.pathname === "/api-planit/login" &&
+      url.pathname === "/api/login" &&
       request.method === "POST"
     ) {
       if (
@@ -209,7 +207,7 @@ serve({
         }
       )
     } else if (
-      url.pathname === "/api-planit/create-project" &&
+      url.pathname === "/api/create-project" &&
       request.method === "POST"
     ) {
       const user = await auth(request)
@@ -256,6 +254,30 @@ serve({
         headers,
         status: 400
       })
+    } else if (
+      url.pathname === "/api/history" &&
+      request.method === "POST"
+    ) {
+      const user = await auth(request)
+        if (body.history.length < 1) {
+          return new Response("History has no content", {
+            headers,
+            status: 400
+          })
+        }
+        if (body.history.length > 50) {
+          return new Response("History too long", {
+            headers,
+            status: 400
+          })
+        }
+        await user.update({
+          switcherHistory: body.history
+        })
+        return new Response( "",{
+          headers,
+          status: 204
+        })
     } else {
       return new Response("Not Found", { status: 404 })
     }

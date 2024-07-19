@@ -61,7 +61,7 @@ let password = ""
 const submit = async () => {
   store.error = ""
   axios
-    .post("/api-planit/register", {
+    .post("/api/register", {
       email: email.toLowerCase().trim(),
       password: password.trim(),
       username: username.trim()

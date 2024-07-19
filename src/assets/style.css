@@ -337,6 +337,36 @@ button {
   margin: 10px 0;
 }
 
+.switcher-modal {
+  height: 400px;
+  width: min(calc(100vw - 48px), 400px);
+  background-color: #282a2b80;
+  border-radius: 2px;
+  padding: 16px;
+}
+
+.switch-container {
+  overflow-y: auto;
+  height: calc(100% - 32px);
+}
+
+.switcher-input {
+  margin: 0 0 4px;
+}
+
+.switcher-item {
+  margin: 0 0 4px;
+  padding: 4px;
+
+  &:hover {
+    background-color: #31343580;
+  }
+}
+
+.highlighted {
+  background-color: #ffffff1a;
+}
+
 button:active,
 .project-item:active,
 .menu-button:active {

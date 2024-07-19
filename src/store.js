@@ -2,19 +2,14 @@ import { defineStore } from "pinia"
 
 import { ref } from "vue"
 import axios from "axios"
+import { useRoute, useRouter } from "vue-router"
 
-const switcherPages = [
-  "Home",
-  "TonkGame",
-  "Calculator",
-  "Tetris",
-  "Collider",
-  "Mapit",
-  "Account",
-  "Chat"
-]
+const switcherPages = ["Home", "Projects"]
 
 export const useDataStore = defineStore("store", () => {
+  const route = useRoute()
+  const router = useRouter()
+
   const error = ref("")
   const loadingProjects = ref(true)
   const userData = ref({})
@@ -68,7 +63,7 @@ export const useDataStore = defineStore("store", () => {
   }
   const getUser = () => {
     axios
-      .get("/api-planit/user")
+      .get("/api/user")
       .then(async (res) => {
         if (typeof res.data === "object") userData.value = res.data
         if (!userData.value.saveSwitcher) {

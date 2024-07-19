@@ -1,4 +1,19 @@
 <template>
+  <transition>
+    <modal
+      v-if="createShown && !store.quickSwitcherShown"
+      :is-active="createShown && !store.quickSwitcherShown"
+      @close="
+        ;(createShown = false),
+          (chatNameInput = ''),
+          (chatDescriptionInput = ''),
+          (chatIconInput = ''),
+          (requireVerification = true)
+      "
+    >
+      <p class="message-text-large">Create New Project</p>
+    </modal>
+  </transition>
   <div class="container-flex">
     <div class="menu">
       <p class="title-menu">Projects</p>
@@ -6,7 +21,7 @@
       <div class="spacer" />
       <div class="menu-section">
         <div class="box">
-          <div class="project-item" @click="">
+          <div class="project-item" @click="createShown = true">
             <img
               src="https://i.electrics01.com/i/d81dabf74c88.png"
               alt="Create a new project"
@@ -52,43 +67,24 @@
         <p v-if="!store.userData.projects?.length">
           You don't have any projects shared with you
         </p>
-        <div
-          v-for="(project, index) in store.userData.projects"
-          :id="'project-' + index"
-          :key="project.id"
-          class="box"
-        >
-          <router-link class="project-item" to="/projects"">
-            <img
-              src="https://i.electrics01.com/i/d81dabf74c88.png"
-              alt="Create a new project"
-              class="grid-image"
-            />
-            <div class="small-container">
-              <p class="text-medium">
-                {{ project.title }}
-              </p>
-              <p class="text-medium-grey">{{ project.description }}</p>
-              <div class="project">
-                <p>{{ displayTime(project.start, false) }}</p>
-                <p>{{ displayTime(project.end, true) }}</p>
-              </div>
-            </div>
-          </router-link>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import Modal from "../components/Modal.vue"
+
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useRouter } from "vue-router"
 import { useDataStore } from "../store.js"
+import { ref } from "vue"
 
 const router = useRouter()
 const store = useDataStore()
+
+const createShown = ref(false)
 
 dayjs.extend(relativeTime)
 

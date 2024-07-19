@@ -47,7 +47,7 @@ let password = ""
 const submit = () => {
   store.error = ""
   axios
-    .post("/api-planit/login", {
+    .post("/api/login", {
       password: password.trim(),
       username: username.toLowerCase().trim()
     })
