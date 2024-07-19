@@ -64,6 +64,38 @@ serve({
           status: 200
         }
       )
+    } else if (url.pathname === "/api/get-user" && request.method === "POST") {
+      if (!parseInt(body.userId, 10) && !body.username) {
+        return new Response("User requested does not exist", {
+          headers,
+          status: 400
+        })
+      }
+      if (body.username) {
+        const user = await Users.findOne({
+          attributes: ["id"],
+          where: { username: body.username }
+        })
+        if (!user) {
+          return new Response("User requested does not exist or could not be found", {
+            headers,
+            status: 400
+          })
+        }
+        return new Response(
+          JSON.stringify({
+            id: user.id
+          }),
+          {
+            headers,
+            status: 200
+          }
+        )
+      }
+      return new Response("User requested does not exist or could not be found", {
+        headers,
+        status: 400
+      })
     } else if (
       url.pathname === "/api/register" &&
       request.method === "POST"

@@ -37,7 +37,7 @@ const closeModal = () => emit("close")
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #0008;
   z-index: 2;
 }
 
@@ -66,7 +66,7 @@ const closeModal = () => emit("close")
 
 .modal-content {
   position: relative;
-  background-color: #282a2b;
+  background-color: #282a2b80;
   width: min(500px, calc(100% - 20px));
   overflow-y: auto;
   border-radius: 16px;

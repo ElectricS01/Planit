@@ -141,6 +141,7 @@ body {
   background-color: #00000013;
 }
 
+.highlighted,
 .mode-switch:hover,
 .navbar a:hover,
 button:hover,
@@ -153,6 +154,7 @@ button:hover,
     fill 1s ease;
 }
 
+.light-mode .highlighted,
 .light-mode .mode-switch:hover,
 .light-mode button:hover,
 .light-mode .menu-button:hover,
@@ -275,6 +277,11 @@ button:hover,
   padding: 4px 24px;
 }
 
+.modal-menu {
+  text-align: center;
+  margin: 32px 32px 18px;
+}
+
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.25s ease;
@@ -291,6 +298,7 @@ button:hover,
   border-radius: 15px;
   overflow: hidden;
   width: 276px;
+  cursor: pointer;
   transition:
     background-color 1s ease,
     color 1s ease;
@@ -343,6 +351,13 @@ button {
   background-color: #282a2b80;
   border-radius: 2px;
   padding: 16px;
+  transition:
+    background-color 1s ease,
+    fill 1s ease;
+}
+
+.light-mode .switcher-modal {
+  background-color: #ffffff80;
 }
 
 .switch-container {
@@ -361,10 +376,6 @@ button {
   &:hover {
     background-color: #31343580;
   }
-}
-
-.highlighted {
-  background-color: #ffffff1a;
 }
 
 button:active,
@@ -480,6 +491,7 @@ a {
 
 
 .text-small,
+.switcher-item,
 p,
 label,
 input,
@@ -502,7 +514,8 @@ input,
 .light-mode .text-small,
 .light-mode p,
 .light-mode label,
-.light-mode .navbar a {
+.light-mode .navbar a,
+.light-mode .switcher-item {
   color: black;
 }
 

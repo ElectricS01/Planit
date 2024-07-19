@@ -5,13 +5,59 @@
       :is-active="createShown && !store.quickSwitcherShown"
       @close="
         ;(createShown = false),
-          (chatNameInput = ''),
-          (chatDescriptionInput = ''),
-          (chatIconInput = ''),
-          (requireVerification = true)
+          (projectNameInput = ''),
+          (projectDescriptionInput = ''),
+          (projectBackgroundInput = '')
       "
     >
-      <p class="message-text-large">Create New Project</p>
+      <div class="modal-menu">
+        <div class="selector">
+          <p>Create New Project</p>
+        </div>
+        <div>
+          <div class="text-small">
+            <label class="text-small" for="project-name">Project name</label>
+          </div>
+          <input
+            id="project-name"
+            v-model="projectNameInput"
+            placeholder="Project name"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+          <div class="text-small">
+            <label for="project-description">Project description</label>
+          </div>
+          <input
+            id="project-description"
+            v-model="projectDescriptionInput"
+            placeholder="Project description"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+          <div class="text-small">
+            <label for="project-background">Project background image</label>
+          </div>
+          <input
+            id="project-background"
+            v-model="projectBackgroundInput"
+            placeholder="Project background image"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+        </div>
+        <div class="text-small">
+          <label for="add-user">Add a user</label>
+        </div>
+        <input
+          id="add-user"
+          v-model="projectUserInput"
+          placeholder="Add a user"
+          class="modal-input"
+          @keydown.enter="projectUserEnter"
+        />
+        <button @click="createChat">Create</button>
+      </div>
     </modal>
   </transition>
   <div class="container-flex">
@@ -78,6 +124,7 @@ import Modal from "../components/Modal.vue"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import { useRouter } from "vue-router"
+import axios from "axios"
 import { useDataStore } from "../store.js"
 import { ref } from "vue"
 
@@ -85,6 +132,12 @@ const router = useRouter()
 const store = useDataStore()
 
 const createShown = ref(false)
+const projectUserInput = ref("")
+
+let projectNameInput
+let projectDescriptionInput
+let projectBackgroundInput
+let chatUsers = []
 
 dayjs.extend(relativeTime)
 
@@ -92,6 +145,29 @@ if (!localStorage.getItem("token")) {
   router.push("/login")
 }
 
+const createProject = () => {
+}
+const projectUserEnter = async () => {
+  const userId = await getUserByName(projectUserInput.value)
+  projectUserInput.value = ""
+  if (chatUsers.indexOf(userId.id) === -1) {
+    chatUsers.push(userId.id)
+  } else {
+    store.error = "This user is already apart of this group"
+    setTimeout(store.errorFalse, 2500)
+  }
+}
+const getUserByName = async (username) => {
+  try {
+    const response = await axios.post("/api/get-user", {
+      username
+    })
+    return response.data
+  } catch (e) {
+    store.error = e.response?.data || e.message
+    setTimeout(store.errorFalse, 5000)
+  }
+}
 const displayTime = (date, end) => {
   const hoursDifference = dayjs(date).diff(dayjs(), "hour")
   if (dayjs(date) > dayjs()) {
