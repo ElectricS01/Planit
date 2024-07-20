@@ -33,7 +33,7 @@ serve({
         return user
       }
       const projects = await Projects.findAll({
-        attributes: ["id", "name", "description", "icon", "owner"],
+        attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
           {
             attributes: ["type"],
@@ -59,17 +59,11 @@ serve({
           projects,
           notifications
         }),
-        {
-          headers,
-          status: 200
-        }
+        { headers, status: 200 }
       )
     } else if (url.pathname === "/api/get-user" && request.method === "POST") {
       if (!parseInt(body.userId, 10) && !body.username) {
-        return new Response("User requested does not exist", {
-          headers,
-          status: 400
-        })
+        return new Response("User requested does not exist", { status: 400 })
       }
       if (body.username) {
         const user = await Users.findOne({
@@ -77,29 +71,41 @@ serve({
           where: { username: body.username }
         })
         if (!user) {
-          return new Response("User requested does not exist or could not be found", {
-            headers,
-            status: 400
-          })
+          return new Response(
+            "User requested does not exist or could not be found",
+            { status: 400 }
+          )
         }
         return new Response(
           JSON.stringify({
             id: user.id
           }),
-          {
-            headers,
-            status: 200
-          }
+          { headers, status: 200 }
         )
       }
-      return new Response("User requested does not exist or could not be found", {
-        headers,
-        status: 400
+      const user = await Users.findOne({
+        attributes: {
+          exclude: [
+            "email",
+            "password",
+            "emailVerified",
+            "emailToken",
+            "admin",
+            "saveSwitcher",
+            "switcherHistory",
+            "updatedAt"
+          ]
+        },
+        where: { id: body.userId }
       })
-    } else if (
-      url.pathname === "/api/register" &&
-      request.method === "POST"
-    ) {
+      if (!user) {
+        return new Response(
+          "User requested does not exist or could not be found",
+          { status: 400 }
+        )
+      }
+      return new Response(JSON.stringify({ user }), { headers, status: 200 })
+    } else if (url.pathname === "/api/register" && request.method === "POST") {
       if (
         !body.username ||
         body.username.length < 1 ||
@@ -108,10 +114,7 @@ serve({
         !body.email ||
         body.email.length < 1
       ) {
-        return new Response("Form not complete", {
-          headers,
-          status: 400
-        })
+        return new Response("Form not complete", { status: 400 })
       }
       if (
         await Users.findOne({
@@ -120,10 +123,7 @@ serve({
           }
         })
       ) {
-        return new Response("Username is taken", {
-          headers,
-          status: 400
-        })
+        return new Response("Username is taken", { status: 400 })
       }
       if (
         await Users.findOne({
@@ -132,10 +132,7 @@ serve({
           }
         })
       ) {
-        return new Response("Email is taken", {
-          headers,
-          status: 400
-        })
+        return new Response("Email is taken", { status: 400 })
       }
       const user = await Users.create({
         email: body.email,
@@ -168,25 +165,16 @@ serve({
           emailToken: undefined,
           password: undefined
         }),
-        {
-          headers,
-          status: 200
-        }
+        { headers, status: 200 }
       )
-    } else if (
-      url.pathname === "/api/login" &&
-      request.method === "POST"
-    ) {
+    } else if (url.pathname === "/api/login" && request.method === "POST") {
       if (
         !body.username ||
         !body.password ||
         body.username.length < 1 ||
         body.password.length < 1
       ) {
-        return new Response("Form not complete", {
-          headers,
-          status: 400
-        })
+        return new Response("Form not complete", { status: 400 })
       }
       const user = await Users.findOne({
         where: {
@@ -194,16 +182,10 @@ serve({
         }
       })
       if (!user) {
-        return new Response("User not found", {
-          headers,
-          status: 400
-        })
+        return new Response("User not found", { status: 400 })
       }
       if (!(await argon2.verify(user.password, body.password))) {
-        return new Response("Incorrect password", {
-          headers,
-          status: 401
-        })
+        return new Response("Incorrect password", { status: 401 })
       }
       const session = await Sessions.create({
         expiredAt: Date.now() + 15552000000,
@@ -233,10 +215,7 @@ serve({
           password: undefined,
           projects
         }),
-        {
-          headers,
-          status: 200
-        }
+        { headers, status: 200 }
       )
     } else if (
       url.pathname === "/api/create-project" &&
@@ -246,29 +225,20 @@ serve({
       if (user instanceof Response) {
         return user
       }
-      if (!body.name) {
-        return new Response("Project name not specified", {
-          headers,
-          status: 400
-        })
-      }
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
-        return new Response("Icon is not a valid URL", {
-          headers,
-          status: 400
-        })
+        return new Response("Icon is not a valid URL", { status: 400 })
       }
-      if (body.name.length > 30) {
-        return new Response("Project name too long", {
-          headers,
-          status: 400
-        })
+      if (body.name?.length > 30) {
+        return new Response("Project name too long", { status: 400 })
       }
-      if (body.description.length > 500) {
-        return new Response("Project description too long", {
-          headers,
-          status: 400
-        })
+      if (body.description?.length > 500) {
+        return new Response("Project description too long", { status: 400 })
+      }
+      if (!body.name) {
+        body.name = "New Project"
+      }
+      if (!body.description) {
+        body.description = "A New Planit Project"
       }
       const newProject = await Projects.create({
         description: body.description,
@@ -283,36 +253,32 @@ serve({
         userId: newProject.owner
       })
       return new Response(JSON.stringify({ project: newProject }), {
-        headers,
-        status: 400
+        status: 200
       })
-    } else if (
-      url.pathname === "/api/history" &&
-      request.method === "POST"
-    ) {
+    } else if (url.pathname === "/api/history" && request.method === "POST") {
       const user = await auth(request)
-        if (body.history.length < 1) {
-          return new Response("History has no content", {
-            headers,
-            status: 400
-          })
-        }
-        if (body.history.length > 50) {
-          return new Response("History too long", {
-            headers,
-            status: 400
-          })
-        }
-        await user.update({
-          switcherHistory: body.history
-        })
-        return new Response( "",{
-          headers,
-          status: 204
-        })
+      if (user instanceof Response) {
+        return user
+      }
+      if (body.history.length < 1) {
+        return new Response("History has no content", { status: 400 })
+      }
+      if (body.history.length > 50) {
+        return new Response("History too long", { status: 400 })
+      }
+      await user.update({ switcherHistory: body.history })
+      return new Response("", { status: 200 })
     } else {
       return new Response("Not Found", { status: 404 })
     }
+  },
+  error(error) {
+    return new Response(`${error}\n${error.stack}`, {
+      headers: {
+        "Content-Type": "text/html"
+      },
+      status: 400
+    })
   }
 })
 

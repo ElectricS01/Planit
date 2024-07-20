@@ -7,7 +7,7 @@
         ;(createShown = false),
           (projectNameInput = ''),
           (projectDescriptionInput = ''),
-          (projectBackgroundInput = '')
+          (projectIconInput = '')
       "
     >
       <div class="modal-menu">
@@ -40,7 +40,7 @@
           </div>
           <input
             id="project-background"
-            v-model="projectBackgroundInput"
+            v-model="projectIconInput"
             placeholder="Project background image"
             class="modal-input"
             @keydown.enter="createProject"
@@ -56,7 +56,7 @@
           class="modal-input"
           @keydown.enter="projectUserEnter"
         />
-        <button @click="createChat">Create</button>
+        <button @click="createProject">Create</button>
       </div>
     </modal>
   </transition>
@@ -88,7 +88,7 @@
           :key="project.id"
           class="box"
         >
-          <router-link class="project-item" to="/projects">
+          <router-link class="project-item" :to="`/projects/${project.id}`">
             <img
               src="https://i.electrics01.com/i/d81dabf74c88.png"
               alt="Create a new project"
@@ -96,12 +96,17 @@
             />
             <div class="small-container">
               <p class="text-medium">
-                {{ project.title }}
+                {{ project.name }}
               </p>
+              <div class="spacer" />
               <p class="text-medium-grey">{{ project.description }}</p>
-              <div class="project">
-                <p>{{ displayTime(project.start, false) }}</p>
-                <p>{{ displayTime(project.end, true) }}</p>
+              <div class="date-container">
+                <p class="text-medium-grey">
+                  Next task: {{ displayTime(project.latest, false) }}
+                </p>
+                <p class="text-medium-grey">
+                  Last task: {{ displayTime(project.end, true) }}
+                </p>
               </div>
             </div>
           </router-link>
@@ -136,8 +141,8 @@ const projectUserInput = ref("")
 
 let projectNameInput
 let projectDescriptionInput
-let projectBackgroundInput
-let chatUsers = []
+let projectIconInput
+let projectUsers = []
 
 dayjs.extend(relativeTime)
 
@@ -146,12 +151,26 @@ if (!localStorage.getItem("token")) {
 }
 
 const createProject = () => {
+  axios
+    .post("/api/create-project", {
+      description: projectDescriptionInput,
+      icon: projectIconInput,
+      name: projectNameInput
+    })
+    .then((res) => {
+      store.userData.projects.push(res.data.project)
+      router.push(`/project/${res.data.project.id}`)
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
 }
 const projectUserEnter = async () => {
   const userId = await getUserByName(projectUserInput.value)
   projectUserInput.value = ""
-  if (chatUsers.indexOf(userId.id) === -1) {
-    chatUsers.push(userId.id)
+  if (projectUsers.indexOf(userId.id) === -1) {
+    projectUsers.push(userId.id)
   } else {
     store.error = "This user is already apart of this group"
     setTimeout(store.errorFalse, 2500)
@@ -186,7 +205,7 @@ const displayTime = (date, end) => {
     }
   } else if (!end && dayjs(end) > dayjs()) {
     return "Currently Occurring"
-  } else if (end) {
+  } else {
     return "Project is complete"
   }
 }

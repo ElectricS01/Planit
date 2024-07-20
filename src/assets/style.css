@@ -48,7 +48,13 @@ body {
 }
 
 .small-container {
-  margin: 16px;
+  margin: 12px 16px 16px;
+  height: 71px;
+}
+
+.date-container {
+  display: flex;
+  justify-content: space-between;
 }
 
 .background-container {
@@ -155,6 +161,7 @@ button:hover,
 }
 
 .light-mode .highlighted,
+.light-mode .container-flex::-webkit-scrollbar-thumb:hover,
 .light-mode .mode-switch:hover,
 .light-mode button:hover,
 .light-mode .menu-button:hover,
@@ -252,13 +259,15 @@ button:hover,
 .menu-section {
   text-align: left;
   height: 257px;
-  width: calc(100vw - 82px);
+  width: calc(100vw - 88px);
+  display: flex;
 }
 
 .box {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 16px;
 }
 
 .error-banner {
@@ -298,6 +307,7 @@ button:hover,
   border-radius: 15px;
   overflow: hidden;
   width: 276px;
+  height: 257px;
   cursor: pointer;
   transition:
     background-color 1s ease,
@@ -434,12 +444,14 @@ a {
 .text-medium {
   color: #fff;
   height: 19px;
+  margin: 0;
 }
 
 .text-medium-grey {
   color: #a9a9a9;
   font-size: 12px;
   height: 19px;
+  margin: 0;
 }
 
 .title {
@@ -488,7 +500,6 @@ a {
     opacity: 1;
   }
 }
-
 
 .text-small,
 .switcher-item,
