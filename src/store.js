@@ -71,24 +71,24 @@ export const useDataStore = defineStore("store", () => {
             JSON.parse(localStorage.getItem("switcherHistory")) || []
         }
         sortSwitcher()
-        if (userData.value.chatsList) {
+        if (userData.value.projects) {
           switcherItems.value.push(
-            ...userData.value.chatsList.map((obj) => [
+            ...userData.value.projects.map((obj) => [
               obj.type === 1 && obj.ownerDetails.id !== userData.value.id
                 ? obj.ownerDetails.username
                 : obj.name,
               obj.id
             ])
           )
-          loadingChats.value = false
+          loadingProjects.value = false
           sortProjects()
           if (
-            route.path.startsWith("/chat") &&
-            !userData.value.chatsList.find(
-              (chat) => chat?.id === parseInt(route.params.chatId)
+            route.params.id &&
+            !userData.value.projects.find(
+              (project) => project?.id === parseInt(route.params.id)
             )
           )
-            await router.push("/chat/1")
+            await router.push("/projects")
         }
       })
       .catch((e) => {

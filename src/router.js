@@ -43,6 +43,14 @@ const routes = [
     }
   },
   {
+    path: "/projects/:id",
+    name: "project",
+    component: () => import("./views/Planner.vue"),
+    meta: {
+      title: "Planit Project"
+    }
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "404",
     component: () => import("./views/404.vue"),

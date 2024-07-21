@@ -66,50 +66,55 @@
       <p class="title-sub">Your projects</p>
       <div class="spacer" />
       <div class="menu-section">
-        <div class="box">
-          <div class="project-item" @click="createShown = true">
-            <img
-              src="https://i.electrics01.com/i/d81dabf74c88.png"
-              alt="Create a new project"
-              class="grid-image"
-            />
-            <div class="small-container">
-              <p class="text-medium">Create a New Project</p>
-              <div class="spacer" />
-              <p class="text-medium-grey">
-                Create a New Planit Project, Customise Permissions, Add Graphs
-              </p>
-            </div>
-          </div>
-        </div>
-        <div
-          v-for="(project, index) in store.userData.projects"
-          :id="'project-' + index"
-          :key="project.id"
-          class="box"
-        >
-          <router-link class="project-item" :to="`/projects/${project.id}`">
-            <img
-              src="https://i.electrics01.com/i/d81dabf74c88.png"
-              alt="Create a new project"
-              class="grid-image"
-            />
-            <div class="small-container">
-              <p class="text-medium">
-                {{ project.name }}
-              </p>
-              <div class="spacer" />
-              <p class="text-medium-grey">{{ project.description }}</p>
-              <div class="date-container">
+        <div class="menu-container" v-if="!store.loadingProjects">
+          <div class="box">
+            <div class="project-item" @click="createShown = true">
+              <img
+                src="https://i.electrics01.com/i/d81dabf74c88.png"
+                alt="Create a new project"
+                class="grid-image"
+              />
+              <div class="small-container">
+                <p class="text-medium">Create a New Project</p>
+                <div class="spacer" />
                 <p class="text-medium-grey">
-                  Next task: {{ displayTime(project.latest, false) }}
-                </p>
-                <p class="text-medium-grey">
-                  Last task: {{ displayTime(project.end, true) }}
+                  Create a New Planit Project, Customise Permissions, Add Graphs
                 </p>
               </div>
             </div>
-          </router-link>
+          </div>
+          <div
+            v-for="(project, index) in store.userData.projects"
+            :id="'project-' + index"
+            :key="project.id"
+            class="box"
+          >
+            <router-link class="project-item" :to="`/projects/${project.id}`">
+              <img
+                src="https://i.electrics01.com/i/d81dabf74c88.png"
+                alt="Project background"
+                class="grid-image"
+              />
+              <div class="small-container">
+                <p class="text-medium">
+                  {{ project.name }}
+                </p>
+                <div class="spacer" />
+                <p class="text-medium-grey">{{ project.description }}</p>
+                <div class="date-container">
+                  <p class="text-medium-grey">
+                    Next task: {{ displayTime(project.latest, false) }}
+                  </p>
+                  <p class="text-medium-grey">
+                    Last task: {{ displayTime(project.end, true) }}
+                  </p>
+                </div>
+              </div>
+            </router-link>
+          </div>
+        </div>
+        <div v-else class="center">
+          <div style="text-align: center" class="loader" />
         </div>
       </div>
       <p class="title-sub">Shared with you</p>
