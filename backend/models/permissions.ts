@@ -28,13 +28,13 @@ export default class Permissions extends Model {
   })
   projectId!: number
 
-  @BelongsTo(() => Projects, "chatId")
-  project!: Projects
-
   @Column({
     allowNull: false,
     defaultValue: 2,
     type: DataType.SMALLINT.UNSIGNED
   })
   type!: number
+
+  @BelongsTo(() => Projects, "projectId")
+  project!: Projects
 }

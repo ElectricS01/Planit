@@ -7,6 +7,7 @@ import {
   Model,
   Table
 } from "sequelize-typescript"
+import Messages from "./messages"
 import Permissions from "./permissions"
 import Users from "./users"
 
@@ -43,6 +44,9 @@ export default class Projects extends Model {
 
   @HasMany(() => Permissions)
   permissions!: Permissions[]
+
+  @HasMany(() => Messages)
+  messages!: Messages[]
 
   @BelongsTo(() => Users, {
     as: "ownerDetails",

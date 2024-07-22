@@ -19,7 +19,7 @@
       </router-link>
       <router-link
         v-if="store.userData.id"
-        class="right chat-icon"
+        class="right"
         to="/projects"
         title="Settings"
       >
@@ -27,7 +27,7 @@
       </router-link>
       <router-link
         v-else
-        class="right chat-button"
+        class="right"
         to="/login"
         :class="{ active: active('/login') }"
         title="Login to Planit"
@@ -226,7 +226,7 @@ const activateItem = (id) => {
     router.push(
       typeof searchedItems[id] === "string"
         ? `/${searchedItems[id]}`
-        : `/chat/${searchedItems[id][1]}`
+        : `/project/${searchedItems[id][1]}`
     )
     const existingPage = store.userData.switcherHistory.find((page) => {
       if (typeof page.page === "string") {

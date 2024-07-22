@@ -89,7 +89,7 @@
             :key="project.id"
             class="box"
           >
-            <router-link class="project-item" :to="`/projects/${project.id}`">
+            <router-link class="project-item" :to="`/project/${project.id}`">
               <img
                 src="https://i.electrics01.com/i/d81dabf74c88.png"
                 alt="Project background"

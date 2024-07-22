@@ -6,6 +6,7 @@ import cryptoRandomString from "crypto-random-string"
 import auth from "./lib/auth"
 import nodemailerLibrary from "./lib/mailer"
 
+import Messages from "./models/messages"
 import Permissions from "./models/permissions"
 import Projects from "./models/projects"
 import Users from "./models/users"
@@ -58,6 +59,57 @@ serve({
           password: undefined,
           projects,
           notifications
+        }),
+        { headers, status: 200 }
+      )
+    } else if (
+      url.pathname.startsWith("/api/project/") &&
+      url.pathname.split("/")[3] &&
+      request.method === "GET"
+    ) {
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+      console.log(url.pathname.split("/")[3])
+      const association = await Permissions.findOne({
+        where: {
+          projectId: url.pathname.split("/")[3],
+          userId: user.id
+        }
+      })
+      if (!association) {
+        return new Response("You do not have access to this project", {
+          status: 400
+        })
+      }
+      const project = await Projects.findOne({
+        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+        include: [
+          {
+            attributes: ["type"],
+            model: Permissions,
+            where: { userId: user.id }
+          },
+          {
+            attributes: ["messageContents"],
+            model: Messages
+          },
+          {
+            attributes: ["id", "username", "avatar"],
+            model: Users
+          }
+        ],
+        where: {
+          id: url.pathname.split("/")[3]
+        }
+      })
+      if (!project) {
+        return new Response("Project does not exist", { status: 400 })
+      }
+      return new Response(
+        JSON.stringify({
+          ...project?.toJSON()
         }),
         { headers, status: 200 }
       )

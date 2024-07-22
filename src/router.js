@@ -43,7 +43,7 @@ const routes = [
     }
   },
   {
-    path: "/projects/:id",
+    path: "/project/:id",
     name: "project",
     component: () => import("./views/Planner.vue"),
     meta: {
