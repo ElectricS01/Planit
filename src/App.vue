@@ -17,6 +17,17 @@
       >
         About
       </router-link>
+      <icons
+        :icon="isDarkMode === 'true' ? 'sun' : 'moon'"
+        class="mode-switch"
+        @click="toggleMode()"
+      />
+      <icons
+        style="right: 88px"
+        icon="bell"
+        class="mode-switch"
+        @click="notificationsShown = !notificationsShown"
+      />
       <router-link
         v-if="store.userData.id"
         class="right"
@@ -34,11 +45,6 @@
       >
         Login
       </router-link>
-      <icons
-        :icon="isDarkMode === 'true' ? 'sun' : 'moon'"
-        class="mode-switch"
-        @click="toggleMode()"
-      />
       <div class="icon-mobile" @click="responsiveNavbar()">☰</div>
     </div>
     <transition>
@@ -86,6 +92,30 @@
           </div>
         </modal-simple>
       </transition>
+      <transition>
+        <modal-simple
+          v-if="notificationsShown"
+          :is-active="notificationsShown"
+          @close="notificationsShown = false"
+        >
+          <div class="switcher-modal">
+            <div class="switch-container scroll-bar">
+              <div v-if="store.notifications">
+                <div
+                  v-for="(item, index) in store.notifications"
+                  :key="item"
+                  class="switcher-item"
+                  :class="{ highlighted: index === highlightedIndex }"
+                  @click="activateItem(index)"
+                >
+                  {{ typeof item === "string" ? item : item[0] }}
+                </div>
+              </div>
+              <div v-else>No new notifications</div>
+            </div>
+          </div>
+        </modal-simple>
+      </transition>
       <router-view />
     </div>
   </main>
@@ -104,6 +134,7 @@ const route = useRoute()
 const router = useRouter()
 const store = useDataStore()
 
+const notificationsShown = ref(false)
 const highlightedIndex = ref(0)
 const switcherInput = ref()
 const isDarkMode = ref("true")

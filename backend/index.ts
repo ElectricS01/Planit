@@ -169,6 +169,11 @@ serve({
         return new Response("Form not complete", { status: 400 })
       }
       if (
+        !body.email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      ) {
+        return new Response("Email is invalid", { status: 400 })
+      }
+      if (
         await Users.findOne({
           where: {
             username: body.username
@@ -325,6 +330,7 @@ serve({
     }
   },
   error(error) {
+    console.log(`${error}\n${error.stack}`)
     return new Response(`${error}\n${error.stack}`, {
       headers: {
         "Content-Type": "text/html"

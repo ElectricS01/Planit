@@ -3,12 +3,7 @@
     <div class="modal" :class="{ 'is-active': isActive }" @click="closeModal">
       <div class="modal-content" @click.stop>
         <button class="modal-close" @click="closeModal">
-          <icons
-            width="32"
-            height="32"
-            icon="close"
-            style="padding: 4px; cursor: pointer"
-          />
+          <icons width="32" height="32" icon="close" class="close-icon" />
         </button>
         <slot />
       </div>
@@ -58,6 +53,12 @@ const closeModal = () => emit("close")
   border-radius: 24px;
 }
 
+.close-icon {
+  padding: 4px;
+  cursor: pointer;
+  transition: fill 1s ease;
+}
+
 .is-active {
   display: flex;
   justify-content: center;
@@ -71,5 +72,10 @@ const closeModal = () => emit("close")
   overflow-y: auto;
   border-radius: 16px;
   max-height: 100%;
+  transition: background-color 1s ease;
+}
+
+.light-mode .modal-content {
+  background-color: #ffffff80;
 }
 </style>
