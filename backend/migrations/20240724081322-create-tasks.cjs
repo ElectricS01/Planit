@@ -1,35 +1,31 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Messages", {
+    await queryInterface.createTable("Tasks", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      userId: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      messageContents: {
-        allowNull: false,
-        type: Sequelize.TEXT
-      },
-      embeds: {
-        defaultValue: [],
-        type: Sequelize.JSON
-      },
-      edited: {
-        defaultValue: false,
-        type: Sequelize.BOOLEAN
-      },
-      reply: {
-        type: Sequelize.INTEGER
-      },
       projectId: {
         allowNull: false,
         type: Sequelize.INTEGER
+      },
+      name: {
+        allowNull: false,
+        defaultValue: "New Task",
+        type: Sequelize.STRING
+      },
+      description: {
+        defaultValue: "This is a new task",
+        type: Sequelize.TEXT
+      },
+      icon: {
+        type: Sequelize.STRING
+      },
+      dueAt: {
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +38,6 @@ module.exports = {
     })
   },
   async down(queryInterface) {
-    await queryInterface.dropTable("Messages")
+    await queryInterface.dropTable("Tasks")
   }
 }

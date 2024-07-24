@@ -12,6 +12,8 @@ import Projects from "./models/projects"
 import Users from "./models/users"
 import Sessions from "./models/sessions"
 import Notifications from "./models/notifications"
+import Resources from "./models/resources"
+import Tasks from "./models/tasks"
 
 sequelize
 
@@ -71,7 +73,6 @@ serve({
       if (user instanceof Response) {
         return user
       }
-      console.log(url.pathname.split("/")[3])
       const association = await Permissions.findOne({
         where: {
           projectId: url.pathname.split("/")[3],
@@ -94,6 +95,10 @@ serve({
           {
             attributes: ["messageContents"],
             model: Messages
+          },
+          {
+            attributes: ["name", "description", "icon"],
+            model: Resources
           },
           {
             attributes: ["id", "username", "avatar"],
@@ -310,6 +315,37 @@ serve({
         userId: newProject.owner
       })
       return new Response(JSON.stringify({ project: newProject }), {
+        status: 200
+      })
+    } else if (
+      url.pathname === "/api/create-task" &&
+      request.method === "POST"
+    ) {
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+        return new Response("Icon is not a valid URL", { status: 400 })
+      }
+      if (body.name?.length > 30) {
+        return new Response("Task name too long", { status: 400 })
+      }
+      if (body.description?.length > 500) {
+        return new Response("Task description too long", { status: 400 })
+      }
+      if (!body.name) {
+        body.name = "New Task"
+      }
+      if (!body.description) {
+        body.description = "A New Planit Task"
+      }
+      const newTask = await Tasks.create({
+        description: body.description,
+        icon: body.icon,
+        name: body.name
+      })
+      return new Response(JSON.stringify({ project: newTask }), {
         status: 200
       })
     } else if (url.pathname === "/api/history" && request.method === "POST") {

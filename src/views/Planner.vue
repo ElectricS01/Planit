@@ -1,12 +1,19 @@
 <template>
   <div class="container-flex">
     <div class="menu">
+      <p class="title-menu">{{ currentProject?.name }}</p>
+      <p class="title-sub">Tasks</p>
+      <div class="spacer" />
+      <div class="menu-section">
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import axios from "axios"
 import { ref, onMounted } from "vue"
+const route = useRoute()
 const currentProject = ref({})
 async function getProject(id) {
   await axios
