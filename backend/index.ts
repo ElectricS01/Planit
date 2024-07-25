@@ -101,6 +101,10 @@ serve({
             model: Resources
           },
           {
+            attributes: ["name", "description", "icon"],
+            model: Tasks
+          },
+          {
             attributes: ["id", "username", "avatar"],
             model: Users
           }

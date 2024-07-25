@@ -6,9 +6,7 @@ import {
   Model,
   Table
 } from "sequelize-typescript"
-import Resources from "./resources"
 import Projects from "./projects"
-import Users from "./users"
 
 @Table
 export default class Tasks extends Model {

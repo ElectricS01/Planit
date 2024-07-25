@@ -11,9 +11,11 @@
 </template>
 
 <script setup>
+import { useRouter, useRoute } from "vue-router"
 import axios from "axios"
 import { ref, onMounted } from "vue"
 const route = useRoute()
+const router = useRouter()
 const currentProject = ref({})
 async function getProject(id) {
   await axios
