@@ -132,7 +132,13 @@
           @keydown.enter="projectUserEnter"
         />
         <button @click="editProject">Save</button>
-        <button style="color: red" @click="deleteShown = true">Delete</button>
+        <button
+          v-if="editingProject.owner === store.userData.id"
+          style="color: red"
+          @click="deleteShown = true"
+        >
+          Delete
+        </button>
       </div>
     </modal>
   </Transition>
@@ -161,6 +167,7 @@
             v-model="password"
             placeholder="Password"
             class="modal-input"
+            type="password"
             @keydown.enter="deleteProject"
           />
         </div>
@@ -321,7 +328,8 @@ const editProject = () => {
       id: editingProject.value.id,
       description: projectDescriptionInput,
       icon: projectIconInput,
-      name: projectNameInput
+      name: projectNameInput,
+      users: projectUsers
     })
     .then((res) => {
       store.userData.projects[
@@ -348,7 +356,8 @@ const createProject = () => {
     .post("/api/create-project", {
       description: projectDescriptionInput,
       icon: projectIconInput,
-      name: projectNameInput
+      name: projectNameInput,
+      users: projectUsers
     })
     .then((res) => {
       store.userData.projects.push(res.data.project)

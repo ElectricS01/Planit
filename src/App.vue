@@ -104,15 +104,22 @@
         >
           <div class="switcher-modal">
             <div class="switch-container scroll-bar">
-              <div v-if="store.notifications">
+              <div v-if="store.userData.notifications.length">
                 <div
-                  v-for="(item, index) in store.notifications"
+                  v-for="(item, index) in store.userData.notifications"
                   :key="item"
                   class="switcher-item"
                   :class="{ highlighted: index === highlightedIndex }"
-                  @click="activateItem(index)"
+                  @click="
+                    router.push('/project/' + item.otherId),
+                      (store.notificationsShown = false)
+                  "
                 >
-                  {{ typeof item === "string" ? item : item[0] }}
+                  {{
+                    item.type
+                      ? `You have been invited to ${store.userData.projects.find((project) => project.id == item.otherId)?.name}`
+                      : ""
+                  }}
                 </div>
               </div>
               <div v-else>No new notifications</div>

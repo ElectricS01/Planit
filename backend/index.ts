@@ -324,6 +324,24 @@ serve({
         type: 0,
         userId: newProject.owner
       })
+      body.users.map(async (userId: number) => {
+        const checkUser = await Users.findOne({
+          where: {
+            id: userId
+          }
+        })
+        if (checkUser) {
+          await Permissions.create({
+            projectId: newProject.id,
+            userId
+          })
+          await Notifications.create({
+            otherId: newProject.id,
+            type: 1,
+            userId
+          })
+        }
+      })
       return new Response(JSON.stringify({ project: newProject }), {
         status: 200
       })
@@ -393,11 +411,14 @@ serve({
       const deleteProject = await Projects.findByPk(body.id, {
         attributes: ["owner"]
       })
-      if (!deleteProject || !deleteProject.owner === user.id) {
+      if (!deleteProject || deleteProject.owner !== user.id) {
         return new Response("Invalid Project ID", { status: 400 })
       }
       await Projects.destroy({
         where: { id: body.id }
+      })
+      await Permissions.destroy({
+        where: { projectId: body.id }
       })
       return new Response("", {
         status: 200
@@ -456,6 +477,24 @@ serve({
           where: { id: body.id }
         }
       )
+      body.users.map(async (userId: number) => {
+        const checkUser = await Users.findOne({
+          where: {
+            id: userId
+          }
+        })
+        if (checkUser) {
+          await Permissions.create({
+            projectId: body.id,
+            userId
+          })
+          await Notifications.create({
+            otherId: body.id,
+            type: 1,
+            userId
+          })
+        }
+      })
       return new Response(JSON.stringify({ project: editedProject }), {
         status: 200
       })
