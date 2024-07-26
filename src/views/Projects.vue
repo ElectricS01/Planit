@@ -98,7 +98,7 @@
             v-model="projectNameInput"
             placeholder="Project name"
             class="modal-input"
-            @keydown.enter="createProject"
+            @keydown.enter="editProject"
           />
           <div class="text-small">
             <label for="project-description">Project description</label>
@@ -108,7 +108,7 @@
             v-model="projectDescriptionInput"
             placeholder="Project description"
             class="modal-input"
-            @keydown.enter="createProject"
+            @keydown.enter="editProject"
           />
           <div class="text-small">
             <label for="project-background">Project background image</label>
@@ -118,7 +118,7 @@
             v-model="projectIconInput"
             placeholder="Project background image"
             class="modal-input"
-            @keydown.enter="createProject"
+            @keydown.enter="editProject"
           />
         </div>
         <div class="text-small">
@@ -161,7 +161,7 @@
             v-model="password"
             placeholder="Password"
             class="modal-input"
-            @keydown.enter="createProject"
+            @keydown.enter="deleteProject"
           />
         </div>
         <button @click="deleteShown = false">Cancel</button>
@@ -200,7 +200,9 @@
           >
             <router-link class="project-item" :to="`/project/${project.id}`">
               <img
-                src="https://i.electrics01.com/i/d81dabf74c88.png"
+                :src="
+                  project.icon || 'https://i.electrics01.com/i/d81dabf74c88.png'
+                "
                 alt="Project background"
                 class="grid-image"
               />
@@ -284,9 +286,39 @@ if (!localStorage.getItem("token")) {
   router.push("/login")
 }
 
+const deleteProject = () => {
+  console.log(editingProject.value.id)
+  axios
+    .post("/api/delete-project", {
+      id: editingProject.value.id,
+      password
+    })
+    .then((res) => {
+      store.userData.projects.splice(
+        store.userData.projects.indexOf(
+          store.userData.projects.find(
+            (project) => project.id === editingProject.value.id
+          )
+        ),
+        1
+      )
+      deleteShown.value = false
+      editShown.value = false
+      password = ""
+      projectNameInput = ""
+      projectDescriptionInput = ""
+      projectIconInput = ""
+      projectUsers = []
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
+}
 const editProject = () => {
   axios
     .patch("/api/edit-project", {
+      id: editingProject.value.id,
       description: projectDescriptionInput,
       icon: projectIconInput,
       name: projectNameInput
@@ -294,7 +326,9 @@ const editProject = () => {
     .then((res) => {
       store.userData.projects[
         store.userData.projects.indexOf(
-          store.userData.projects.find((id) => (id = res.data.project.id))
+          store.userData.projects.find(
+            (project) => project.id === res.data.project.id
+          )
         )
       ] = res.data.project
       editShown.value = false

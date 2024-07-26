@@ -260,10 +260,10 @@ serve({
         userId: user.id
       })
       const projects = await Projects.findAll({
-        attributes: ["id", "name", "description", "icon", "owner"],
+        attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
           {
-            attributes: ["type"],
+            attributes: ["userId", "type"],
             model: Permissions,
             where: { userId: user.id }
           },
@@ -273,13 +273,19 @@ serve({
           }
         ]
       })
+      const notifications = await Notifications.findAll({
+        where: {
+          userId: user.id
+        }
+      })
       return new Response(
         JSON.stringify({
           token: session.token,
           ...user.toJSON(),
           emailToken: undefined,
           password: undefined,
-          projects
+          projects,
+          notifications
         }),
         { headers, status: 200 }
       )
@@ -366,6 +372,37 @@ serve({
       await user.update({ switcherHistory: body.history })
       return new Response("", { status: 200 })
     } else if (
+      url.pathname === "/api/delete-project" &&
+      request.method === "POST"
+    ) {
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+      if (!body.id) {
+        return new Response("Invalid Project ID", { status: 400 })
+      }
+      if (
+        !body.password ||
+        !(await argon2.verify(user.password, body.password))
+      ) {
+        return new Response("Password is required to confirm deletion", {
+          status: 400
+        })
+      }
+      const deleteProject = await Projects.findByPk(body.id, {
+        attributes: ["owner"]
+      })
+      if (!deleteProject || !deleteProject.owner === user.id) {
+        return new Response("Invalid Project ID", { status: 400 })
+      }
+      await Projects.destroy({
+        where: { id: body.id }
+      })
+      return new Response("", {
+        status: 200
+      })
+    } else if (
       url.pathname === "/api/edit-project" &&
       request.method === "PATCH"
     ) {
@@ -373,17 +410,62 @@ serve({
       if (user instanceof Response) {
         return user
       }
+      if (!body.id) {
+        return new Response("Invalid Project ID", { status: 400 })
+      }
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
+      if (body.name?.length > 30) {
         return new Response("Project name too long", { status: 400 })
+      }
+      if (body.description?.length > 500) {
+        return new Response("Project description too long", { status: 400 })
+      }
+      if (!body.name) {
+        body.name = "New Project"
+      }
+      if (!body.description) {
+        body.description = "A New Planit Project"
+      }
+      const editedProject = await Projects.findByPk(body.id, {
+        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+        include: [
+          {
+            attributes: ["userId", "type"],
+            model: Permissions
+          },
+          {
+            attributes: ["id", "username", "avatar"],
+            model: Users
+          }
+        ]
+      })
+      if (!editedProject) {
+        return new Response("Invalid Project ID", { status: 400 })
+      }
+      editedProject.update(
+        {
+          description: body.description,
+          icon: body.icon,
+          latest: Date.now(),
+          name: body.name,
+          owner: user.id
+        },
+        {
+          where: { id: body.id }
+        }
+      )
+      return new Response(JSON.stringify({ project: editedProject }), {
+        status: 200
+      })
     } else {
       return new Response("Not Found", { status: 404 })
     }
   },
   error(error) {
     console.log(`${error}\n${error.stack}`)
-    return new Response(`${error}\n${error.stack}`, {
+    return new Response(error.message, {
       headers: {
         "Content-Type": "text/html"
       },
