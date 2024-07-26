@@ -145,16 +145,29 @@ body {
     fill 1s ease;
 }
 
+.edit-button {
+  cursor: pointer;
+  padding: 2px;
+  margin: 0 4px;
+  border-radius: 3px;
+  transition:
+    fill 1s ease,
+    background-color 1s ease;
+}
+
+.mode-switch.active,
 .navbar a.active {
   background-color: #ffffff13;
 }
 
+.light-mode .mode-switch.active,
 .light-mode .navbar a.active {
   background-color: #00000013;
 }
 
 .highlighted,
 .mode-switch:hover,
+.edit-button:hover,
 .navbar a:hover,
 button:hover,
 .menu-button:hover,
@@ -172,6 +185,7 @@ button:hover,
 .light-mode button:hover,
 .light-mode .menu-button:hover,
 .light-mode .project-item:hover,
+.light-mode .edit-button:hover,
 .light-mode .navbar a:hover,
 .light-mode .icon-mobile:hover {
   background-color: #0000001a;
@@ -382,7 +396,7 @@ button {
 .spacer {
   width: 100%;
   border-bottom: 1px solid #ffffff13;
-  margin: 10px 0;
+  margin: 8px 0;
 }
 
 .switcher-modal {

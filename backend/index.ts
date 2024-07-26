@@ -39,7 +39,7 @@ serve({
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
           {
-            attributes: ["type"],
+            attributes: ["userId", "type"],
             model: Permissions,
             where: { userId: user.id }
           },
@@ -365,6 +365,18 @@ serve({
       }
       await user.update({ switcherHistory: body.history })
       return new Response("", { status: 200 })
+    } else if (
+      url.pathname === "/api/edit-project" &&
+      request.method === "PATCH"
+    ) {
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+        return new Response("Icon is not a valid URL", { status: 400 })
+      }
+        return new Response("Project name too long", { status: 400 })
     } else {
       return new Response("Not Found", { status: 404 })
     }

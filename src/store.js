@@ -14,6 +14,7 @@ export const useDataStore = defineStore("store", () => {
   const loadingProjects = ref(true)
   const userData = ref({})
   const quickSwitcherShown = ref(false)
+  const notificationsShown = ref(false)
   const switcherItems = ref(switcherPages)
 
   const errorFalse = () => {
@@ -104,6 +105,7 @@ export const useDataStore = defineStore("store", () => {
     errorFalse,
     getUser,
     loadingProjects,
+    notificationsShown,
     quickSwitcherShown,
     sortProjects,
     sortSwitcher,

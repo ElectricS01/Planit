@@ -1,8 +1,12 @@
 <template>
-  <transition>
+  <Transition>
     <modal
-      v-if="createShown && !store.quickSwitcherShown"
-      :is-active="createShown && !store.quickSwitcherShown"
+      v-if="
+        createShown && !store.quickSwitcherShown && !store.notificationsShown
+      "
+      :is-active="
+        createShown && !store.quickSwitcherShown && !store.notificationsShown
+      "
       @close="
         ;(createShown = false),
           (projectNameInput = ''),
@@ -59,7 +63,112 @@
         <button @click="createProject">Create</button>
       </div>
     </modal>
-  </transition>
+  </Transition>
+  <Transition>
+    <modal
+      v-if="
+        editShown &&
+        !store.quickSwitcherShown &&
+        !store.notificationsShown &&
+        !deleteShown
+      "
+      :is-active="
+        editShown &&
+        !store.quickSwitcherShown &&
+        !store.notificationsShown &&
+        !deleteShown
+      "
+      @close="
+        ;(editShown = false),
+          (projectNameInput = ''),
+          (projectDescriptionInput = ''),
+          (projectIconInput = '')
+      "
+    >
+      <div class="modal-menu">
+        <div class="selector">
+          <p>Edit {{ editingProject.name }}</p>
+        </div>
+        <div>
+          <div class="text-small">
+            <label class="text-small" for="project-name">Project name</label>
+          </div>
+          <input
+            id="project-name"
+            v-model="projectNameInput"
+            placeholder="Project name"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+          <div class="text-small">
+            <label for="project-description">Project description</label>
+          </div>
+          <input
+            id="project-description"
+            v-model="projectDescriptionInput"
+            placeholder="Project description"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+          <div class="text-small">
+            <label for="project-background">Project background image</label>
+          </div>
+          <input
+            id="project-background"
+            v-model="projectIconInput"
+            placeholder="Project background image"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+        </div>
+        <div class="text-small">
+          <label for="add-user">Add a user</label>
+        </div>
+        <input
+          id="add-user"
+          v-model="projectUserInput"
+          placeholder="Add a user"
+          class="modal-input"
+          @keydown.enter="projectUserEnter"
+        />
+        <button @click="editProject">Save</button>
+        <button style="color: red" @click="deleteShown = true">Delete</button>
+      </div>
+    </modal>
+  </Transition>
+  <Transition>
+    <modal
+      v-if="
+        deleteShown && !store.quickSwitcherShown && !store.notificationsShown
+      "
+      :is-active="
+        deleteShown && !store.quickSwitcherShown && !store.notificationsShown
+      "
+      @close="deleteShown = false"
+    >
+      <div class="modal-menu">
+        <div class="selector">
+          <p>Delete {{ editingProject.name }}</p>
+        </div>
+        <div>
+          <div class="text-small">
+            <label for="project-description">
+              Enter your password to delete {{ editingProject.name }}
+            </label>
+          </div>
+          <input
+            id="project-description"
+            v-model="password"
+            placeholder="Password"
+            class="modal-input"
+            @keydown.enter="createProject"
+          />
+        </div>
+        <button @click="deleteShown = false">Cancel</button>
+        <button style="color: red" @click="deleteProject">Delete</button>
+      </div>
+    </modal>
+  </Transition>
   <div class="container-flex">
     <div class="menu">
       <p class="title-menu">Projects</p>
@@ -96,9 +205,24 @@
                 class="grid-image"
               />
               <div class="small-container">
-                <p class="text-medium">
-                  {{ project.name }}
-                </p>
+                <div style="display: inline-flex">
+                  <p class="text-medium">
+                    {{ project.name }}
+                  </p>
+                  <icons
+                    class="edit-button"
+                    :size="16"
+                    icon="edit"
+                    @click.prevent="
+                      (editShown = true),
+                        (editingProject = project),
+                        (projectNameInput = project.name),
+                        (projectDescriptionInput = project.description),
+                        (projectIconInput = project.icon),
+                        (projectUsers = project.permissions)
+                    "
+                  />
+                </div>
                 <div class="spacer" />
                 <p class="text-medium-grey">{{ project.description }}</p>
                 <div class="date-container">
@@ -130,6 +254,7 @@
 
 <script setup>
 import Modal from "../components/Modal.vue"
+import Icons from "../components/Icons.vue"
 
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -142,17 +267,46 @@ const router = useRouter()
 const store = useDataStore()
 
 const createShown = ref(false)
+const editShown = ref(false)
+const deleteShown = ref(false)
+const editingProject = ref({})
 const projectUserInput = ref("")
 
 let projectNameInput
 let projectDescriptionInput
 let projectIconInput
 let projectUsers = []
+let password
 
 dayjs.extend(relativeTime)
 
 if (!localStorage.getItem("token")) {
   router.push("/login")
+}
+
+const editProject = () => {
+  axios
+    .patch("/api/edit-project", {
+      description: projectDescriptionInput,
+      icon: projectIconInput,
+      name: projectNameInput
+    })
+    .then((res) => {
+      store.userData.projects[
+        store.userData.projects.indexOf(
+          store.userData.projects.find((id) => (id = res.data.project.id))
+        )
+      ] = res.data.project
+      editShown.value = false
+      projectNameInput = ""
+      projectDescriptionInput = ""
+      projectIconInput = ""
+      projectUsers = []
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
 }
 
 const createProject = () => {

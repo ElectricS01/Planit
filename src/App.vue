@@ -17,17 +17,6 @@
       >
         About
       </router-link>
-      <icons
-        :icon="isDarkMode === 'true' ? 'sun' : 'moon'"
-        class="mode-switch"
-        @click="toggleMode()"
-      />
-      <icons
-        style="right: 88px"
-        icon="bell"
-        class="mode-switch"
-        @click="notificationsShown = !notificationsShown"
-      />
       <router-link
         v-if="store.userData.id"
         class="right"
@@ -45,6 +34,21 @@
       >
         Login
       </router-link>
+      <icons
+        :icon="isDarkMode === 'true' ? 'sun' : 'moon'"
+        class="mode-switch"
+        @click="toggleMode()"
+      />
+      <icons
+        style="right: 88px"
+        icon="bell"
+        :class="{ active: store.notificationsShown == true }"
+        class="mode-switch"
+        @click="
+          (store.notificationsShown = !store.notificationsShown),
+            (store.quickSwitcherShown = false)
+        "
+      />
       <div class="icon-mobile" @click="responsiveNavbar()">☰</div>
     </div>
     <transition>
@@ -94,9 +98,9 @@
       </transition>
       <transition>
         <modal-simple
-          v-if="notificationsShown"
-          :is-active="notificationsShown"
-          @close="notificationsShown = false"
+          v-if="store.notificationsShown && !store.quickSwitcherShown"
+          :is-active="store.notificationsShown"
+          @close="store.notificationsShown = false"
         >
           <div class="switcher-modal">
             <div class="switch-container scroll-bar">
@@ -134,7 +138,6 @@ const route = useRoute()
 const router = useRouter()
 const store = useDataStore()
 
-const notificationsShown = ref(false)
 const highlightedIndex = ref(0)
 const switcherInput = ref()
 const isDarkMode = ref("true")
