@@ -353,6 +353,9 @@ serve({
       if (user instanceof Response) {
         return user
       }
+      if (!body.id) {
+        return new Response("projectId is required", { status: 400 })
+      }
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
@@ -369,6 +372,7 @@ serve({
         body.description = "A New Planit Task"
       }
       const newTask = await Tasks.create({
+        projectId: body.id,
         description: body.description,
         icon: body.icon,
         name: body.name
