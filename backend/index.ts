@@ -41,7 +41,12 @@ serve({
           {
             attributes: ["userId", "type"],
             model: Permissions,
-            where: { userId: user.id }
+            include: [
+              {
+                attributes: ["username", "avatar"],
+                model: Users
+              }
+            ]
           },
           {
             attributes: ["id", "username", "avatar"],
@@ -88,9 +93,14 @@ serve({
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
           {
-            attributes: ["type"],
+            attributes: ["userId", "type"],
             model: Permissions,
-            where: { userId: user.id }
+            include: [
+              {
+                attributes: ["username", "avatar"],
+                model: Users
+              }
+            ]
           },
           {
             attributes: ["messageContents"],
@@ -324,21 +334,22 @@ serve({
         type: 0,
         userId: newProject.owner
       })
-      body.users.map(async (userId: number) => {
+      body.users.map(async (user: Permissions) => {
         const checkUser = await Users.findOne({
           where: {
-            id: userId
+            id: user.userId
           }
         })
         if (checkUser) {
           await Permissions.create({
             projectId: newProject.id,
-            userId
+            userId: user.userId,
+            type: user.type
           })
           await Notifications.create({
             otherId: newProject.id,
             type: 1,
-            userId
+            userId: user.userId
           })
         }
       })
@@ -481,21 +492,22 @@ serve({
           where: { id: body.id }
         }
       )
-      body.users.map(async (userId: number) => {
+      body.users.map(async (user: Permissions) => {
         const checkUser = await Users.findOne({
           where: {
-            id: userId
+            id: user.userId
           }
         })
         if (checkUser) {
           await Permissions.create({
             projectId: body.id,
-            userId
+            userId: user.userId,
+            type: user.type
           })
           await Notifications.create({
             otherId: body.id,
             type: 1,
-            userId
+            userId: user.userId
           })
         }
       })

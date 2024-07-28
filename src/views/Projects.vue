@@ -11,7 +11,8 @@
         ;(createShown = false),
           (projectNameInput = ''),
           (projectDescriptionInput = ''),
-          (projectIconInput = '')
+          (projectIconInput = ''),
+          (projectUsers = [])
       "
     >
       <div class="modal-menu">
@@ -60,6 +61,16 @@
           class="modal-input"
           @keydown.enter="projectUserEnter"
         />
+        <div
+          v-for="(user, index) in projectUsers"
+          :key="user.type"
+          class="switcher-item"
+        >
+          {{ user.user.username }}
+          <button @click="swapPermission(index)">
+            {{ user.type === 2 ? "Viewer" : "Editor" }}
+          </button>
+        </div>
         <button @click="createProject">Create</button>
       </div>
     </modal>
@@ -82,7 +93,8 @@
         ;(editShown = false),
           (projectNameInput = ''),
           (projectDescriptionInput = ''),
-          (projectIconInput = '')
+          (projectIconInput = ''),
+          (projectUsers = [])
       "
     >
       <div class="modal-menu">
@@ -131,6 +143,16 @@
           class="modal-input"
           @keydown.enter="projectUserEnter"
         />
+        <div
+          v-for="(user, index) in projectUsers"
+          :key="user.type"
+          class="switcher-item"
+        >
+          {{ user.user.username }}
+          <button @click="swapPermission(index)">
+            {{ user.type === 2 ? "Viewer" : "Editor" }}
+          </button>
+        </div>
         <button @click="editProject">Save</button>
         <button
           v-if="editingProject.owner === store.userData.id"
@@ -280,11 +302,11 @@ const editShown = ref(false)
 const deleteShown = ref(false)
 const editingProject = ref({})
 const projectUserInput = ref("")
+const projectUsers = ref([])
 
 let projectNameInput
 let projectDescriptionInput
 let projectIconInput
-let projectUsers = []
 let password
 
 dayjs.extend(relativeTime)
@@ -293,6 +315,9 @@ if (!localStorage.getItem("token")) {
   router.push("/login")
 }
 
+const swapPermission = (index) => {
+  projectUsers.value[index].type = projectUsers.value[index].type === 1 ? 2 : 1
+}
 const deleteProject = () => {
   console.log(editingProject.value.id)
   axios
@@ -315,7 +340,7 @@ const deleteProject = () => {
       projectNameInput = ""
       projectDescriptionInput = ""
       projectIconInput = ""
-      projectUsers = []
+      projectUsers.value = []
     })
     .catch((e) => {
       store.error = e.response?.data || e.message
@@ -329,7 +354,7 @@ const editProject = () => {
       description: projectDescriptionInput,
       icon: projectIconInput,
       name: projectNameInput,
-      users: projectUsers
+      users: projectUsers.value
     })
     .then((res) => {
       store.userData.projects[
@@ -343,7 +368,7 @@ const editProject = () => {
       projectNameInput = ""
       projectDescriptionInput = ""
       projectIconInput = ""
-      projectUsers = []
+      projectUsers.value = []
     })
     .catch((e) => {
       store.error = e.response?.data || e.message
@@ -357,7 +382,7 @@ const createProject = () => {
       description: projectDescriptionInput,
       icon: projectIconInput,
       name: projectNameInput,
-      users: projectUsers
+      users: projectUsers.value
     })
     .then((res) => {
       store.userData.projects.push(res.data.project)
@@ -370,13 +395,17 @@ const createProject = () => {
 }
 const projectUserEnter = async () => {
   const userId = await getUserByName(projectUserInput.value)
-  projectUserInput.value = ""
-  if (projectUsers.indexOf(userId.id) === -1) {
-    projectUsers.push(userId.id)
+  if (projectUsers.value.indexOf(userId.id) === -1) {
+    projectUsers.value.push({
+      userId: userId.id,
+      type: 2,
+      user: { username: projectUserInput.value }
+    })
   } else {
     store.error = "This user is already apart of this group"
     setTimeout(store.errorFalse, 2500)
   }
+  projectUserInput.value = ""
 }
 const getUserByName = async (username) => {
   try {
