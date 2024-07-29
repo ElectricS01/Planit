@@ -60,6 +60,21 @@
       <p class="title-sub">Tasks</p>
       <div class="spacer" />
       <div class="menu-section">
+          <div class="project-item" @click="createShown = true">
+            <img
+              src="https://i.electrics01.com/i/d81dabf74c88.png"
+              alt="Create a new task"
+              class="grid-image"
+            />
+            <div class="small-container">
+              <p class="text-medium">Create a New Task</p>
+              <div class="spacer" />
+              <p class="text-medium-grey">
+                Create a New Planit Task, Customise Description, Add Resources
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -90,14 +105,15 @@ if (!localStorage.getItem("token")) {
 const createTask = () => {
   axios
     .post("/api/create-task", {
-      projectId: currentProject.id,
+      id: currentProject.value.id,
       description: taskDescriptionInput,
       icon: taskIconInput,
       name: taskNameInput
     })
     .then((res) => {
-      store.userData.projects.push(res.data.project)
+      currentProject.value.tasks.push(res.data.project)
       router.push(`/project/${res.data.project.id}`)
+      createShown.value = false
     })
     .catch((e) => {
       store.error = e.response?.data || e.message
