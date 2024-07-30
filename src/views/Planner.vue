@@ -141,7 +141,6 @@ const createTask = () => {
     })
     .then((res) => {
       currentProject.value.tasks.push(res.data.task)
-      router.push(`/project/${res.data.task.id}`)
       createShown.value = false
     })
     .catch((e) => {
