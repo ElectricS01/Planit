@@ -89,7 +89,7 @@
           </p>
           <div class="task-container">
             <p class="text-medium-grey">{{ task.description }}</p>
-            <div v-else class="date-container">
+            <div class="date-container">
               <p class="text-medium-grey">
               </p>
               <p class="text-medium-grey">
