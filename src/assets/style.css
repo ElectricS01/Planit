@@ -52,6 +52,11 @@ body {
   height: 71px;
 }
 
+.task-container {
+  margin: 12px 16px 16px;
+  height: 20px;
+}
+
 .date-container {
   display: flex;
   justify-content: space-between;
@@ -171,6 +176,7 @@ body {
 .navbar a:hover,
 button:hover,
 .menu-button:hover,
+.task-item:hover,
 .project-item:hover,
 .icon-mobile:hover {
   background-color: #ffffff1a;
@@ -184,6 +190,7 @@ button:hover,
 .light-mode .mode-switch:hover,
 .light-mode button:hover,
 .light-mode .menu-button:hover,
+.light-mode .task-item:hover,
 .light-mode .project-item:hover,
 .light-mode .edit-button:hover,
 .light-mode .navbar a:hover,
@@ -286,6 +293,24 @@ button:hover,
   align-items: center;
   justify-content: center;
   padding: 8px;
+}
+
+.task-item {
+  background-color: #282a2bbf;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  transition: background-color 1s ease;
+  margin: 0 0 8px;
+}
+
+.task-image {
+  width: 80;
+  height: 45px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 10px;
+  margin: 0 8px 0 0;
 }
 
 .error-banner {
@@ -434,12 +459,14 @@ button {
 
 button:active,
 .project-item:active,
+.task-item:active,
 .menu-button:active {
   background-color: #ffffff13;
 }
 
 .light-mode .spacer,
 .light-mode button:active,
+.light-mode .task-item:active,
 .light-mode .project-item:active,
 .light-mode .menu-button:active {
   background-color: #00000013;
@@ -579,6 +606,7 @@ input,
 .light-mode .small-menu,
 .light-mode button,
 .light-mode .menu-button,
+.light-mode .task-item,
 .light-mode .project-item,
 .light-mode .navbar {
   background-color: rgba(255, 255, 255, 0.6);

@@ -60,21 +60,50 @@
       <p class="title-sub">Tasks</p>
       <div class="spacer" />
       <div class="menu-section">
-          <div class="project-item" @click="createShown = true">
-            <img
-              src="https://i.electrics01.com/i/d81dabf74c88.png"
-              alt="Create a new task"
-              class="grid-image"
-            />
-            <div class="small-container">
-              <p class="text-medium">Create a New Task</p>
-              <div class="spacer" />
+        <div class="task-item" @click="createShown = true">
+          <img
+            src="https://i.electrics01.com/i/d81dabf74c88.png"
+            alt="Create a new task"
+            class="task-image"
+          />
+          <p class="text-medium">Create a New Task</p>
+          <div class="task-container">
+            <p class="text-medium-grey">
+              Create a New Planit Task, Customise Description, Add Resources
+            </p>
+          </div>
+        </div>
+        <div
+          v-for="(task, index) in currentProject.tasks"
+          :id="'task-' + index"
+          :key="task.id"
+          class="task-item"
+        >
+          <img
+            src="https://i.electrics01.com/i/d81dabf74c88.png"
+            alt="Task background"
+            class="task-image"
+          />
+          <p class="text-medium">
+            {{ task.name }}
+          </p>
+          <div class="task-container">
+            <p class="text-medium-grey">{{ task.description }}</p>
+            <div v-else class="date-container">
               <p class="text-medium-grey">
-                Create a New Planit Task, Customise Description, Add Resources
+              </p>
+              <p class="text-medium-grey">
               </p>
             </div>
           </div>
         </div>
+      </div>
+      <p class="title-sub">Shared with you</p>
+      <div class="spacer" />
+      <div class="menu-section">
+        <p v-if="!store.userData.projects?.length">
+          You don't have any projects shared with you
+        </p>
       </div>
     </div>
   </div>
@@ -111,8 +140,8 @@ const createTask = () => {
       name: taskNameInput
     })
     .then((res) => {
-      currentProject.value.tasks.push(res.data.project)
-      router.push(`/project/${res.data.project.id}`)
+      currentProject.value.tasks.push(res.data.task)
+      router.push(`/project/${res.data.task.id}`)
       createShown.value = false
     })
     .catch((e) => {

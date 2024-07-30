@@ -388,7 +388,7 @@ serve({
         icon: body.icon,
         name: body.name
       })
-      return new Response(JSON.stringify({ project: newTask }), {
+      return new Response(JSON.stringify({ task: newTask }), {
         status: 200
       })
     } else if (url.pathname === "/api/history" && request.method === "POST") {

@@ -266,7 +266,10 @@
                 </div>
                 <div class="spacer" />
                 <p class="text-medium-grey">{{ project.description }}</p>
-                <div class="date-container">
+                <p v-if="isComplete(project.latest)" class="text-medium-grey">
+                  There are no upcoming tasks
+                </p>
+                <div v-else class="date-container">
                   <p class="text-medium-grey">
                     Next task: {{ displayTime(project.latest, false) }}
                   </p>
@@ -337,7 +340,10 @@
                 </div>
                 <div class="spacer" />
                 <p class="text-medium-grey">{{ project.description }}</p>
-                <div class="date-container">
+                <p v-if="isComplete(project.latest)" class="text-medium-grey">
+                  There are no upcoming tasks
+                </p>
+                <div v-else class="date-container">
                   <p class="text-medium-grey">
                     Next task: {{ displayTime(project.latest, false) }}
                   </p>
@@ -506,6 +512,9 @@ const getUserByName = async (username) => {
     store.error = e.response?.data || e.message
     setTimeout(store.errorFalse, 5000)
   }
+}
+const isComplete = (latest) => {
+  if (dayjs(latest) < dayjs()) return true
 }
 const displayTime = (date, end) => {
   const hoursDifference = dayjs(date).diff(dayjs(), "hour")
