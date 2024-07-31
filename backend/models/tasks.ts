@@ -28,6 +28,16 @@ export default class Tasks extends Model {
   @Column(DataType.STRING)
   icon!: string
 
+  @Column({
+    allowNull: false,
+    defaultValue: 2,
+    type: DataType.SMALLINT.UNSIGNED
+  })
+  type!: number
+
+  @Column(DataType.DATE)
+  startAt!: Date
+
   @Column(DataType.DATE)
   dueAt!: Date
 }

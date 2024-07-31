@@ -448,22 +448,28 @@ const editProject = () => {
 }
 
 const createProject = () => {
-  axios
-    .post("/api/create-project", {
-      description: projectDescriptionInput,
-      icon: projectIconInput,
-      name: projectNameInput,
-      users: projectUsers.value
-    })
-    .then((res) => {
-      store.userData.projects.push(res.data.project)
-      store.sortProjects()
-      router.push(`/project/${res.data.project.id}`)
-    })
-    .catch((e) => {
-      store.error = e.response?.data || e.message
-      setTimeout(store.errorFalse, 5000)
-    })
+  if (
+    createShown.value &&
+    !store.quickSwitcherShown &&
+    !store.notificationsShown &&
+    !deleteShown.value
+  )
+    axios
+      .post("/api/create-project", {
+        description: projectDescriptionInput,
+        icon: projectIconInput,
+        name: projectNameInput,
+        users: projectUsers.value
+      })
+      .then((res) => {
+        store.userData.projects.push(res.data.project)
+        store.sortProjects()
+        router.push(`/project/${res.data.project.id}`)
+      })
+      .catch((e) => {
+        store.error = e.response?.data || e.message
+        setTimeout(store.errorFalse, 5000)
+      })
 }
 const projectUserEnter = async () => {
   if (projectUserInput.value === store.userData.username) {

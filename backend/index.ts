@@ -90,12 +90,14 @@ serve({
           (permission) => permission.projectId === project.id
         )
       })
+
       // Get all notifications
       const notifications = await Notifications.findAll({
         where: {
           userId: user.id
         }
       })
+
       // Send all this data to the client
       return new Response(
         JSON.stringify({
@@ -120,6 +122,7 @@ serve({
       if (user instanceof Response) {
         return user
       }
+
       // Check if the user has permission to this project
       const association = await Permissions.findOne({
         where: {
@@ -132,6 +135,7 @@ serve({
           status: 400
         })
       }
+
       // Find the project and it's permissions, messages, tasks, and owner
       const project = await Projects.findOne({
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
@@ -151,11 +155,18 @@ serve({
             model: Messages
           },
           {
-            attributes: ["name", "description", "icon"],
+            attributes: ["id", "name", "description", "icon"],
             model: Resources
           },
           {
-            attributes: ["name", "description", "icon"],
+            attributes: [
+              "id",
+              "name",
+              "description",
+              "icon",
+              "startAt",
+              "dueAt"
+            ],
             model: Tasks
           },
           {
@@ -167,38 +178,56 @@ serve({
           id: url.pathname.split("/")[3]
         }
       })
+
+      // If the project couldn't be found then return an error message to the client
       if (!project) {
         return new Response("Project does not exist", { status: 400 })
       }
-      return new Response(
-        JSON.stringify({
-          ...project?.toJSON()
-        }),
-        { headers, status: 200 }
-      )
-    } else if (url.pathname === "/api/get-user" && request.method === "POST") {
+
+      // Otherwise send the project data to the client
+      return new Response(JSON.stringify({ project }), { headers, status: 200 })
+    }
+
+    // This API gets a user's data by their id or username
+    else if (url.pathname === "/api/get-user" && request.method === "POST") {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Check if a valid userId or username is provided in the request and return an error code if there isn't
       if (!parseInt(body.userId, 10) && !body.username) {
         return new Response("User requested does not exist", { status: 400 })
       }
+
+      // If a username is provided, return the requested user's id
       if (body.username) {
-        const user = await Users.findOne({
+        // Search for the user in the Users table
+        const findUser = await Users.findOne({
           attributes: ["id"],
           where: { username: body.username }
         })
-        if (!user) {
+
+        // If the username couldn't be found then return 400 Bad Request
+        if (!findUser) {
           return new Response(
             "User requested does not exist or could not be found",
             { status: 400 }
           )
         }
+
+        // If the username could be find then return the id number to the client
         return new Response(
           JSON.stringify({
-            id: user.id
+            id: findUser.id
           }),
           { headers, status: 200 }
         )
       }
-      const user = await Users.findOne({
+
+      // If the request instead provides an id number then get the user's details
+      const findUser = await Users.findOne({
         attributes: {
           exclude: [
             "email",
@@ -213,14 +242,24 @@ serve({
         },
         where: { id: body.userId }
       })
-      if (!user) {
+
+      // If the user couldn't be found the return 400 Bad Request to the client
+      if (!findUser) {
         return new Response(
           "User requested does not exist or could not be found",
           { status: 400 }
         )
       }
-      return new Response(JSON.stringify({ user }), { headers, status: 200 })
-    } else if (url.pathname === "/api/register" && request.method === "POST") {
+
+      // If it was found then return the requested user's details
+      return new Response(JSON.stringify({ findUser }), {
+        headers,
+        status: 200
+      })
+    }
+
+    // This API allows users to register to Planit
+    else if (url.pathname === "/api/register" && request.method === "POST") {
       if (
         !body.username ||
         body.username.length < 1 ||
