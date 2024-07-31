@@ -223,7 +223,9 @@
                 class="grid-image"
               />
               <div class="small-container">
-                <p class="text-medium">Create a New Project</p>
+                <div style="display: inline-flex">
+                  <p class="text-medium">Create a New Project</p>
+                </div>
                 <div class="spacer" />
                 <p class="text-medium-grey">
                   Create a New Planit Project, Customise Permissions, Add Graphs
@@ -246,7 +248,7 @@
                 class="grid-image"
               />
               <div class="small-container">
-                <div style="display: inline-flex">
+                <div class="title-container">
                   <p class="text-medium">
                     {{ project.name }}
                   </p>
@@ -265,15 +267,15 @@
                   />
                 </div>
                 <div class="spacer" />
-                <p class="text-medium-grey">{{ project.description }}</p>
-                <p v-if="isComplete(project.latest)" class="text-medium-grey">
+                <p class="text-wrap-grey">{{ project.description }}</p>
+                <p v-if="isComplete(project.latest)" class="text-wrap-grey">
                   There are no upcoming tasks
                 </p>
                 <div v-else class="date-container">
-                  <p class="text-medium-grey">
+                  <p class="text-wrap-grey">
                     Next task: {{ displayTime(project.latest, false) }}
                   </p>
-                  <p class="text-medium-grey">
+                  <p class="text-wrap-grey">
                     Last task: {{ displayTime(project.end, true) }}
                   </p>
                 </div>
@@ -304,21 +306,27 @@
                 class="grid-image"
               />
               <div class="small-container">
-                <div style="display: inline-flex">
+                <div class="title-container">
                   <p class="text-medium">
                     {{ project.name }}
                   </p>
+                  <p
+                    style="margin: 3px 0 0 4px; min-width: fit-content"
+                    class="text-wrap-grey"
+                  >
+                    Shared by {{ project.ownerDetails.username }}
+                  </p>
                 </div>
                 <div class="spacer" />
-                <p class="text-medium-grey">{{ project.description }}</p>
-                <p v-if="isComplete(project.latest)" class="text-medium-grey">
+                <p class="text-wrap-grey">{{ project.description }}</p>
+                <p v-if="isComplete(project.latest)" class="text-wrap-grey">
                   There are no upcoming tasks
                 </p>
                 <div v-else class="date-container">
-                  <p class="text-medium-grey">
+                  <p class="text-wrap-grey">
                     Next task: {{ displayTime(project.latest, false) }}
                   </p>
-                  <p class="text-medium-grey">
+                  <p class="text-wrap-grey">
                     Last task: {{ displayTime(project.end, true) }}
                   </p>
                 </div>
@@ -405,32 +413,38 @@ const deleteProject = () => {
     })
 }
 const editProject = () => {
-  axios
-    .patch("/api/edit-project", {
-      id: editingProject.value.id,
-      description: projectDescriptionInput,
-      icon: projectIconInput,
-      name: projectNameInput,
-      users: projectUsers.value
-    })
-    .then((res) => {
-      store.userData.projects[
-        store.userData.projects.indexOf(
-          store.userData.projects.find(
-            (project) => project.id === res.data.project.id
+  if (
+    editShown.value &&
+    !store.quickSwitcherShown &&
+    !store.notificationsShown &&
+    !deleteShown.value
+  )
+    axios
+      .patch("/api/edit-project", {
+        id: editingProject.value.id,
+        description: projectDescriptionInput,
+        icon: projectIconInput,
+        name: projectNameInput,
+        users: projectUsers.value
+      })
+      .then((res) => {
+        store.userData.projects[
+          store.userData.projects.indexOf(
+            store.userData.projects.find(
+              (project) => project.id === res.data.project.id
+            )
           )
-        )
-      ] = res.data.project
-      editShown.value = false
-      projectNameInput = ""
-      projectDescriptionInput = ""
-      projectIconInput = ""
-      projectUsers.value = []
-    })
-    .catch((e) => {
-      store.error = e.response?.data || e.message
-      setTimeout(store.errorFalse, 5000)
-    })
+        ] = res.data.project
+        editShown.value = false
+        projectNameInput = ""
+        projectDescriptionInput = ""
+        projectIconInput = ""
+        projectUsers.value = []
+      })
+      .catch((e) => {
+        store.error = e.response?.data || e.message
+        setTimeout(store.errorFalse, 5000)
+      })
 }
 
 const createProject = () => {
