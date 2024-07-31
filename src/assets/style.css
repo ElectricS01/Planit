@@ -309,6 +309,7 @@ button:hover,
   transition: background-color 1s ease;
   margin: 0 0 8px;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 .task-image {

@@ -260,6 +260,7 @@ serve({
 
     // This API allows users to register to Planit
     else if (url.pathname === "/api/register" && request.method === "POST") {
+      // Validate that the user provided all the right details
       if (
         !body.username ||
         body.username.length < 1 ||
@@ -270,11 +271,15 @@ serve({
       ) {
         return new Response("Form not complete", { status: 400 })
       }
+
+      // Validate the user's email against a regex to check if it's in the right format
       if (
         !body.email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
       ) {
         return new Response("Email is invalid", { status: 400 })
       }
+
+      // Check if a user has already taken that username
       if (
         await Users.findOne({
           where: {
@@ -284,6 +289,8 @@ serve({
       ) {
         return new Response("Username is taken", { status: 400 })
       }
+
+      // Check if a user has already taken that email address
       if (
         await Users.findOne({
           where: {
@@ -293,6 +300,10 @@ serve({
       ) {
         return new Response("Email is taken", { status: 400 })
       }
+
+      // If all the validation checks pass then create the user with the provided email and username,
+      // and password hash and salt regenerated from the password provided, and an emailToken which
+      // will be sent to the user's email address for verification
       const user = await Users.create({
         email: body.email,
         emailToken: cryptoRandomString({
@@ -301,6 +312,9 @@ serve({
         password: await argon2.hash(body.password),
         username: body.username
       })
+
+      // Parse the sender name, email to send the message too, the subject of the email, and the body to the
+      // emailLibrary to be sent asynchronously which avoids slowing down the backend while the email is being sent
       emailLibrary
         .sendEmail(
           "support@electrics01.com",
@@ -308,15 +322,22 @@ serve({
           `Hi ${user.username}, Verify your email address`,
           `Hi ${user.username},\n\nThank You for signing up to Planit\n\nPlease click the link below to verify your email address:\nhttps://planit.electrics01.com/verify?token=${user.emailToken}\n\nIf you did not request this email, please ignore it.\n\nThanks,\n\nElectrics01 Support Team`
         )
+
+        // Log any errors that arise when attempting to send emails
         .catch((e) => {
           console.log("Error occurred while sending email:", e)
         })
+
+      // Create a session for this new user, sessions are used to validate a user's permission to use the account
+      // without storing their password anywehere
       const session = await Sessions.create({
         expiredAt: Date.now() + 15552000000,
         token: cryptoRandomString({ length: 128 }),
         userAgent: request.headers.get("User-Agent"),
         userId: user.id
       })
+
+      // Return the new user's details and their token to the client
       return new Response(
         JSON.stringify({
           token: session.token,
@@ -326,7 +347,38 @@ serve({
         }),
         { headers, status: 200 }
       )
-    } else if (url.pathname === "/api/login" && request.method === "POST") {
+    }
+
+    // This API is for email verification, it takes one property in the JSON body and updates the user's verification status
+    else if (url.pathname === "/api/verify" && request.method === "POST") {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Validate that the user has provided a token and that they aren't already verified
+      if (!user.emailToken || user.emailVerified) {
+        return new Response("Account is already verified", { status: 400 })
+      }
+
+      // Validate the email token provided by the client with the token stored in the database
+      if (user.emailToken !== body.token) {
+        return new Response("Token invalid", { status: 401 })
+      }
+
+      // If the validation passes, update the users emailToken in the database
+      await user.update({
+        emailToken: false,
+        emailVerified: true
+      })
+
+      // Return 204 No Content
+      return new Response("", { status: 204 })
+    }
+
+    // This API is for signing in
+    else if (url.pathname === "/api/login" && request.method === "POST") {
       if (
         !body.username ||
         !body.password ||
@@ -489,7 +541,7 @@ serve({
         return new Response("History too long", { status: 400 })
       }
       await user.update({ switcherHistory: body.history })
-      return new Response("", { status: 200 })
+      return new Response("", { status: 204 })
     } else if (
       url.pathname === "/api/delete-project" &&
       request.method === "POST"
@@ -522,9 +574,7 @@ serve({
       await Permissions.destroy({
         where: { projectId: body.id }
       })
-      return new Response("", {
-        status: 200
-      })
+      return new Response("", { status: 204 })
     } else if (
       url.pathname === "/api/edit-project" &&
       request.method === "PATCH"

@@ -27,6 +27,14 @@ const routes = [
     }
   },
   {
+    component: () => import("./views/Verify.vue"),
+    name: "verify",
+    path: "/verify",
+    meta: {
+      title: "Verify Your Planit Account"
+    }
+  },
+  {
     path: "/about",
     name: "about",
     component: () => import("./views/About.vue"),
