@@ -154,7 +154,7 @@ body {
   cursor: pointer;
   padding: 2px;
   margin: 0 4px;
-  border-radius: 3px;
+  border-radius: 4px;
   transition:
     fill 1s ease,
     background-color 1s ease;
@@ -302,6 +302,7 @@ button:hover,
   padding: 8px;
   transition: background-color 1s ease;
   margin: 0 0 8px;
+  border-radius: 4px;
 }
 
 .task-image {
@@ -451,6 +452,7 @@ button {
 .switcher-item {
   margin: 0 0 4px;
   padding: 4px;
+  border-radius: 4px;
 
   &:hover {
     background-color: #31343580;

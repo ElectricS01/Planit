@@ -149,7 +149,7 @@
           :key="user.type"
           class="switcher-item"
         >
-          {{ user.user.username }}
+          {{ user.user?.username }}
           <button
             v-if="user.userId !== store.userData.id"
             @click="swapPermission(index)"
@@ -308,19 +308,6 @@
                   <p class="text-medium">
                     {{ project.name }}
                   </p>
-                  <icons
-                    class="edit-button"
-                    :size="16"
-                    icon="edit"
-                    @click.prevent="
-                      (editShown = true),
-                        (editingProject = project),
-                        (projectNameInput = project.name),
-                        (projectDescriptionInput = project.description),
-                        (projectIconInput = project.icon),
-                        (projectUsers = project.permissions)
-                    "
-                  />
                 </div>
                 <div class="spacer" />
                 <p class="text-medium-grey">{{ project.description }}</p>

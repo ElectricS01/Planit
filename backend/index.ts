@@ -36,7 +36,7 @@ serve({
     const text = await request.text()
     const body = text ? JSON.parse(text) : ""
 
-    // The user api returns the user's data after checking it with the auth middleware
+    // The user API returns the user's data after checking it with the auth middleware
     if (url.pathname === "/api/user" && request.method === "GET") {
       // Authenticate the user
       const user = await auth(request)
@@ -66,11 +66,13 @@ serve({
           }
         ]
       })
+
       // Get all project ids
       const projectIds = projects.map((project) => project.id)
 
+      // Find all permissions
       const allPermissions = await Permissions.findAll({
-        attributes: ["userId", "type", "projectId"], // Include any other attributes you need
+        attributes: ["userId", "type", "projectId"],
         where: {
           projectId: projectIds
         },
@@ -88,11 +90,13 @@ serve({
           (permission) => permission.projectId === project.id
         )
       })
+      // Get all notifications
       const notifications = await Notifications.findAll({
         where: {
           userId: user.id
         }
       })
+      // Send all this data to the client
       return new Response(
         JSON.stringify({
           ...user.toJSON(),
@@ -103,7 +107,10 @@ serve({
         }),
         { headers, status: 200 }
       )
-    } else if (
+    }
+
+    // The project API returns a project's data to the user
+    else if (
       url.pathname.startsWith("/api/project/") &&
       url.pathname.split("/")[3] &&
       request.method === "GET"
@@ -113,6 +120,7 @@ serve({
       if (user instanceof Response) {
         return user
       }
+      // Check if the user has permission to this project
       const association = await Permissions.findOne({
         where: {
           projectId: url.pathname.split("/")[3],
@@ -124,6 +132,7 @@ serve({
           status: 400
         })
       }
+      // Find the project and it's permissions, messages, tasks, and owner
       const project = await Projects.findOne({
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
@@ -504,6 +513,14 @@ serve({
       if (!body.description) {
         body.description = "A New Planit Project"
       }
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.id }
+      })
+      if (!permission || permission.type !== 0) {
+        return new Response("You do not have permission to edit this project", {
+          status: 400
+        })
+      }
       const editedProject = await Projects.findByPk(body.id, {
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
@@ -540,15 +557,18 @@ serve({
       )
 
       // Get the current permissions of the project
-      const currentPermissions = editedProject.permissions.map((p) => p.userId)
+      const currentPermissions = editedProject.permissions.map((p) => ({
+        userId: p.userId,
+        type: p.type
+      }))
 
       // Get the list of user IDs from body.users
       const userIds = body.users.map((u: Permissions) => u.userId)
 
       // Find permissions to delete
-      const permissionsToDelete = currentPermissions.filter(
-        (userId) => !userIds.includes(userId)
-      )
+      const permissionsToDelete = currentPermissions
+        .filter((p) => !userIds.includes(p.userId))
+        .map((p) => p.userId)
 
       // Delete the permissions that are not in body.users
       await Permissions.destroy({
@@ -558,25 +578,34 @@ serve({
         }
       })
 
-      // Add or update permissions
+      // Remove deleted permissions from editedProject
+      editedProject.permissions = editedProject.permissions.filter(
+        (p: Permissions) => userIds.includes(p.userId)
+      )
+
+      // Add, update, or modify permissions
       for (const user of body.users) {
-        const checkUser = await Permissions.findOne({
+        const existingPermission = await Permissions.findOne({
           where: {
             userId: user.userId,
             projectId: body.id
           }
         })
-        if (!checkUser) {
-          const permission = await Permissions.create({
+
+        if (!existingPermission) {
+          const newPermission = await Permissions.create({
             projectId: body.id,
             userId: user.userId,
             type: user.type
           })
+          editedProject.permissions.push(newPermission)
           await Notifications.create({
             otherId: body.id,
             type: 1,
             userId: user.userId
           })
+        } else if (existingPermission.type !== user.type) {
+          await existingPermission.update({ type: user.type })
         }
       }
 
