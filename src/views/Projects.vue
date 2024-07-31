@@ -289,22 +289,6 @@
       <div class="spacer" />
       <div class="menu-section">
         <div class="menu-container" v-if="!store.loadingProjects">
-          <div class="box">
-            <div class="project-item" @click="createShown = true">
-              <img
-                src="https://i.electrics01.com/i/d81dabf74c88.png"
-                alt="Create a new project"
-                class="grid-image"
-              />
-              <div class="small-container">
-                <p class="text-medium">Create a New Project</p>
-                <div class="spacer" />
-                <p class="text-medium-grey">
-                  Create a New Planit Project, Customise Permissions, Add Graphs
-                </p>
-              </div>
-            </div>
-          </div>
           <div
             v-for="(project, index) in sharedProjects"
             :id="'project-' + index"

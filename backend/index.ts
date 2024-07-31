@@ -41,6 +41,9 @@ serve({
           {
             attributes: ["userId", "type"],
             model: Permissions,
+            where: {
+              userId: user.id
+            },
             include: [
               {
                 attributes: ["username", "avatar"],
@@ -53,6 +56,27 @@ serve({
             model: Users
           }
         ]
+      })
+      const projectIds = projects.map((project) => project.id)
+
+      const allPermissions = await Permissions.findAll({
+        attributes: ["userId", "type", "projectId"], // Include any other attributes you need
+        where: {
+          projectId: projectIds
+        },
+        include: [
+          {
+            attributes: ["username", "avatar"],
+            model: Users
+          }
+        ]
+      })
+
+      // Attach all permissions to their respective projects
+      projects.forEach((project) => {
+        project.dataValues.permissions = allPermissions.filter(
+          (permission) => permission.projectId === project.id
+        )
       })
       const notifications = await Notifications.findAll({
         where: {
@@ -493,12 +517,13 @@ serve({
         }
       )
       body.users.map(async (user: Permissions) => {
-        const checkUser = await Users.findOne({
+        const checkUser = await Permissions.findOne({
           where: {
-            id: user.userId
+            userId: user.userId,
+            projectId: body.id
           }
         })
-        if (checkUser) {
+        if (!checkUser) {
           await Permissions.create({
             projectId: body.id,
             userId: user.userId,
