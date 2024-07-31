@@ -1,7 +1,10 @@
+// Import models for use with sequelize
 import Sessions from "../models/sessions"
 import Users from "../models/users"
 
+// Export the function for use in the index.ts
 export default async function auth(req: Request) {
+  // Check if there was a token sent in the http request
   const token = req.headers.get("Authorization")
   if (!token)
     return new Response(
@@ -11,6 +14,7 @@ export default async function auth(req: Request) {
         status: 401
       }
     )
+  // Use the sent token to see if it matches an existing session
   const session = await Sessions.findOne({
     include: [
       {
@@ -29,5 +33,6 @@ export default async function auth(req: Request) {
       }
     )
   }
+  // Return the session for use in the index.ts
   return session.user
 }

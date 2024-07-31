@@ -1,11 +1,15 @@
+// Import utilities
 import sequelize from "./db"
 import { serve } from "bun"
 import argon2 from "argon2"
 import cryptoRandomString from "crypto-random-string"
 
+// Import Libraries
 import auth from "./lib/auth"
+import authSession from "./lib/authSession"
 import nodemailerLibrary from "./lib/mailer"
 
+// Import Seqelize-TS models
 import Messages from "./models/messages"
 import Permissions from "./models/permissions"
 import Projects from "./models/projects"
@@ -15,26 +19,31 @@ import Notifications from "./models/notifications"
 import Resources from "./models/resources"
 import Tasks from "./models/tasks"
 
+// Define reused variables
 sequelize
-
 const emailLibrary = new nodemailerLibrary()
 
 const headers = {
   "Content-Type": "application/json"
 }
 
+// Call Bun's serve function with the port of "3100", this port is used to connect to the server
 serve({
   port: 3100,
   async fetch(request) {
+    // Define the url and body of the request for easy access
     const url = new URL(request.url)
     const text = await request.text()
     const body = text ? JSON.parse(text) : ""
 
+    // The user api returns the user's data after checking it with the auth middleware
     if (url.pathname === "/api/user" && request.method === "GET") {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
       }
+      // Get the all the user's projects with a sequelize findAll request where the user has a "Permissions" permission
       const projects = await Projects.findAll({
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
@@ -57,6 +66,7 @@ serve({
           }
         ]
       })
+      // Get all project ids
       const projectIds = projects.map((project) => project.id)
 
       const allPermissions = await Permissions.findAll({
@@ -98,6 +108,7 @@ serve({
       url.pathname.split("/")[3] &&
       request.method === "GET"
     ) {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -327,6 +338,7 @@ serve({
       url.pathname === "/api/create-project" &&
       request.method === "POST"
     ) {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -384,6 +396,7 @@ serve({
       url.pathname === "/api/create-task" &&
       request.method === "POST"
     ) {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -416,6 +429,7 @@ serve({
         status: 200
       })
     } else if (url.pathname === "/api/history" && request.method === "POST") {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -432,6 +446,7 @@ serve({
       url.pathname === "/api/delete-project" &&
       request.method === "POST"
     ) {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -466,6 +481,7 @@ serve({
       url.pathname === "/api/edit-project" &&
       request.method === "PATCH"
     ) {
+      // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
@@ -493,7 +509,13 @@ serve({
         include: [
           {
             attributes: ["userId", "type"],
-            model: Permissions
+            model: Permissions,
+            include: [
+              {
+                attributes: ["username", "avatar"],
+                model: Users
+              }
+            ]
           },
           {
             attributes: ["id", "username", "avatar"],
@@ -504,7 +526,7 @@ serve({
       if (!editedProject) {
         return new Response("Invalid Project ID", { status: 400 })
       }
-      editedProject.update(
+      await editedProject.update(
         {
           description: body.description,
           icon: body.icon,
@@ -516,7 +538,28 @@ serve({
           where: { id: body.id }
         }
       )
-      body.users.map(async (user: Permissions) => {
+
+      // Get the current permissions of the project
+      const currentPermissions = editedProject.permissions.map((p) => p.userId)
+
+      // Get the list of user IDs from body.users
+      const userIds = body.users.map((u: Permissions) => u.userId)
+
+      // Find permissions to delete
+      const permissionsToDelete = currentPermissions.filter(
+        (userId) => !userIds.includes(userId)
+      )
+
+      // Delete the permissions that are not in body.users
+      await Permissions.destroy({
+        where: {
+          userId: permissionsToDelete,
+          projectId: body.id
+        }
+      })
+
+      // Add or update permissions
+      for (const user of body.users) {
         const checkUser = await Permissions.findOne({
           where: {
             userId: user.userId,
@@ -524,7 +567,7 @@ serve({
           }
         })
         if (!checkUser) {
-          await Permissions.create({
+          const permission = await Permissions.create({
             projectId: body.id,
             userId: user.userId,
             type: user.type
@@ -535,8 +578,28 @@ serve({
             userId: user.userId
           })
         }
+      }
+
+      const project = await Projects.findByPk(body.id, {
+        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+        include: [
+          {
+            attributes: ["userId", "type"],
+            model: Permissions,
+            include: [
+              {
+                attributes: ["username", "avatar"],
+                model: Users
+              }
+            ]
+          },
+          {
+            attributes: ["id", "username", "avatar"],
+            model: Users
+          }
+        ]
       })
-      return new Response(JSON.stringify({ project: editedProject }), {
+      return new Response(JSON.stringify({ project: project }), {
         status: 200
       })
     } else {
