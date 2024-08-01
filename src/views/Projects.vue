@@ -463,6 +463,14 @@ const createProject = () => {
       })
       .then((res) => {
         store.userData.projects.push(res.data.project)
+        store.switcherItems.push(
+          ...[res.data.project].map((obj) => [
+            obj.type === 1 && obj.ownerDetails.id !== userData.value.id
+              ? obj.ownerDetails.username
+              : obj.name,
+            obj.id
+          ])
+        )
         store.sortProjects()
         router.push(`/project/${res.data.project.id}`)
       })
