@@ -19,7 +19,9 @@
         ;(createShown = false),
           (taskNameInput = ''),
           (taskDescriptionInput = ''),
-          (taskIconInput = '')
+          (taskIconInput = ''),
+          (taskStartInput = ''),
+          (taskEndInput = '')
       "
     >
       <div class="modal-menu">
@@ -54,6 +56,26 @@
             id="task-background"
             v-model="taskIconInput"
             placeholder="Task background image"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+          <div class="text-small">
+            <label for="task-start">Task start date</label>
+          </div>
+          <input
+            id="task-start"
+            v-model="taskStartInput"
+            placeholder="Task start date"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+          <div class="text-small">
+            <label for="task-end">Task end date</label>
+          </div>
+          <input
+            id="task-end"
+            v-model="taskEndInput"
+            placeholder="Task end date"
             class="modal-input"
             @keydown.enter="createTask"
           />
@@ -129,7 +151,7 @@
       <div class="menu-section">
         <div class="task-item" @click="createShown = true">
           <img
-            src="https://i.electrics01.com/i/d81dabf74c88.png"
+            src="https://i.electrics01.com/i/55bae440a2b3.png"
             alt="Create a new task"
             class="task-image"
           />
@@ -147,7 +169,7 @@
           class="task-item"
         >
           <img
-            src="https://i.electrics01.com/i/d81dabf74c88.png"
+            src="https://i.electrics01.com/i/55bae440a2b3.png"
             alt="Task background"
             class="task-image"
           />
@@ -156,10 +178,15 @@
           </p>
           <div class="task-container">
             <p class="text-medium-grey">{{ task.description }}</p>
+            <p v-if="isComplete(task.dueAt)" class="text-medium-grey">
+              There are no upcoming tasks
+            </p>
             <div class="date-container">
               <p class="text-medium-grey">
+                Starts at: {{ displayTime(task.startsAt, false) }}
               </p>
               <p class="text-medium-grey">
+                Ends at: {{ displayTime(task.dueAt, true) }}
               </p>
             </div>
           </div>
@@ -170,7 +197,7 @@
       <div class="menu-section">
         <div class="task-item" @click="createResourceShown = true">
           <img
-            src="https://i.electrics01.com/i/d81dabf74c88.png"
+            src="https://i.electrics01.com/i/124bd47c48c7.png"
             alt="Create a new resource"
             class="task-image"
           />
@@ -188,7 +215,7 @@
           class="task-item"
         >
           <img
-            src="https://i.electrics01.com/i/d81dabf74c88.png"
+            src="https://i.electrics01.com/i/124bd47c48c7.png"
             alt="Task background"
             class="task-image"
           />
@@ -207,6 +234,8 @@
 <script setup>
 import Modal from "../components/Modal.vue"
 
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
 import { useRouter, useRoute } from "vue-router"
 import axios from "axios"
 import { useDataStore } from "../store.js"
@@ -222,14 +251,17 @@ const createResourceShown = ref(false)
 const editResourceShown = ref(false)
 const currentProject = ref({})
 
+const taskStartInput = ref("")
+const taskEndInput = ref("")
+
 let taskNameInput
 let taskDescriptionInput
 let taskIconInput
-let taskStartInput
-let taskEndInput
 let resourceNameInput
 let resourceDescriptionInput
 let resourceIconInput
+
+dayjs.extend(relativeTime)
 
 if (!localStorage.getItem("token")) {
   router.push("/login")
@@ -240,16 +272,36 @@ const createTask = () => {
     createShown.value &&
     !store.quickSwitcherShown &&
     !store.notificationsShown &&
-    !deleteShown.value
-  )
+    !editShown.value
+  ) {
+    let start
+    let end
+
+    // if (taskStartInput.value?.trim()) {
+    //   start =
+    //     dayjs(
+    //       taskStartInput.value
+    //         .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
+    //         .replace(/\bof\b/gi, "")
+    //         .trim()
+    //     ).toISOString() || Date.now()
+    // }
+    if (taskEndInput.value?.trim()) {
+      end = dayjs(
+        taskEndInput.value
+          .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
+          .replace(/\bof\b/gi, "")
+          .trim()
+      ).toISOString()
+    }
     axios
       .post("/api/create-task", {
         id: currentProject.value.id,
         description: taskDescriptionInput,
         icon: taskIconInput,
         name: taskNameInput,
-        start: taskStartInput || Date.now(),
-        end: taskEndInput
+        start: taskStartInput.value,
+        end
       })
       .then((res) => {
         currentProject.value.tasks.push(res.data.task)
@@ -259,13 +311,14 @@ const createTask = () => {
         store.error = e.response?.data || e.message
         setTimeout(store.errorFalse, 5000)
       })
+  }
 }
 const createResource = () => {
   if (
     createResourceShown.value &&
     !store.quickSwitcherShown &&
     !store.notificationsShown &&
-    !deleteShown.value
+    !editResourceShown.value
   )
     axios
       .post("/api/create-resource", {
@@ -286,11 +339,33 @@ const createResource = () => {
 const isComplete = (latest) => {
   if (dayjs(latest) < dayjs()) return true
 }
+const displayTime = (date, end) => {
+  const hoursDifference = dayjs(date).diff(dayjs(), "hour")
+  if (dayjs(date) > dayjs()) {
+    if (hoursDifference > 24) {
+      if (end) {
+        return `Ends on ${dayjs(date).format("DD/MM/YYYY HH:mm:ss")}`
+      } else {
+        return `Starts on ${dayjs(date).format("DD/MM/YYYY HH:mm:ss")}`
+      }
+    } else {
+      if (end) {
+        return `Ends in ${dayjs(date).fromNow(true)}`
+      } else {
+        return `Starts in ${dayjs(date).fromNow(true)}`
+      }
+    }
+  } else if (!end && dayjs(end) > dayjs()) {
+    return "Currently Occurring"
+  } else {
+    return "Project is complete"
+  }
+}
 async function getProject(id) {
   await axios
     .get(`/api/project/${id}`)
     .then((res) => {
-      currentProject.value = res.data
+      currentProject.value = res.data.project
       currentProject.value.messages.focus = false
     })
     .catch((e) => {

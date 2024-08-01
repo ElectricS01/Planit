@@ -3,6 +3,7 @@ import sequelize from "./db"
 import { serve } from "bun"
 import argon2 from "argon2"
 import cryptoRandomString from "crypto-random-string"
+import dayjs from "dayjs"
 
 // Import Libraries
 import auth from "./lib/auth"
@@ -513,6 +514,16 @@ serve({
       if (body.description?.length > 500) {
         return new Response("Task description too long", { status: 400 })
       }
+      if (body.start && dayjs(body.start).isValid()) {
+        body.start = dayjs(body.start).toISOString()
+      } else {
+        body.start = Date.now()
+      }
+      if (body.end && dayjs(body.end).isValid()) {
+        body.end = dayjs(body.end).toISOString()
+      } else {
+        body.end = null
+      }
       if (!body.name) {
         body.name = "New Task"
       }
@@ -523,7 +534,9 @@ serve({
         projectId: body.id,
         description: body.description,
         icon: body.icon,
-        name: body.name
+        name: body.name,
+        startAt: body.start,
+        dueAt: body.end
       })
       return new Response(JSON.stringify({ task: newTask }), {
         status: 200
