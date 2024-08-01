@@ -286,7 +286,6 @@ const createResource = () => {
 const isComplete = (latest) => {
   if (dayjs(latest) < dayjs()) return true
 }
-}
 async function getProject(id) {
   await axios
     .get(`/api/project/${id}`)
