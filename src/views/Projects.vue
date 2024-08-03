@@ -61,6 +61,7 @@
           class="modal-input"
           @keydown.enter="projectUserEnter"
         />
+        <div v-if="projectUsers.length">Permissions:</div>
         <div
           v-for="(user, index) in projectUsers"
           :key="user.type"
@@ -144,6 +145,7 @@
           class="modal-input"
           @keydown.enter="projectUserEnter"
         />
+        <div v-if="projectUsers.length">Permissions:</div>
         <div
           v-for="(user, index) in projectUsers"
           :key="user.type"
@@ -162,6 +164,7 @@
           >
             Remove
           </button>
+          <b v-else>(me)</b>
         </div>
         <button @click="editProject">Save</button>
         <button
