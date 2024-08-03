@@ -11,6 +11,11 @@ import Projects from "./projects"
 import ResourceAssociations from "./resourceAssociations"
 import Tasks from "./tasks"
 
+/*
+ * Sequelize-TS Model file, these files manage the types of the database so they can be validated by TypeScript.
+ * TypeScript types help with validation and protect the programmer from making mistakes with wrong DataTypes
+ */
+
 @Table
 export default class Resources extends Model {
   @ForeignKey(() => Projects)

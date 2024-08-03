@@ -28,6 +28,11 @@ const headers = {
   "Content-Type": "application/json"
 }
 
+/*
+ * index.ts is the core file of Planit's backend, all libraries from other files are imported here and called,
+ * all of Planit's APIs are also located here using Bun's serve function
+ */
+
 // Call Bun's serve function with the port of "3100", this port is used to connect to the server
 serve({
   port: 3100,
@@ -302,9 +307,10 @@ serve({
         return new Response("Email is taken", { status: 400 })
       }
 
-      // If all the validation checks pass then create the user with the provided email and username,
-      // and password hash and salt regenerated from the password provided, and an emailToken which
-      // will be sent to the user's email address for verification
+      // If all the validation checks pass then create the user with the provided email, username,
+      // and password hash and salt regenerated from the password provided using Argon2's industry
+      // trusted hashing and salting algorithms, and also an emailToken which will be sent to the user's
+      // email address for verification
       const user = await Users.create({
         email: body.email,
         emailToken: cryptoRandomString({
@@ -378,8 +384,10 @@ serve({
       return new Response("", { status: 204 })
     }
 
-    // This API is for signing in
+    // This API is for signing in, it uses the user's username and password to valid the user and create a session token to be
+    // stored in their browser
     else if (url.pathname === "/api/login" && request.method === "POST") {
+      // Check that the user provided both a username and password
       if (
         !body.username ||
         !body.password ||
@@ -388,6 +396,8 @@ serve({
       ) {
         return new Response("Form not complete", { status: 400 })
       }
+
+      // Check that the username exists
       const user = await Users.findOne({
         where: {
           username: body.username
@@ -396,15 +406,23 @@ serve({
       if (!user) {
         return new Response("User not found", { status: 400 })
       }
+
+      // Verify the user's password using Argon2 which is an industry trusted password hashing and salting library
       if (!(await argon2.verify(user.password, body.password))) {
         return new Response("Incorrect password", { status: 401 })
       }
+
+      // If the user's username and password are correct then generate a session token for them to securely save in
+      // their browser, session tokens allow the user to stay authenticated so they do not need to login again whenever
+      // they try to access Planit
       const session = await Sessions.create({
         expiredAt: Date.now() + 15552000000,
         token: cryptoRandomString({ length: 128 }),
         userAgent: request.headers.get("User-Agent"),
         userId: user.id
       })
+
+      // Get the user's details for them, these are the same details that a user would get in the UserData API
       const projects = await Projects.findAll({
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
@@ -424,6 +442,8 @@ serve({
           userId: user.id
         }
       })
+
+      // Return the user's session token and UserData to the client
       return new Response(
         JSON.stringify({
           token: session.token,
@@ -435,7 +455,11 @@ serve({
         }),
         { headers, status: 200 }
       )
-    } else if (
+    }
+
+    // This API is for creating projects, it takes a name, description, icon URL, and list of
+    // user permissions, non of these properties are required for the project to be created
+    else if (
       url.pathname === "/api/create-project" &&
       request.method === "POST"
     ) {
@@ -444,21 +468,33 @@ serve({
       if (user instanceof Response) {
         return user
       }
+
+      // Validate that the icon is a valid URL
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
+
+      // Validate the length of the project's name
       if (body.name?.length > 30) {
         return new Response("Project name too long", { status: 400 })
       }
+
+      // Validate the length of the project's description
       if (body.description?.length > 500) {
         return new Response("Project description too long", { status: 400 })
       }
+
+      // If the project doesn't have a provided name then set it to "New Project"
       if (!body.name) {
         body.name = "New Project"
       }
+
+      // If the project doesn't have a provided description then set it to "A New Planit Project"
       if (!body.description) {
         body.description = "A New Planit Project"
       }
+
+      // Create the project using Sequelize
       const newProject = await Projects.create({
         description: body.description,
         icon: body.icon,
@@ -466,17 +502,26 @@ serve({
         name: body.name,
         owner: user.id
       })
+
+      // Create a Permission for the owner of the project, type 0 means they are an owner
       await Permissions.create({
         projectId: newProject.id,
         type: 0,
         userId: newProject.owner
       })
+
+      // "map" is a form of for loop in JavaScript that allows you to easily iterate over an array,
+      // this use of map iterates over the array of permissions sent from the client
+
       body.users.map(async (user: Permissions) => {
+        // Check that the user exists
         const checkUser = await Users.findOne({
           where: {
             id: user.userId
           }
         })
+
+        // If the user exists then create a permission in the Database for them and send them a notification
         if (checkUser) {
           await Permissions.create({
             projectId: newProject.id,
@@ -490,46 +535,67 @@ serve({
           })
         }
       })
+      // Return the new project to the client
       return new Response(JSON.stringify({ project: newProject }), {
         status: 200
       })
-    } else if (
-      url.pathname === "/api/create-task" &&
-      request.method === "POST"
-    ) {
+    }
+
+    // This API is very similar in layout to the other create APIs, it validates the
+    else if (url.pathname === "/api/create-task" && request.method === "POST") {
       // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
       }
+
+      // Existance testing on the projectId of the new task
       if (!body.id) {
         return new Response("projectId is required", { status: 400 })
       }
+
+      // Validate that the icon is a valid URL
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
+
+      // Validate that the name is not too long
       if (body.name?.length > 30) {
         return new Response("Task name too long", { status: 400 })
       }
+
+      // Validate that the description is not too long
       if (body.description?.length > 500) {
         return new Response("Task description too long", { status: 400 })
       }
+
+      // Check that the date provided is valid using the dayjs "isValid" function, if there is
+      // no date or if it is not valid then set the start date of the class to right now
       if (body.start && dayjs(body.start).isValid()) {
         body.start = dayjs(body.start).toISOString()
       } else {
         body.start = Date.now()
       }
+
+      // Check that the date provided is valid using the dayjs "isValid" function,
+      // if it is not then discard it
       if (body.end && dayjs(body.end).isValid()) {
         body.end = dayjs(body.end).toISOString()
       } else {
         body.end = null
       }
+
+      // If the task doesn't have a provided name then set it to "New Task"
       if (!body.name) {
         body.name = "New Task"
       }
+
+      // If the task doesn't have a provided description then set it to "A New Planit Task"
       if (!body.description) {
         body.description = "A New Planit Task"
       }
+
+      // Create the new task with the provided details
       const newTask = await Tasks.create({
         projectId: body.id,
         description: body.description,
@@ -538,24 +604,40 @@ serve({
         startAt: body.start,
         dueAt: body.end
       })
+
+      // Send the new task back to the client
       return new Response(JSON.stringify({ task: newTask }), {
         status: 200
       })
-    } else if (url.pathname === "/api/history" && request.method === "POST") {
+    }
+
+    // Add items to the user's QuickSwitcher
+    else if (url.pathname === "/api/history" && request.method === "POST") {
       // Authenticate the user
       const user = await auth(request)
       if (user instanceof Response) {
         return user
       }
+
+      // Validate that there are history items
       if (body.history.length < 1) {
         return new Response("History has no content", { status: 400 })
       }
+
+      //Validate that there arn't too many history items
       if (body.history.length > 50) {
         return new Response("History too long", { status: 400 })
       }
+
+      // Update the user's history
       await user.update({ switcherHistory: body.history })
+
+      // Return 204 No Content to say that nothing should be sent back
       return new Response("", { status: 204 })
-    } else if (
+    }
+
+    // Delete project
+    else if (
       url.pathname === "/api/delete-project" &&
       request.method === "POST"
     ) {

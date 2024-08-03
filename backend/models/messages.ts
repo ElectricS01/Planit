@@ -10,6 +10,11 @@ import type { Embed } from "../types/embeds"
 import Projects from "./projects"
 import Users from "./users"
 
+/*
+ * Sequelize-TS Model file, these files manage the types of the database so they can be validated by TypeScript.
+ * TypeScript types help with validation and protect the programmer from making mistakes with wrong DataTypes
+ */
+
 @Table
 export default class Messages extends Model {
   @ForeignKey(() => Users)

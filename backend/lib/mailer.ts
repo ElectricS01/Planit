@@ -9,6 +9,11 @@ interface MailOptions {
   text: string
 }
 
+/*
+ * This library sends emails using the NodemailerLibrary, it can be called in any file with a sender,
+ * a reciever, a subject, and a body
+ */
+
 // Define the class using the NodemailerLibrary
 class NodemailerLibrary {
   private transporter

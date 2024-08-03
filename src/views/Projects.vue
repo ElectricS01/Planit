@@ -46,7 +46,7 @@
           <input
             id="project-background"
             v-model="projectIconInput"
-            placeholder="Project background image"
+            placeholder="Project background URL"
             class="modal-input"
             @keydown.enter="createProject"
           />
@@ -129,7 +129,7 @@
           <input
             id="project-background"
             v-model="projectIconInput"
-            placeholder="Project background image"
+            placeholder="Project background URL"
             class="modal-input"
             @keydown.enter="editProject"
           />

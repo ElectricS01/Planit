@@ -55,7 +55,7 @@
           <input
             id="task-background"
             v-model="taskIconInput"
-            placeholder="Task background image"
+            placeholder="Task background URL"
             class="modal-input"
             @keydown.enter="createTask"
           />
@@ -134,7 +134,7 @@
           <input
             id="task-background"
             v-model="resourceIconInput"
-            placeholder="Task background image"
+            placeholder="Task background URL"
             class="modal-input"
             @keydown.enter="createResource"
           />

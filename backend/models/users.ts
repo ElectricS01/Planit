@@ -1,5 +1,10 @@
 import { Column, DataType, Model, Table } from "sequelize-typescript"
 
+/*
+ * Sequelize-TS Model file, these files manage the types of the database so they can be validated by TypeScript.
+ * TypeScript types help with validation and protect the programmer from making mistakes with wrong DataTypes
+ */
+
 @Table({
   tableName: "Users",
   timestamps: true
