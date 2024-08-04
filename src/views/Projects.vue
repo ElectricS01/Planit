@@ -449,7 +449,6 @@ const editProject = () => {
         setTimeout(store.errorFalse, 5000)
       })
 }
-
 const createProject = () => {
   if (
     createShown.value &&

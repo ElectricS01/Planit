@@ -122,7 +122,7 @@
             v-model="taskNameInput"
             placeholder="Task name"
             class="modal-input"
-            @keydown.enter="createTask"
+            @keydown.enter="editTask"
           />
           <div class="text-small">
             <label for="task-description">Task description</label>
@@ -132,7 +132,7 @@
             v-model="taskDescriptionInput"
             placeholder="Task description"
             class="modal-input"
-            @keydown.enter="createTask"
+            @keydown.enter="editTask"
           />
           <div class="text-small">
             <label for="task-background">Task background image</label>
@@ -142,7 +142,7 @@
             v-model="taskIconInput"
             placeholder="Task background URL"
             class="modal-input"
-            @keydown.enter="createTask"
+            @keydown.enter="editTask"
           />
           <div class="text-small">
             <label for="task-start">Task start date</label>
@@ -152,7 +152,7 @@
             v-model="taskStartInput"
             placeholder="Task start date"
             class="modal-input"
-            @keydown.enter="createTask"
+            @keydown.enter="editTask"
           />
           <div class="text-small">
             <label for="task-end">Task end date</label>
@@ -162,10 +162,10 @@
             v-model="taskEndInput"
             placeholder="Task end date"
             class="modal-input"
-            @keydown.enter="createTask"
+            @keydown.enter="editTask"
           />
         </div>
-        <button @click="createTask">Create</button>
+        <button @click="editTask">Edit</button>
       </div>
     </modal>
   </transition>
@@ -396,7 +396,64 @@ dayjs.extend(relativeTime)
 if (!localStorage.getItem("token")) {
   router.push("/login")
 }
+const editTask = () => {
+  let start
+  let end
 
+  if (taskStartInput.value?.trim()) {
+    start =
+      dayjs(
+        taskStartInput.value
+          .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
+          .replace(/\bof\b/gi, "")
+          .trim()
+      ).toISOString() || Date.now()
+  }
+  if (taskEndInput.value?.trim()) {
+    end = dayjs(
+      taskEndInput.value
+        .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
+        .replace(/\bof\b/gi, "")
+        .trim()
+    ).toISOString()
+  }
+  if (
+    editShown.value &&
+    !store.quickSwitcherShown &&
+    !store.notificationsShown &&
+    !createShown.value
+  )
+    axios
+      .patch("/api/edit-task", {
+        id: editingTask.value.id,
+        projectId: currentProject.value.id,
+        description: taskDescriptionInput,
+        icon: taskIconInput,
+        name: taskNameInput,
+        start,
+        end
+      })
+      .then((res) => {
+        currentProject.value.tasks[
+          currentProject.value.tasks.indexOf(
+            currentProject.value.tasks.find(
+              (task) => task.id === res.data.task.id
+            )
+          )
+        ] = res.data.task
+        editShown.value = false
+        taskNameInput = ""
+        taskDescriptionInput = ""
+        taskIconInput = ""
+        taskStartInput.value = ""
+        taskEndInput.value = ""
+        editingTask.value = {}
+      })
+      .catch((e) => {
+        store.error = e.response?.data || e.message
+        setTimeout(store.errorFalse, 5000)
+      })
+}
 const createTask = () => {
   if (
     createShown.value &&
@@ -407,15 +464,15 @@ const createTask = () => {
     let start
     let end
 
-    // if (taskStartInput.value?.trim()) {
-    //   start =
-    //     dayjs(
-    //       taskStartInput.value
-    //         .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
-    //         .replace(/\bof\b/gi, "")
-    //         .trim()
-    //     ).toISOString() || Date.now()
-    // }
+    if (taskStartInput.value?.trim()) {
+      start =
+        dayjs(
+          taskStartInput.value
+            .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
+            .replace(/\bof\b/gi, "")
+            .trim()
+        ).toISOString() || Date.now()
+    }
     if (taskEndInput.value?.trim()) {
       end = dayjs(
         taskEndInput.value
@@ -430,7 +487,7 @@ const createTask = () => {
         description: taskDescriptionInput,
         icon: taskIconInput,
         name: taskNameInput,
-        start: taskStartInput.value,
+        start,
         end
       })
       .then((res) => {

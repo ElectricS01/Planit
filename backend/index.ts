@@ -696,19 +696,27 @@ serve({
         return new Response("Invalid Project ID", { status: 400 })
       }
 
-      // Validate the project's details, this validaion is the same as when a project is created
+      // Validate that the icon is a valid URL
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
+
+      // Validate that the name is not too long
       if (body.name?.length > 30) {
         return new Response("Project name too long", { status: 400 })
       }
+
+      // Validate that the description is not too long
       if (body.description?.length > 500) {
         return new Response("Project description too long", { status: 400 })
       }
+
+      // If the project doesn't have a provided name then set it to "New Project"
       if (!body.name) {
         body.name = "New Project"
       }
+
+      // If the project doesn't have a provided description then set it to "A New Planit Project"
       if (!body.description) {
         body.description = "A New Planit Project"
       }
@@ -850,6 +858,109 @@ serve({
         ]
       })
       return new Response(JSON.stringify({ project: project }), {
+        status: 200
+      })
+    }
+
+    // This API is for editing tasks
+    else if (url.pathname === "/api/edit-task" && request.method === "PATCH") {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Existance testing on the projectId of the task
+      if (!body.id || !body.projectId) {
+        return new Response("The ProjectID and TaskID is required", {
+          status: 400
+        })
+      }
+
+      // Validate that the icon is a valid URL
+      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+        return new Response("Icon is not a valid URL", { status: 400 })
+      }
+
+      // Validate that the name is not too long
+      if (body.name?.length > 30) {
+        return new Response("Task name too long", { status: 400 })
+      }
+
+      // Validate that the description is not too long
+      if (body.description?.length > 500) {
+        return new Response("Task description too long", { status: 400 })
+      }
+
+      // Check that the date provided is valid using the dayjs "isValid" function, if there is
+      // no date or if it is not valid then set the start date of the class to right now
+      if (body.start && dayjs(body.start).isValid()) {
+        body.start = dayjs(body.start).toISOString()
+      } else {
+        body.start = Date.now()
+      }
+
+      // Check that the date provided is valid using the dayjs "isValid" function,
+      // if it is not then discard it
+      if (body.end && dayjs(body.end).isValid()) {
+        body.end = dayjs(body.end).toISOString()
+      } else {
+        body.end = null
+      }
+
+      // If the task doesn't have a provided name then set it to "New Task"
+      if (!body.name) {
+        body.name = "New Task"
+      }
+
+      // If the task doesn't have a provided description then set it to "A New Planit Task"
+      if (!body.description) {
+        body.description = "A New Planit Task"
+      }
+
+      // Check the user's permission to edit this task, project owners and editors can edit the details of tasks
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.projectId }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response("You do not have permission to edit this task", {
+          status: 400
+        })
+      }
+
+      // Get the tasks's current details to find which permissions need to be modified and validate that the tasks exists
+      const editedTask = await Tasks.findByPk(body.id, {
+        attributes: [
+          "id",
+          "name",
+          "description",
+          "icon",
+          "type",
+          "startAt",
+          "dueAt"
+        ]
+      })
+      if (!editedTask) {
+        return new Response("Invalid TaskID", { status: 400 })
+      }
+
+      // Update the project's details with the newly provided ones
+      await editedTask.update(
+        {
+          description: body.description,
+          icon: body.icon,
+          name: body.name,
+          type: body.type,
+          startAt: body.start,
+          dueAt: body.end
+        },
+        {
+          where: { id: body.id }
+        }
+      )
+
+      // Send the new details back to the client for confirmation
+      return new Response(JSON.stringify({ task: editedTask }), {
         status: 200
       })
     }
