@@ -318,12 +318,14 @@
           class="task-item"
           @click="createShown = true"
         >
-          <img
-            src="https://i.electrics01.com/i/55bae440a2b3.png"
-            alt="Create a new task"
-            class="task-image"
-          />
-          <p class="text-medium">Create a New Task</p>
+          <div class="task-sub">
+            <img
+              src="https://i.electrics01.com/i/55bae440a2b3.png"
+              alt="Create a new task"
+              class="task-image"
+            />
+            <p class="text-medium">Create a New Task</p>
+          </div>
           <div class="task-container">
             <p class="text-medium-grey">
               Create a New Planit Task, Customise Description, Add Resources
@@ -345,19 +347,18 @@
               (taskEndInput = task.dueAt)
           "
         >
-          <img
-            src="https://i.electrics01.com/i/55bae440a2b3.png"
-            alt="Task background"
-            class="task-image"
-          />
-          <p class="text-medium">
-            {{ task.name }}
-          </p>
+          <div class="task-sub">
+            <img
+              src="https://i.electrics01.com/i/55bae440a2b3.png"
+              alt="Task background"
+              class="task-image"
+            />
+            <p class="text-medium">
+              {{ task.name }}
+            </p>
+          </div>
           <div class="task-container">
             <p class="text-medium-grey">{{ task.description }}</p>
-            <p v-if="isComplete(task.dueAt)" class="text-medium-grey">
-              There are no upcoming tasks
-            </p>
             <div class="date-container">
               <p class="text-medium-grey" style="margin-right: 8px">
                 {{ displayTime(task.startAt, false) }}
@@ -366,6 +367,16 @@
                 {{ displayTime(task.dueAt, true) }}
               </p>
             </div>
+          </div>
+          <div class="task-sub">
+            Resources:
+            <button
+              v-if="!addResourceShown"
+              @click.stop="addResourceShown = true"
+            >
+              Add
+            </button>
+            <input v-else />
           </div>
         </div>
       </div>
@@ -386,12 +397,14 @@
           class="task-item"
           @click="createResourceShown = true"
         >
-          <img
-            src="https://i.electrics01.com/i/124bd47c48c7.png"
-            alt="Create a new resource"
-            class="task-image"
-          />
-          <p class="text-medium">Create a New Resource</p>
+          <div class="task-sub">
+            <img
+              src="https://i.electrics01.com/i/124bd47c48c7.png"
+              alt="Create a new resource"
+              class="task-image"
+            />
+            <p class="text-medium">Create a New Resource</p>
+          </div>
           <div class="task-container">
             <p class="text-medium-grey">
               Create a New Planit Resource, Customise Name and Description
@@ -411,14 +424,16 @@
               (resourceIconInput = resource.icon)
           "
         >
-          <img
-            src="https://i.electrics01.com/i/124bd47c48c7.png"
-            alt="Task background"
-            class="task-image"
-          />
-          <p class="text-medium">
-            {{ resource.name }}
-          </p>
+          <div class="task-sub">
+            <img
+              src="https://i.electrics01.com/i/124bd47c48c7.png"
+              alt="Task background"
+              class="task-image"
+            />
+            <p class="text-medium">
+              {{ resource.name }}
+            </p>
+          </div>
           <div class="task-container">
             <p class="text-medium-grey">{{ resource.description }}</p>
           </div>
@@ -451,6 +466,7 @@ const createShown = ref(false)
 const editShown = ref(false)
 const createResourceShown = ref(false)
 const editResourceShown = ref(false)
+const addResourceShown = ref(false)
 const currentProject = ref({})
 const editingTask = ref({})
 const editingResource = ref({})
@@ -631,9 +647,6 @@ const createResource = () => {
         store.error = e.response?.data || e.message
         setTimeout(store.errorFalse, 5000)
       })
-}
-const isComplete = (latest) => {
-  if (dayjs(latest) < dayjs()) return true
 }
 const displayTime = (date, end) => {
   if (!date) return "No due date"
