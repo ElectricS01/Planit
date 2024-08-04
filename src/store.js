@@ -93,7 +93,9 @@ export const useDataStore = defineStore("store", () => {
         }
       })
       .catch((e) => {
-        if (e.response?.status !== 401) {
+        if (e.response?.status === 401) {
+          router.push("/login")
+        } else {
           error.value = `Error 503, Cannot Connect to Server ${e}`
           setTimeout(errorFalse, 5000)
         }

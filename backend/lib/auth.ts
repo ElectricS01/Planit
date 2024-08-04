@@ -13,13 +13,10 @@ export default async function auth(req: Request) {
   // Check if there was a token sent in the http request
   const token = req.headers.get("Authorization")
   if (!token)
-    return new Response(
-      JSON.stringify({ message: "Access denied. No token provided." }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 401
-      }
-    )
+    return new Response("Access denied. No token provided.", {
+      headers: { "Content-Type": "application/json" },
+      status: 401
+    })
   // Use the sent token to see if it matches an existing session
   const session = await Sessions.findOne({
     include: [
@@ -31,13 +28,10 @@ export default async function auth(req: Request) {
     where: { token }
   })
   if (!session || !session.user) {
-    return new Response(
-      JSON.stringify({ message: "Access denied. No token provided." }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 401
-      }
-    )
+    return new Response("Access denied. No token provided.", {
+      headers: { "Content-Type": "application/json" },
+      status: 401
+    })
   }
   // Return the session for use in the index.ts
   return session.user

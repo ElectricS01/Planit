@@ -340,7 +340,7 @@
         <div v-else class="center">
           <div style="text-align: center" class="loader" />
         </div>
-        <p v-if="!store.userData.projects?.length">
+        <p v-if="!store.userData.projects?.length && !store.loadingProjects">
           You don't have any projects shared with you
         </p>
       </div>

@@ -143,7 +143,7 @@ serve({
       }
 
       // Find the project and it's permissions, messages, tasks, and owner
-      const project = await Projects.findOne({
+      const project = await Projects.findByPk(url.pathname.split("/")[3], {
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
           {
@@ -170,6 +170,7 @@ serve({
               "name",
               "description",
               "icon",
+              "type",
               "startAt",
               "dueAt"
             ],
@@ -179,10 +180,7 @@ serve({
             attributes: ["id", "username", "avatar"],
             model: Users
           }
-        ],
-        where: {
-          id: url.pathname.split("/")[3]
-        }
+        ]
       })
 
       // If the project couldn't be found then return an error message to the client
@@ -636,7 +634,7 @@ serve({
       return new Response("", { status: 204 })
     }
 
-    // Delete project
+    // Delete a project if the user provides password permission, this can only be done by project owners
     else if (
       url.pathname === "/api/delete-project" &&
       request.method === "POST"
@@ -646,9 +644,13 @@ serve({
       if (user instanceof Response) {
         return user
       }
+
+      // Check if a ProjectID is provided
       if (!body.id) {
         return new Response("Invalid Project ID", { status: 400 })
       }
+
+      // Check if the user has provided a valid password
       if (
         !body.password ||
         !(await argon2.verify(user.password, body.password))
@@ -657,20 +659,29 @@ serve({
           status: 400
         })
       }
+
+      // Check if the project exists and that the user owns it
       const deleteProject = await Projects.findByPk(body.id, {
         attributes: ["owner"]
       })
       if (!deleteProject || deleteProject.owner !== user.id) {
         return new Response("Invalid Project ID", { status: 400 })
       }
+
+      // Delete the project and all permissions to that project
       await Projects.destroy({
         where: { id: body.id }
       })
       await Permissions.destroy({
         where: { projectId: body.id }
       })
+
+      // Return 204 No Content
       return new Response("", { status: 204 })
-    } else if (
+    }
+
+    // This API is for editing projects
+    else if (
       url.pathname === "/api/edit-project" &&
       request.method === "PATCH"
     ) {
@@ -679,9 +690,13 @@ serve({
       if (user instanceof Response) {
         return user
       }
+
+      // Check if a ProjectID is provided
       if (!body.id) {
         return new Response("Invalid Project ID", { status: 400 })
       }
+
+      // Validate the project's details, this validaion is the same as when a project is created
       if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
@@ -697,6 +712,8 @@ serve({
       if (!body.description) {
         body.description = "A New Planit Project"
       }
+
+      // Check the user's permission to edit this project, only project owners can edit the details of a project
       const permission = await Permissions.findOne({
         where: { userId: user.id, projectId: body.id }
       })
@@ -705,6 +722,8 @@ serve({
           status: 400
         })
       }
+
+      // Get the project's current details to find which permissions need to be modified and validate that the project exists
       const editedProject = await Projects.findByPk(body.id, {
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
@@ -717,16 +736,14 @@ serve({
                 model: Users
               }
             ]
-          },
-          {
-            attributes: ["id", "username", "avatar"],
-            model: Users
           }
         ]
       })
       if (!editedProject) {
         return new Response("Invalid Project ID", { status: 400 })
       }
+
+      // Update the project's details with the newly provided ones
       await editedProject.update(
         {
           description: body.description,
@@ -775,7 +792,6 @@ serve({
             projectId: body.id
           }
         })
-
         if (!existingPermission) {
           const newPermission = await Permissions.create({
             projectId: body.id,
@@ -793,6 +809,7 @@ serve({
         }
       }
 
+      // Get the project's details again to send it back to the client
       const project = await Projects.findByPk(body.id, {
         attributes: ["id", "name", "description", "icon", "owner", "latest"],
         include: [
@@ -807,6 +824,26 @@ serve({
             ]
           },
           {
+            attributes: ["messageContents"],
+            model: Messages
+          },
+          {
+            attributes: ["id", "name", "description", "icon"],
+            model: Resources
+          },
+          {
+            attributes: [
+              "id",
+              "name",
+              "description",
+              "icon",
+              "type",
+              "startAt",
+              "dueAt"
+            ],
+            model: Tasks
+          },
+          {
             attributes: ["id", "username", "avatar"],
             model: Users
           }
@@ -815,19 +852,26 @@ serve({
       return new Response(JSON.stringify({ project: project }), {
         status: 200
       })
-    } else {
+    }
+
+    // If the route/API could not be found then send 404 Not Found to the
+    // client, this will be displayed as an error banner in the client
+    else {
       return new Response("Not Found", { status: 404 })
     }
   },
+
+  // If the server encountered an error like a database issue or logic error,
+  // then send back a short message to the client explaining what went wrong
+  // and then log the full error to the console for debugging
   error(error) {
     console.log(`${error}\n${error.stack}`)
     return new Response(error.message, {
-      headers: {
-        "Content-Type": "text/html"
-      },
-      status: 400
+      headers,
+      status: 500
     })
   }
 })
 
+// This logs when the server starts so you know it started successfully
 console.log("Server is running on http://localhost:3100")

@@ -87,6 +87,91 @@
   <transition>
     <modal
       v-if="
+        editShown &&
+        !store.quickSwitcherShown &&
+        !store.notificationsShown &&
+        !createResourceShown &&
+        !editResourceShown
+      "
+      :is-active="
+        editShown &&
+        !store.quickSwitcherShown &&
+        !store.notificationsShown &&
+        !createResourceShown &&
+        !editResourceShown
+      "
+      @close="
+        ;(editShown = false),
+          (taskNameInput = ''),
+          (taskDescriptionInput = ''),
+          (taskIconInput = ''),
+          (taskStartInput = ''),
+          (taskEndInput = '')
+      "
+    >
+      <div class="modal-menu">
+        <div class="selector">
+          <p>Edit {{ editingTask.name }}</p>
+        </div>
+        <div>
+          <div class="text-small">
+            <label class="text-small" for="task-name">Task name</label>
+          </div>
+          <input
+            id="task-name"
+            v-model="taskNameInput"
+            placeholder="Task name"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+          <div class="text-small">
+            <label for="task-description">Task description</label>
+          </div>
+          <input
+            id="task-description"
+            v-model="taskDescriptionInput"
+            placeholder="Task description"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+          <div class="text-small">
+            <label for="task-background">Task background image</label>
+          </div>
+          <input
+            id="task-background"
+            v-model="taskIconInput"
+            placeholder="Task background URL"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+          <div class="text-small">
+            <label for="task-start">Task start date</label>
+          </div>
+          <input
+            id="task-start"
+            v-model="taskStartInput"
+            placeholder="Task start date"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+          <div class="text-small">
+            <label for="task-end">Task end date</label>
+          </div>
+          <input
+            id="task-end"
+            v-model="taskEndInput"
+            placeholder="Task end date"
+            class="modal-input"
+            @keydown.enter="createTask"
+          />
+        </div>
+        <button @click="createTask">Create</button>
+      </div>
+    </modal>
+  </transition>
+  <transition>
+    <modal
+      v-if="
         createResourceShown &&
         !store.quickSwitcherShown &&
         !store.notificationsShown
@@ -148,8 +233,16 @@
       <p class="title-menu">{{ currentProject?.name }}</p>
       <p class="title-sub">Tasks</p>
       <div class="spacer" />
-      <div class="menu-section">
-        <div class="task-item" @click="createShown = true">
+      <div v-if="!loadingProject" class="menu-section">
+        <div
+          v-if="
+            currentProject.permissions.find(
+              (permissions) => permissions.userId === store.userData.id
+            ).type !== 2
+          "
+          class="task-item"
+          @click="createShown = true"
+        >
           <img
             src="https://i.electrics01.com/i/55bae440a2b3.png"
             alt="Create a new task"
@@ -167,6 +260,15 @@
           :id="'task-' + index"
           :key="task.id"
           class="task-item"
+          @click="
+            (editShown = true),
+              (editingTask = task),
+              (taskNameInput = task.name),
+              (taskDescriptionInput = task.description),
+              (taskIconInput = task.icon),
+              (taskStartInput = dayjs(task.startAt).format('DD/MM/YYYY')),
+              (taskEndInput = task.dueAt)
+          "
         >
           <img
             src="https://i.electrics01.com/i/55bae440a2b3.png"
@@ -182,20 +284,33 @@
               There are no upcoming tasks
             </p>
             <div class="date-container">
-              <p class="text-medium-grey">
-                Starts at: {{ displayTime(task.startsAt, false) }}
+              <p class="text-medium-grey" style="margin-right: 8px">
+                {{ displayTime(task.startAt, false) }}
               </p>
               <p class="text-medium-grey">
-                Ends at: {{ displayTime(task.dueAt, true) }}
+                {{ displayTime(task.dueAt, true) }}
               </p>
             </div>
           </div>
         </div>
       </div>
+      <div v-else class="menu-section">
+        <div class="center">
+          <div style="text-align: center" class="loader" />
+        </div>
+      </div>
       <p class="title-sub">Resources</p>
       <div class="spacer" />
-      <div class="menu-section">
-        <div class="task-item" @click="createResourceShown = true">
+      <div v-if="!loadingProject" class="menu-section">
+        <div
+          v-if="
+            currentProject.permissions.find(
+              (permissions) => permissions.userId === store.userData.id
+            ).type !== 2
+          "
+          class="task-item"
+          @click="createResourceShown = true"
+        >
           <img
             src="https://i.electrics01.com/i/124bd47c48c7.png"
             alt="Create a new resource"
@@ -213,6 +328,13 @@
           :id="'task-' + index"
           :key="task.id"
           class="task-item"
+          @click="
+            (editResourceShown = true),
+              (editingResource = task),
+              (resourceNameInput = project.name),
+              (resourceDescriptionInput = project.description),
+              (resourceIconInput = project.icon)
+          "
         >
           <img
             src="https://i.electrics01.com/i/124bd47c48c7.png"
@@ -225,6 +347,11 @@
           <div class="task-container">
             <p class="text-medium-grey">{{ resources.description }}</p>
           </div>
+        </div>
+      </div>
+      <div v-else class="menu-section">
+        <div class="center">
+          <div style="text-align: center" class="loader" />
         </div>
       </div>
     </div>
@@ -250,6 +377,9 @@ const editShown = ref(false)
 const createResourceShown = ref(false)
 const editResourceShown = ref(false)
 const currentProject = ref({})
+const editingTask = ref({})
+const editingResource = ref({})
+const loadingProject = ref(true)
 
 const taskStartInput = ref("")
 const taskEndInput = ref("")
@@ -340,6 +470,7 @@ const isComplete = (latest) => {
   if (dayjs(latest) < dayjs()) return true
 }
 const displayTime = (date, end) => {
+  if (!date) return "No due date"
   const hoursDifference = dayjs(date).diff(dayjs(), "hour")
   if (dayjs(date) > dayjs()) {
     if (hoursDifference > 24) {
@@ -358,7 +489,7 @@ const displayTime = (date, end) => {
   } else if (!end && dayjs(end) > dayjs()) {
     return "Currently Occurring"
   } else {
-    return "Project is complete"
+    return "Task is complete"
   }
 }
 async function getProject(id) {
@@ -367,11 +498,12 @@ async function getProject(id) {
     .then((res) => {
       currentProject.value = res.data.project
       currentProject.value.messages.focus = false
+      loadingProject.value = false
     })
     .catch((e) => {
-      if (e.response?.status === 400) {
+      if (e.response?.status === 400 || e.response?.status === 401) {
         router.push("/projects")
-      } else if (e.response?.status !== 401) {
+      } else {
         store.error = `Error ${e.request.status}, ${
           e.response.data.message || e.request.statusMessage
         }`
