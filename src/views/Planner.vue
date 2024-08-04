@@ -624,7 +624,7 @@ const createResource = () => {
         name: resourceNameInput
       })
       .then((res) => {
-        currentProject.value.resources.push(res.data.task)
+        currentProject.value.resources.push(res.data.resource)
         createResourceShown.value = false
       })
       .catch((e) => {
