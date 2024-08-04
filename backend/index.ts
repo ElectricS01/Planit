@@ -539,7 +539,7 @@ serve({
       })
     }
 
-    // This API is very similar in layout to the other create APIs, it validates the
+    // This API is very similar in layout to the other create APIs, it validates the task's details and then creates it
     else if (url.pathname === "/api/create-task" && request.method === "POST") {
       // Authenticate the user
       const user = await auth(request)
@@ -605,6 +605,86 @@ serve({
 
       // Send the new task back to the client
       return new Response(JSON.stringify({ task: newTask }), {
+        status: 200
+      })
+    }
+
+    // Add items to the user's QuickSwitcher
+    else if (url.pathname === "/api/history" && request.method === "POST") {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Validate that there are history items
+      if (body.history.length < 1) {
+        return new Response("History has no content", { status: 400 })
+      }
+
+      //Validate that there arn't too many history items
+      if (body.history.length > 50) {
+        return new Response("History too long", { status: 400 })
+      }
+
+      // Update the user's history
+      await user.update({ switcherHistory: body.history })
+
+      // Return 204 No Content to say that nothing should be sent back
+      return new Response("", { status: 204 })
+    }
+
+    // This API is very similar in layout to the other create APIs, it validates the resource's details and then creates it
+    else if (
+      url.pathname === "/api/create-resource" &&
+      request.method === "POST"
+    ) {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Existance testing on the projectId of the new resource
+      if (!body.id) {
+        return new Response("projectId is required", { status: 400 })
+      }
+
+      // Validate that the icon is a valid URL
+      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+        return new Response("Icon is not a valid URL", { status: 400 })
+      }
+
+      // Validate that the name is not too long
+      if (body.name?.length > 30) {
+        return new Response("Resource name too long", { status: 400 })
+      }
+
+      // Validate that the description is not too long
+      if (body.description?.length > 500) {
+        return new Response("Resource description too long", { status: 400 })
+      }
+
+      // If the resource doesn't have a provided name then set it to "New Resource"
+      if (!body.name) {
+        body.name = "New Resource"
+      }
+
+      // If the resource doesn't have a provided description then set it to "A New Planit Resource"
+      if (!body.description) {
+        body.description = "A New Planit Resource"
+      }
+
+      // Create the new resource with the provided details
+      const newResource = await Resources.create({
+        projectId: body.id,
+        description: body.description,
+        icon: body.icon,
+        name: body.name
+      })
+
+      // Send the new resource back to the client
+      return new Response(JSON.stringify({ resource: newResource }), {
         status: 200
       })
     }
@@ -928,7 +1008,7 @@ serve({
         })
       }
 
-      // Get the tasks's current details to find which permissions need to be modified and validate that the tasks exists
+      // Get the tasks's current details to find which permissions need to be modified and validate that the task exists
       const editedTask = await Tasks.findByPk(body.id, {
         attributes: [
           "id",
@@ -944,7 +1024,7 @@ serve({
         return new Response("Invalid TaskID", { status: 400 })
       }
 
-      // Update the project's details with the newly provided ones
+      // Update the task's details with the newly provided ones
       await editedTask.update(
         {
           description: body.description,
@@ -961,6 +1041,88 @@ serve({
 
       // Send the new details back to the client for confirmation
       return new Response(JSON.stringify({ task: editedTask }), {
+        status: 200
+      })
+    }
+
+    // This API is for editing resources
+    else if (
+      url.pathname === "/api/edit-resource" &&
+      request.method === "PATCH"
+    ) {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Existance testing on the projectId of the resource
+      if (!body.id || !body.projectId) {
+        return new Response("The ProjectID and ResourceID is required", {
+          status: 400
+        })
+      }
+
+      // Validate that the icon is a valid URL
+      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+        return new Response("Icon is not a valid URL", { status: 400 })
+      }
+
+      // Validate that the name is not too long
+      if (body.name?.length > 30) {
+        return new Response("Resource name too long", { status: 400 })
+      }
+
+      // Validate that the description is not too long
+      if (body.description?.length > 500) {
+        return new Response("Resource description too long", { status: 400 })
+      }
+
+      // If the resource doesn't have a provided name then set it to "New Resource"
+      if (!body.name) {
+        body.name = "New Resource"
+      }
+
+      // If the resource doesn't have a provided description then set it to "A New Planit Resource"
+      if (!body.description) {
+        body.description = "A New Planit Resource"
+      }
+
+      // Check the user's permission to edit this resource, project owners and editors can edit the details of resources
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.projectId }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response(
+          "You do not have permission to edit this resource",
+          {
+            status: 400
+          }
+        )
+      }
+
+      // Get the resource's current details to find which permissions need to be modified and validate that the resource exists
+      const editedResource = await Resources.findByPk(body.id, {
+        attributes: ["id", "name", "description", "icon"]
+      })
+      if (!editedResource) {
+        return new Response("Invalid ResourceID", { status: 400 })
+      }
+
+      // Update the resources's details with the newly provided ones
+      await editedResource.update(
+        {
+          description: body.description,
+          icon: body.icon,
+          name: body.name
+        },
+        {
+          where: { id: body.id }
+        }
+      )
+
+      // Send the new details back to the client for confirmation
+      return new Response(JSON.stringify({ resource: editedResource }), {
         status: 200
       })
     }

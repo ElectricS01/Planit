@@ -5,6 +5,7 @@
         createShown &&
         !store.quickSwitcherShown &&
         !store.notificationsShown &&
+        !editShown &&
         !createResourceShown &&
         !editResourceShown
       "
@@ -12,6 +13,7 @@
         createShown &&
         !store.quickSwitcherShown &&
         !store.notificationsShown &&
+        !editShown &&
         !createResourceShown &&
         !editResourceShown
       "
@@ -90,6 +92,7 @@
         editShown &&
         !store.quickSwitcherShown &&
         !store.notificationsShown &&
+        !createShown &&
         !createResourceShown &&
         !editResourceShown
       "
@@ -97,6 +100,7 @@
         editShown &&
         !store.quickSwitcherShown &&
         !store.notificationsShown &&
+        !createShown &&
         !createResourceShown &&
         !editResourceShown
       "
@@ -174,12 +178,18 @@
       v-if="
         createResourceShown &&
         !store.quickSwitcherShown &&
-        !store.notificationsShown
+        !store.notificationsShown &&
+        !editShown &&
+        !createShown &&
+        !editResourceShown
       "
       :is-active="
         createResourceShown &&
         !store.quickSwitcherShown &&
-        !store.notificationsShown
+        !store.notificationsShown &&
+        !editShown &&
+        !createShown &&
+        !editResourceShown
       "
       @close="
         ;(createResourceShown = false),
@@ -225,6 +235,71 @@
           />
         </div>
         <button @click="createResource">Create</button>
+      </div>
+    </modal>
+  </transition>
+  <transition>
+    <modal
+      v-if="
+        editResourceShown &&
+        !store.quickSwitcherShown &&
+        !store.notificationsShown &&
+        !editShown &&
+        !createShown &&
+        !createResourceShown
+      "
+      :is-active="
+        editResourceShown &&
+        !store.quickSwitcherShown &&
+        !store.notificationsShown &&
+        !editShown &&
+        !createShown &&
+        !createResourceShown
+      "
+      @close="
+        ;(editResourceShown = false),
+          (resourceNameInput = ''),
+          (resourceDescriptionInput = ''),
+          (resourceIconInput = '')
+      "
+    >
+      <div class="modal-menu">
+        <div class="selector">
+          <p>Edit {{ editResource.name }}</p>
+        </div>
+        <div>
+          <div class="text-small">
+            <label class="text-small" for="task-name">Resource name</label>
+          </div>
+          <input
+            id="task-name"
+            v-model="resourceNameInput"
+            placeholder="Task name"
+            class="modal-input"
+            @keydown.enter="editResource"
+          />
+          <div class="text-small">
+            <label for="task-description">Resource description</label>
+          </div>
+          <input
+            id="task-description"
+            v-model="resourceDescriptionInput"
+            placeholder="Task description"
+            class="modal-input"
+            @keydown.enter="editResource"
+          />
+          <div class="text-small">
+            <label for="task-background">Resource background image</label>
+          </div>
+          <input
+            id="task-background"
+            v-model="resourceIconInput"
+            placeholder="Task background URL"
+            class="modal-input"
+            @keydown.enter="editResource"
+          />
+        </div>
+        <button @click="editResource">Edit</button>
       </div>
     </modal>
   </transition>
@@ -324,16 +399,16 @@
           </div>
         </div>
         <div
-          v-for="(resources, index) in currentProject.resources"
+          v-for="(resource, index) in currentProject.resources"
           :id="'task-' + index"
-          :key="task.id"
+          :key="resource.id"
           class="task-item"
           @click="
             (editResourceShown = true),
-              (editingResource = task),
-              (resourceNameInput = project.name),
-              (resourceDescriptionInput = project.description),
-              (resourceIconInput = project.icon)
+              (editingResource = resource),
+              (resourceNameInput = resource.name),
+              (resourceDescriptionInput = resource.description),
+              (resourceIconInput = resource.icon)
           "
         >
           <img
@@ -342,10 +417,10 @@
             class="task-image"
           />
           <p class="text-medium">
-            {{ resources.name }}
+            {{ resource.name }}
           </p>
           <div class="task-container">
-            <p class="text-medium-grey">{{ resources.description }}</p>
+            <p class="text-medium-grey">{{ resource.description }}</p>
           </div>
         </div>
       </div>
@@ -499,6 +574,40 @@ const createTask = () => {
         setTimeout(store.errorFalse, 5000)
       })
   }
+}
+const editResource = () => {
+  if (
+    editResourceShown.value &&
+    !store.quickSwitcherShown &&
+    !store.notificationsShown &&
+    !createResourceShown.value
+  )
+    axios
+      .patch("/api/edit-resource", {
+        id: editingResource.value.id,
+        projectId: currentProject.value.id,
+        description: resourceDescriptionInput,
+        icon: resourceIconInput,
+        name: resourceNameInput
+      })
+      .then((res) => {
+        currentProject.value.resources[
+          currentProject.value.resources.indexOf(
+            currentProject.value.resources.find(
+              (task) => task.id === res.data.resource.id
+            )
+          )
+        ] = res.data.resource
+        editResourceShown.value = false
+        resourceNameInput = ""
+        resourceDescriptionInput = ""
+        resourceIconInput = ""
+        editingResource.value = {}
+      })
+      .catch((e) => {
+        store.error = e.response?.data || e.message
+        setTimeout(store.errorFalse, 5000)
+      })
 }
 const createResource = () => {
   if (
