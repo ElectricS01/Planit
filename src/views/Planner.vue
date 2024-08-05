@@ -310,7 +310,7 @@
       <div class="spacer" />
       <div v-if="!loadingProject" class="menu-section">
         <div class="toggle-container">
-          Filters:
+          <p>Filters:</p>
           <div class="checkbox-container">
             <input
               type="checkbox"
@@ -408,7 +408,7 @@
             </div>
           </div>
           <div class="task-sub">
-            Resources:
+            <p>Resources:</p>
             <button
               v-if="!addResourceShown"
               @click.stop="addResourceShown = true"

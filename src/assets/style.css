@@ -538,7 +538,6 @@ input:focus {
   padding-left: 28px;
   cursor: pointer;
   font-size: 16px;
-  color: white;
 }
 
 .checkbox-container label::before {
