@@ -309,6 +309,45 @@
       <p class="title-sub">Tasks</p>
       <div class="spacer" />
       <div v-if="!loadingProject" class="menu-section">
+        <div class="toggle-container">
+          Filters:
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="pending"
+              :checked="pendingTasks"
+              @click="toggle('pending')"
+            />
+            <label for="pending">Pending</label>
+          </div>
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="ongoing"
+              :checked="ongoingTasks"
+              @click="toggle('ongoing')"
+            />
+            <label for="ongoing">Ongoing</label>
+          </div>
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="complete"
+              :checked="completedTasks"
+              @click="toggle('complete')"
+            />
+            <label for="complete">Complete</label>
+          </div>
+          <div class="checkbox-container">
+            <input
+              type="checkbox"
+              id="hidden"
+              :checked="hiddenTasks"
+              @click="toggle('hidden')"
+            />
+            <label for="hidden">Hidden</label>
+          </div>
+        </div>
         <div
           v-if="
             currentProject.permissions.find(
@@ -333,7 +372,7 @@
           </div>
         </div>
         <div
-          v-for="(task, index) in currentProject.tasks"
+          v-for="(task, index) in currentTasks"
           :id="'task-' + index"
           :key="task.id"
           class="task-item"
@@ -456,7 +495,7 @@ import relativeTime from "dayjs/plugin/relativeTime"
 import { useRouter, useRoute } from "vue-router"
 import axios from "axios"
 import { useDataStore } from "../store.js"
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 
 const route = useRoute()
 const router = useRouter()
@@ -472,6 +511,11 @@ const editingTask = ref({})
 const editingResource = ref({})
 const loadingProject = ref(true)
 
+const pendingTasks = ref(true)
+const ongoingTasks = ref(true)
+const completedTasks = ref(false)
+const hiddenTasks = ref(false)
+
 const taskStartInput = ref("")
 const taskEndInput = ref("")
 
@@ -486,6 +530,32 @@ dayjs.extend(relativeTime)
 
 if (!localStorage.getItem("token")) {
   router.push("/login")
+}
+
+const currentTasks = computed(() =>
+  currentProject.value.tasks.filter(
+    (task) =>
+      (task.type === 2 &&
+        pendingTasks.value &&
+        dayjs(task.startAt) > dayjs()) ||
+      (task.type === 2 &&
+        ongoingTasks.value &&
+        dayjs(task.startAt) < dayjs()) ||
+      (task.type === 1 && completedTasks.value) ||
+      (task.type === 0 && hiddenTasks.value)
+  )
+)
+
+const toggle = (type) => {
+  if (type === "pending") {
+    pendingTasks.value = !pendingTasks.value
+  } else if (type === "ongoing") {
+    ongoingTasks.value = !ongoingTasks.value
+  } else if (type === "complete") {
+    completedTasks.value = !completedTasks.value
+  } else if (type === "hidden") {
+    hiddenTasks.value = !hiddenTasks.value
+  }
 }
 const editTask = () => {
   let start
@@ -556,6 +626,11 @@ const createTask = () => {
     let end
 
     if (taskStartInput.value?.trim()) {
+      if (!dayjs(taskStartInput.value.trim()).isValid()) {
+        store.error = "Invalid date"
+        setTimeout(store.errorFalse, 5000)
+        return
+      }
       start =
         dayjs(
           taskStartInput.value
@@ -565,6 +640,11 @@ const createTask = () => {
         ).toISOString() || Date.now()
     }
     if (taskEndInput.value?.trim()) {
+      if (!dayjs(taskEndInput.value.trim()).isValid()) {
+        store.error = "Invalid date"
+        setTimeout(store.errorFalse, 5000)
+        return
+      }
       end = dayjs(
         taskEndInput.value
           .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
@@ -584,6 +664,12 @@ const createTask = () => {
       .then((res) => {
         currentProject.value.tasks.push(res.data.task)
         createShown.value = false
+        taskNameInput = ""
+        taskDescriptionInput = ""
+        taskIconInput = ""
+        taskStartInput.value = ""
+        taskEndInput.value = ""
+        editingTask.value = {}
       })
       .catch((e) => {
         store.error = e.response?.data || e.message
@@ -654,9 +740,9 @@ const displayTime = (date, end) => {
   if (dayjs(date) > dayjs()) {
     if (hoursDifference > 24) {
       if (end) {
-        return `Ends on ${dayjs(date).format("DD/MM/YYYY HH:mm:ss")}`
+        return `Ends on ${dayjs(date).format("DD/MM/YYYY")}`
       } else {
-        return `Starts on ${dayjs(date).format("DD/MM/YYYY HH:mm:ss")}`
+        return `Starts on ${dayjs(date).format("DD/MM/YYYY")}`
       }
     } else {
       if (end) {
@@ -668,7 +754,7 @@ const displayTime = (date, end) => {
   } else if (!end && dayjs(end) > dayjs()) {
     return "Currently Occurring"
   } else {
-    return "Task is complete"
+    return `Task started on ${dayjs(date).format("DD/MM/YYYY")}`
   }
 }
 async function getProject(id) {
