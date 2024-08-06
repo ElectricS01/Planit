@@ -265,7 +265,7 @@
     >
       <div class="modal-menu">
         <div class="selector">
-          <p>Edit {{ editResource.name }}</p>
+          <p>Edit {{ editingResource.name }}</p>
         </div>
         <div>
           <div class="text-small">
@@ -371,6 +371,8 @@
             </p>
           </div>
         </div>
+        <p v-if="!currentProject.tasks?.length">This project has no tasks</p>
+        <p v-else-if="!currentTasks?.length">No tasks match your filters</p>
         <div
           v-for="(task, index) in currentTasks"
           :id="'task-' + index"
@@ -383,12 +385,12 @@
               (taskDescriptionInput = task.description),
               (taskIconInput = task.icon),
               (taskStartInput = dayjs(task.startAt).format('DD/MM/YYYY')),
-              (taskEndInput = task.dueAt)
+              (taskEndInput = dayjs(task.dueAt).format('DD/MM/YYYY'))
           "
         >
           <div class="task-sub">
             <img
-              src="https://i.electrics01.com/i/55bae440a2b3.png"
+              :src="task.icon || 'https://i.electrics01.com/i/55bae440a2b3.png'"
               alt="Task background"
               class="task-image"
             />
@@ -450,9 +452,12 @@
             </p>
           </div>
         </div>
+        <p v-if="!currentProject.resources?.length">
+          This project has no resources
+        </p>
         <div
           v-for="(resource, index) in currentProject.resources"
-          :id="'task-' + index"
+          :id="'resource-' + index"
           :key="resource.id"
           class="task-item"
           @click="
@@ -465,8 +470,10 @@
         >
           <div class="task-sub">
             <img
-              src="https://i.electrics01.com/i/124bd47c48c7.png"
-              alt="Task background"
+              :src="
+                resource.icon || 'https://i.electrics01.com/i/124bd47c48c7.png'
+              "
+              alt="Resource background"
               class="task-image"
             />
             <p class="text-medium">
@@ -492,6 +499,7 @@ import Modal from "../components/Modal.vue"
 
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
+import localizedFormat from "dayjs/plugin/localizedFormat"
 import { useRouter, useRoute } from "vue-router"
 import axios from "axios"
 import { useDataStore } from "../store.js"
@@ -527,6 +535,7 @@ let resourceDescriptionInput
 let resourceIconInput
 
 dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
 
 if (!localStorage.getItem("token")) {
   router.push("/login")
@@ -669,7 +678,6 @@ const createTask = () => {
         taskIconInput = ""
         taskStartInput.value = ""
         taskEndInput.value = ""
-        editingTask.value = {}
       })
       .catch((e) => {
         store.error = e.response?.data || e.message
