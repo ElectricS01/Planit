@@ -180,6 +180,8 @@ body {
 .mode-switch:hover,
 .edit-button:hover,
 .navbar a:hover,
+.dropdown-toggle:hover,
+.dropdown-menu li:hover,
 button:hover,
 .menu-button:hover,
 .task-item:hover,
@@ -194,6 +196,8 @@ button:hover,
 .light-mode .highlighted,
 .light-mode .container-flex::-webkit-scrollbar-thumb:hover,
 .light-mode .mode-switch:hover,
+.light-mode .dropdown-toggle:hover,
+.light-mode .dropdown-menu li:hover,
 .light-mode button:hover,
 .light-mode .menu-button:hover,
 .light-mode .task-item:hover,
@@ -310,16 +314,7 @@ button:hover,
   margin: 0 0 8px;
   border-radius: 4px;
   cursor: pointer;
-}
-
-@media only screen and (max-width: 600px) {
-  .task-item {
-    display: block;
-  }
-
-  .toggle-container {
-    justify-content: center;
-  }
+  position: relative;
 }
 
 .task-sub {
@@ -476,10 +471,12 @@ button {
   margin: 0 0 4px;
   padding: 4px;
   border-radius: 4px;
+}
 
-  &:hover {
-    background-color: #31343580;
-  }
+.dropdown-toggle:hover,
+.dropdown-menu li:hover,
+.switcher-item:hover {
+  background-color: #31343580;
 }
 
 button:active,
@@ -560,6 +557,65 @@ input:focus {
   align-items: center;
   color: white;
   font-size: 16px;
+}
+
+.dropdown {
+  position: absolute;
+  display: inline-block;
+  width: 120px;
+  right: 12px;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+  padding: 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+  text-transform: capitalize;
+  background-color: #212425;
+  transition: background-color 1s ease;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 110px;
+  padding: 4px;
+  border-radius: 4px;
+  background-color: #212425;
+  list-style: none;
+  z-index: 1;
+  margin: 0;
+  transition:
+    background-color 1s ease,
+    border-color 10s ease;
+}
+
+.dropdown-menu li {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  transition: background-color 1s ease;
+}
+
+@media only screen and (max-width: 720px) {
+  .task-item {
+    display: block;
+  }
+
+  .toggle-container {
+    justify-content: center;
+  }
+
+  .dropdown {
+    position: relative;
+  }
+
+  .task-item {
+    padding-right: 8px;
+  }
 }
 
 a {
@@ -658,6 +714,8 @@ a {
 
 .text-small,
 .switcher-item,
+.dropdown-toggle,
+.dropdown-menu li,
 p,
 label,
 input,
@@ -673,8 +731,12 @@ input,
   fill: black;
 }
 
+.light-mode .dropdown-toggle,
+.light-mode .dropdown-menu li,
 .light-mode input,
 .light-mode .icon-mobile,
+.light-mode .dropdown-toggle,
+.light-mode .dropdown-menu li,
 .light-mode button,
 .light-mode .menu-button,
 .light-mode .text-small,
@@ -688,6 +750,8 @@ input,
 .light-mode input,
 .light-mode .menu,
 .light-mode .small-menu,
+.light-mode .dropdown-toggle,
+.light-mode .dropdown-menu,
 .light-mode button,
 .light-mode .menu-button,
 .light-mode .task-item,

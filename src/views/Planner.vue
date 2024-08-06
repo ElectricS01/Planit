@@ -355,7 +355,7 @@
             ).type !== 2
           "
           class="task-item"
-          @click="createShown = true"
+          @click="(createShown = true), (typeOpen = -1)"
         >
           <div class="task-sub">
             <img
@@ -378,8 +378,10 @@
           :id="'task-' + index"
           :key="task.id"
           class="task-item"
+          style="padding-right: 140px"
           @click="
             (editShown = true),
+              (typeOpen = -1),
               (editingTask = task),
               (taskNameInput = task.name),
               (taskDescriptionInput = task.description),
@@ -413,11 +415,28 @@
             <p>Resources:</p>
             <button
               v-if="!addResourceShown"
-              @click.stop="addResourceShown = true"
+              @click.stop="(addResourceShown = true), (typeOpen = -1)"
             >
               Add
             </button>
             <input v-else />
+          </div>
+          <div class="dropdown">
+            <div
+              class="dropdown-toggle"
+              @click.stop="typeOpen = typeOpen === index ? -1 : index"
+            >
+              {{ typeOptions[task.type] }}
+            </div>
+            <ul v-if="typeOpen === index" class="dropdown-menu">
+              <li
+                v-for="(option, index) in typeOptions"
+                :key="option"
+                @click.stop="changeType(task, index)"
+              >
+                {{ option }}
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -436,7 +455,7 @@
             ).type !== 2
           "
           class="task-item"
-          @click="createResourceShown = true"
+          @click="(createResourceShown = true), (typeOpen = -1)"
         >
           <div class="task-sub">
             <img
@@ -462,6 +481,7 @@
           class="task-item"
           @click="
             (editResourceShown = true),
+              (typeOpen = -1),
               (editingResource = resource),
               (resourceNameInput = resource.name),
               (resourceDescriptionInput = resource.description),
@@ -518,6 +538,7 @@ const currentProject = ref({})
 const editingTask = ref({})
 const editingResource = ref({})
 const loadingProject = ref(true)
+const typeOpen = ref(-1)
 
 const pendingTasks = ref(true)
 const ongoingTasks = ref(true)
@@ -533,6 +554,8 @@ let taskIconInput
 let resourceNameInput
 let resourceDescriptionInput
 let resourceIconInput
+
+const typeOptions = ["hidden", "complete", "open"]
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
@@ -555,7 +578,35 @@ const currentTasks = computed(() =>
   )
 )
 
+const changeType = (task, type) => {
+  axios
+    .patch("/api/edit-task", {
+      id: task.id,
+      projectId: currentProject.value.id,
+      description: task.description,
+      icon: task.icon,
+      name: task.name,
+      start: task.startAt,
+      end: task.endAt,
+      type
+    })
+    .then((res) => {
+      currentProject.value.tasks[
+        currentProject.value.tasks.indexOf(
+          currentProject.value.tasks.find(
+            (task) => task.id === res.data.task.id
+          )
+        )
+      ] = res.data.task
+      typeOpen.value = -1
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
+}
 const toggle = (type) => {
+  typeOpen.value = -1
   if (type === "pending") {
     pendingTasks.value = !pendingTasks.value
   } else if (type === "ongoing") {
