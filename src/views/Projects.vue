@@ -27,7 +27,6 @@
             id="project-name"
             v-model="projectNameInput"
             placeholder="Project name"
-            class="modal-input"
             @keydown.enter="createProject"
           />
           <div class="text-small">
@@ -37,7 +36,6 @@
             id="project-description"
             v-model="projectDescriptionInput"
             placeholder="Project description"
-            class="modal-input"
             @keydown.enter="createProject"
           />
           <div class="text-small">
@@ -47,7 +45,6 @@
             id="project-background"
             v-model="projectIconInput"
             placeholder="Project background URL"
-            class="modal-input"
             @keydown.enter="createProject"
           />
         </div>
@@ -58,7 +55,6 @@
           id="add-user"
           v-model="projectUserInput"
           placeholder="Add a user"
-          class="modal-input"
           @keydown.enter="projectUserEnter"
         />
         <div v-if="projectUsers.length">Permissions:</div>
@@ -111,7 +107,6 @@
             id="project-name"
             v-model="projectNameInput"
             placeholder="Project name"
-            class="modal-input"
             @keydown.enter="editProject"
           />
           <div class="text-small">
@@ -121,7 +116,6 @@
             id="project-description"
             v-model="projectDescriptionInput"
             placeholder="Project description"
-            class="modal-input"
             @keydown.enter="editProject"
           />
           <div class="text-small">
@@ -131,7 +125,6 @@
             id="project-background"
             v-model="projectIconInput"
             placeholder="Project background URL"
-            class="modal-input"
             @keydown.enter="editProject"
           />
         </div>
@@ -142,7 +135,6 @@
           id="add-user"
           v-model="projectUserInput"
           placeholder="Add a user"
-          class="modal-input"
           @keydown.enter="projectUserEnter"
         />
         <div v-if="projectUsers.length">Permissions:</div>
@@ -201,7 +193,6 @@
             id="project-description"
             v-model="password"
             placeholder="Password"
-            class="modal-input"
             type="password"
             @keydown.enter="deleteProject"
           />

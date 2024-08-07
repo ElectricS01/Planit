@@ -38,7 +38,6 @@
             id="task-name"
             v-model="taskNameInput"
             placeholder="Task name"
-            class="modal-input"
             @keydown.enter="createTask"
           />
           <div class="text-small">
@@ -48,7 +47,6 @@
             id="task-description"
             v-model="taskDescriptionInput"
             placeholder="Task description"
-            class="modal-input"
             @keydown.enter="createTask"
           />
           <div class="text-small">
@@ -58,7 +56,6 @@
             id="task-background"
             v-model="taskIconInput"
             placeholder="Task background URL"
-            class="modal-input"
             @keydown.enter="createTask"
           />
           <div class="text-small">
@@ -68,7 +65,6 @@
             id="task-start"
             v-model="taskStartInput"
             placeholder="Task start date"
-            class="modal-input"
             @keydown.enter="createTask"
           />
           <div class="text-small">
@@ -78,7 +74,6 @@
             id="task-end"
             v-model="taskEndInput"
             placeholder="Task end date"
-            class="modal-input"
             @keydown.enter="createTask"
           />
         </div>
@@ -125,7 +120,6 @@
             id="task-name"
             v-model="taskNameInput"
             placeholder="Task name"
-            class="modal-input"
             @keydown.enter="editTask"
           />
           <div class="text-small">
@@ -135,7 +129,6 @@
             id="task-description"
             v-model="taskDescriptionInput"
             placeholder="Task description"
-            class="modal-input"
             @keydown.enter="editTask"
           />
           <div class="text-small">
@@ -145,7 +138,6 @@
             id="task-background"
             v-model="taskIconInput"
             placeholder="Task background URL"
-            class="modal-input"
             @keydown.enter="editTask"
           />
           <div class="text-small">
@@ -155,7 +147,6 @@
             id="task-start"
             v-model="taskStartInput"
             placeholder="Task start date"
-            class="modal-input"
             @keydown.enter="editTask"
           />
           <div class="text-small">
@@ -165,7 +156,6 @@
             id="task-end"
             v-model="taskEndInput"
             placeholder="Task end date"
-            class="modal-input"
             @keydown.enter="editTask"
           />
         </div>
@@ -210,7 +200,6 @@
             id="task-name"
             v-model="resourceNameInput"
             placeholder="Task name"
-            class="modal-input"
             @keydown.enter="createResource"
           />
           <div class="text-small">
@@ -220,7 +209,6 @@
             id="task-description"
             v-model="resourceDescriptionInput"
             placeholder="Task description"
-            class="modal-input"
             @keydown.enter="createResource"
           />
           <div class="text-small">
@@ -230,7 +218,6 @@
             id="task-background"
             v-model="resourceIconInput"
             placeholder="Task background URL"
-            class="modal-input"
             @keydown.enter="createResource"
           />
         </div>
@@ -275,7 +262,6 @@
             id="task-name"
             v-model="resourceNameInput"
             placeholder="Task name"
-            class="modal-input"
             @keydown.enter="editResource"
           />
           <div class="text-small">
@@ -285,7 +271,6 @@
             id="task-description"
             v-model="resourceDescriptionInput"
             placeholder="Task description"
-            class="modal-input"
             @keydown.enter="editResource"
           />
           <div class="text-small">
@@ -295,7 +280,6 @@
             id="task-background"
             v-model="resourceIconInput"
             placeholder="Task background URL"
-            class="modal-input"
             @keydown.enter="editResource"
           />
         </div>
@@ -378,7 +362,6 @@
           :id="'task-' + index"
           :key="task.id"
           class="task-item"
-          style="padding-right: 140px"
           @click.self="
             (editShown = true),
               (typeOpen = -1),
@@ -413,14 +396,18 @@
             </div>
           </div>
           <div class="task-sub">
-            <p>Resources:</p>
+            <p v-if="task.resources.length">Resources:</p>
             <div v-for="resource in task.resources">
               <button
                 @click="
                   removeResource(resource.resourceId, resource.id, task.id)
                 "
               >
-                {{ resource.resourceId }}
+                {{
+                  currentProject.resources.find(
+                    (res) => res.id === resource.resourceId
+                  ).name
+                }}
               </button>
             </div>
             <div
@@ -451,22 +438,21 @@
               </ul>
             </div>
           </div>
-          <div
-            v-if="
-              currentProject.permissions.find(
-                (permissions) => permissions.userId === store.userData.id
-              )?.type !== 2
-            "
-            class="dropdown-fixed"
-          >
+          <div class="dropdown-fixed">
             <div
               class="dropdown-toggle"
               @click.stop="
                 (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
               "
+              v-if="
+                currentProject.permissions.find(
+                  (permissions) => permissions.userId === store.userData.id
+                )?.type !== 2
+              "
             >
               {{ typeOptions[task.type] }}
             </div>
+            <p v-else>{{ typeOptions[task.type] }}</p>
             <ul v-if="typeOpen === index" class="dropdown-menu">
               <li
                 v-for="(option, index) in typeOptions"

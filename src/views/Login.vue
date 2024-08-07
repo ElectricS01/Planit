@@ -10,7 +10,6 @@
           id="username"
           v-model="username"
           placeholder="Username"
-          class="modal-input"
           @keydown.enter="submit"
         />
         <div class="text-small">
@@ -20,7 +19,6 @@
           id="password"
           v-model="password"
           placeholder="Password"
-          class="modal-input"
           type="password"
           @keydown.enter="submit"
         />

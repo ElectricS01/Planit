@@ -267,6 +267,7 @@ button:hover,
 
 .menu {
   width: fit-content;
+  max-width: calc(100% - 82px);
   background-color: #282a2bbf;
   margin: 16px;
   z-index: 2;
@@ -309,7 +310,8 @@ button:hover,
   background-color: #282a2bbf;
   display: flex;
   align-items: center;
-  padding: 8px;
+  width: calc(100% - 156px);
+  padding: 8px 148px 8px 8px;
   transition: background-color 1s ease;
   margin: 0 0 8px;
   border-radius: 4px;
@@ -607,6 +609,8 @@ input:focus {
 
 @media only screen and (max-width: 720px) {
   .task-item {
+    width: calc(100% - 16px);
+    padding-right: 8px;
     display: block;
   }
 
@@ -616,10 +620,6 @@ input:focus {
 
   .dropdown-fixed {
     position: relative;
-  }
-
-  .task-item {
-    padding-right: 8px;
   }
 }
 
@@ -688,6 +688,8 @@ a {
 
 .title-menu {
   font-size: 36px;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 @keyframes slideIn {
