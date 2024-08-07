@@ -355,7 +355,7 @@
             ).type !== 2
           "
           class="task-item"
-          @click="(createShown = true), (typeOpen = -1)"
+          @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
         >
           <div class="task-sub">
             <img
@@ -379,9 +379,10 @@
           :key="task.id"
           class="task-item"
           style="padding-right: 140px"
-          @click="
+          @click.self="
             (editShown = true),
               (typeOpen = -1),
+              (addOpen = -1),
               (editingTask = task),
               (taskNameInput = task.name),
               (taskDescriptionInput = task.description),
@@ -413,18 +414,36 @@
           </div>
           <div class="task-sub">
             <p>Resources:</p>
-            <button
-              v-if="!addResourceShown"
-              @click.stop="(addResourceShown = true), (typeOpen = -1)"
-            >
-              Add
-            </button>
-            <input v-else />
+            <div v-for="resource in task.resources">
+              <button @click="removeResource">{{ resource.resourceId }}</button>
+            </div>
+            <div class="dropdown">
+              <div
+                class="dropdown-toggle"
+                @click.stop="
+                  (addOpen = addOpen === index ? -1 : index), (typeOpen = -1)
+                "
+              >
+                Add
+              </div>
+              <ul v-if="addOpen === index" class="dropdown-menu">
+                <input />
+                <li
+                  v-for="(option, index) in currentProject.resources"
+                  :key="option"
+                  @click.stop="addResource(task.id, option.id)"
+                >
+                  {{ option.name }}
+                </li>
+              </ul>
+            </div>
           </div>
-          <div class="dropdown">
+          <div class="dropdown-fixed">
             <div
               class="dropdown-toggle"
-              @click.stop="typeOpen = typeOpen === index ? -1 : index"
+              @click.stop="
+                (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
+              "
             >
               {{ typeOptions[task.type] }}
             </div>
@@ -455,7 +474,7 @@
             ).type !== 2
           "
           class="task-item"
-          @click="(createResourceShown = true), (typeOpen = -1)"
+          @click="(createResourceShown = true), (typeOpen = -1), (addOpen = -1)"
         >
           <div class="task-sub">
             <img
@@ -482,6 +501,7 @@
           @click="
             (editResourceShown = true),
               (typeOpen = -1),
+              (addOpen = -1),
               (editingResource = resource),
               (resourceNameInput = resource.name),
               (resourceDescriptionInput = resource.description),
@@ -533,12 +553,12 @@ const createShown = ref(false)
 const editShown = ref(false)
 const createResourceShown = ref(false)
 const editResourceShown = ref(false)
-const addResourceShown = ref(false)
 const currentProject = ref({})
 const editingTask = ref({})
 const editingResource = ref({})
 const loadingProject = ref(true)
 const typeOpen = ref(-1)
+const addOpen = ref(-1)
 
 const pendingTasks = ref(true)
 const ongoingTasks = ref(true)
@@ -578,6 +598,28 @@ const currentTasks = computed(() =>
   )
 )
 
+const addResource = (taskId, resourceId) => {
+  axios
+    .post("/api/add-resource", {
+      id: currentProject.value.id,
+      resourceId,
+      taskId
+    })
+    .then((res) => {
+      currentProject.value.tasks[
+        currentProject.value.tasks.indexOf(
+          currentProject.value.tasks.find((task) => task.id === taskId)
+        )
+      ].resources.push(res.data.association)
+      typeOpen.value = -1
+      addOpen.value = -1
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
+}
+const removeResource = (task, type) => {}
 const changeType = (task, type) => {
   axios
     .patch("/api/edit-task", {
@@ -599,6 +641,7 @@ const changeType = (task, type) => {
         )
       ] = res.data.task
       typeOpen.value = -1
+      addOpen.value = -1
     })
     .catch((e) => {
       store.error = e.response?.data || e.message
@@ -607,6 +650,7 @@ const changeType = (task, type) => {
 }
 const toggle = (type) => {
   typeOpen.value = -1
+  addOpen.value = -1
   if (type === "pending") {
     pendingTasks.value = !pendingTasks.value
   } else if (type === "ongoing") {

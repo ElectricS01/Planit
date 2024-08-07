@@ -560,6 +560,11 @@ input:focus {
 }
 
 .dropdown {
+  position: relative;
+  width: 120px;
+}
+
+.dropdown-fixed {
   position: absolute;
   display: inline-block;
   width: 120px;
@@ -580,7 +585,7 @@ input:focus {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 110px;
+  width: 112px;
   padding: 4px;
   border-radius: 4px;
   background-color: #212425;
@@ -609,7 +614,7 @@ input:focus {
     justify-content: center;
   }
 
-  .dropdown {
+  .dropdown-fixed {
     position: relative;
   }
 

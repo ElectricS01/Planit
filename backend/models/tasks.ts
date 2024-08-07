@@ -2,10 +2,12 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table
 } from "sequelize-typescript"
 import Projects from "./projects"
+import ResourceAssociations from "./resourceAssociations"
 
 /*
  * Sequelize-TS Model file, these files manage the types of the database so they can be validated by TypeScript.
@@ -45,4 +47,7 @@ export default class Tasks extends Model {
 
   @Column(DataType.DATE)
   dueAt!: Date
+
+  @HasMany(() => ResourceAssociations)
+  resources!: ResourceAssociations[]
 }
