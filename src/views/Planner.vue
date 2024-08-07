@@ -352,7 +352,7 @@
           v-if="
             currentProject.permissions.find(
               (permissions) => permissions.userId === store.userData.id
-            ).type !== 2
+            )?.type !== 2
           "
           class="task-item"
           @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
@@ -415,9 +415,22 @@
           <div class="task-sub">
             <p>Resources:</p>
             <div v-for="resource in task.resources">
-              <button @click="removeResource">{{ resource.resourceId }}</button>
+              <button
+                @click="
+                  removeResource(resource.resourceId, resource.id, task.id)
+                "
+              >
+                {{ resource.resourceId }}
+              </button>
             </div>
-            <div class="dropdown">
+            <div
+              class="dropdown"
+              v-if="
+                currentProject.permissions.find(
+                  (permissions) => permissions.userId === store.userData.id
+                )?.type !== 2
+              "
+            >
               <div
                 class="dropdown-toggle"
                 @click.stop="
@@ -438,7 +451,14 @@
               </ul>
             </div>
           </div>
-          <div class="dropdown-fixed">
+          <div
+            v-if="
+              currentProject.permissions.find(
+                (permissions) => permissions.userId === store.userData.id
+              )?.type !== 2
+            "
+            class="dropdown-fixed"
+          >
             <div
               class="dropdown-toggle"
               @click.stop="
@@ -471,7 +491,7 @@
           v-if="
             currentProject.permissions.find(
               (permissions) => permissions.userId === store.userData.id
-            ).type !== 2
+            )?.type !== 2
           "
           class="task-item"
           @click="(createResourceShown = true), (typeOpen = -1), (addOpen = -1)"
@@ -619,7 +639,31 @@ const addResource = (taskId, resourceId) => {
       setTimeout(store.errorFalse, 5000)
     })
 }
-const removeResource = (task, type) => {}
+const removeResource = (resourceId, associationId, taskId) => {
+  axios
+    .post("/api/remove-resource", {
+      id: currentProject.value.id,
+      resourceId,
+      associationId
+    })
+    .then((res) => {
+      currentProject.value.tasks[
+        currentProject.value.tasks.indexOf(
+          currentProject.value.tasks.find((task) => task.id === taskId)
+        )
+      ].resources = currentProject.value.tasks[
+        currentProject.value.tasks.indexOf(
+          currentProject.value.tasks.find((task) => task.id === taskId)
+        )
+      ].resources.filter((resource) => resource.id !== associationId)
+      typeOpen.value = -1
+      addOpen.value = -1
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
+}
 const changeType = (task, type) => {
   axios
     .patch("/api/edit-task", {

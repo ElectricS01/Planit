@@ -697,7 +697,7 @@ serve({
     }
 
     // This API is very similar in layout to the create APIs but instead it validates
-    // the projectId and resourceId creates a ResourceAssociation
+    // the projectId, taskId, and resourceId creates a ResourceAssociation
     else if (
       url.pathname === "/api/add-resource" &&
       request.method === "POST"
@@ -721,6 +721,16 @@ serve({
       // Existance testing on the taskId of the new resource
       if (!body.taskId) {
         return new Response("taskId is required", { status: 400 })
+      }
+
+      // Check the user's permission to add the task, only project owners and editors can add them
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.id }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response("You do not have permission to add this resource", {
+          status: 400
+        })
       }
 
       // If the resource isn't part of that project or doesn't exist then return 400 Bad Request
@@ -757,6 +767,72 @@ serve({
           status: 200
         }
       )
+    }
+
+    // This API is very similar in layout to the create APIs and the add resource API but instead
+    // it validates the projectId and associationId then deletes a ResourceAssociation
+    else if (
+      url.pathname === "/api/remove-resource" &&
+      request.method === "POST"
+    ) {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Existance testing on the projectId of the new resource
+      if (!body.id) {
+        return new Response("associationId is required", { status: 400 })
+      }
+
+      // Existance testing on the resourceId of the new resource
+      if (!body.resourceId) {
+        return new Response("resourceId is required", { status: 400 })
+      }
+
+      // Existance testing on the associationId of the new resource
+      if (!body.associationId) {
+        return new Response("associationId is required", { status: 400 })
+      }
+
+      // Check the user's permission to remove the task, only project owners and editors can remove them
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.id }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response(
+          "You do not have permission to remove this resource",
+          {
+            status: 400
+          }
+        )
+      }
+
+      // If the resource isn't part of that project or doesn't exist then return 400 Bad Request
+      const resource = await Resources.findByPk(body.resourceId)
+
+      if (!resource || resource.projectId !== body.id) {
+        return new Response("Resource not found", { status: 400 })
+      }
+
+      console.log(body.associationId)
+      console.log(body.resourceId)
+
+      // If the resource isn't assiciated to the resource then return 400 Bad Request to the client
+      const association = await ResourceAssociations.findOne({
+        where: { id: body.associationId, resourceId: body.resourceId }
+      })
+
+      if (!association) {
+        return new Response("Resource is not assigned", { status: 400 })
+      }
+
+      // Delete the ResourceAssociation
+      association.destroy()
+
+      // Send the 204 No Content to confirm that the ResourceAssociation was deleted
+      return new Response("", { status: 204 })
     }
 
     // Add items to the user's QuickSwitcher
