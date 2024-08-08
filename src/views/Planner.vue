@@ -536,6 +536,9 @@
           <div style="text-align: center" class="loader" />
         </div>
       </div>
+      <p class="title-sub">Charts</p>
+      <div class="spacer" />
+      <div class="menu-section"></div>
     </div>
   </div>
 </template>
