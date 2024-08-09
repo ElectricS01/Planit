@@ -7,7 +7,6 @@ import {
   Model,
   Table
 } from "sequelize-typescript"
-import Messages from "./messages"
 import Permissions from "./permissions"
 import Resources from "./resources"
 import Tasks from "./tasks"
@@ -43,17 +42,8 @@ export default class Projects extends Model {
   })
   owner!: number
 
-  @Column({
-    allowNull: false,
-    type: DataType.DATE
-  })
-  latest!: number
-
   @HasMany(() => Permissions)
   permissions!: Permissions[]
-
-  @HasMany(() => Messages)
-  messages!: Messages[]
 
   @HasMany(() => Resources)
   resources!: Resources[]

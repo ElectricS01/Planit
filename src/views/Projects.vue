@@ -265,7 +265,7 @@
                 <p v-if="isComplete(project.latest)" class="text-wrap-grey">
                   There are no upcoming tasks
                 </p>
-                <div v-else class="date-container">
+                <div v-else>
                   <p class="text-wrap-grey">
                     Next task: {{ displayTime(project.latest, false) }}
                   </p>
@@ -331,7 +331,7 @@
         <div v-else class="center">
           <div style="text-align: center" class="loader" />
         </div>
-        <p v-if="!store.userData.projects?.length && !store.loadingProjects">
+        <p v-if="!sharedProjects?.length && !store.loadingProjects">
           You don't have any projects shared with you
         </p>
       </div>
@@ -527,18 +527,20 @@ const displayTime = (date, end) => {
   } else if (!end && dayjs(end) > dayjs()) {
     return "Currently Occurring"
   } else {
-    return "Project is complete"
+    return "No due date"
   }
 }
 
-const myProjects = computed(() =>
-  store.userData.projects.filter(
-    (project) => project?.owner === store.userData.id
-  )
-)
-const sharedProjects = computed(() =>
-  store.userData.projects.filter(
-    (project) => project?.owner !== store.userData.id
-  )
-)
+const myProjects = computed(() => {
+  if (store.userData.projects)
+    return store.userData.projects.filter(
+      (project) => project?.owner === store.userData.id
+    )
+})
+const sharedProjects = computed(() => {
+  if (store.userData.projects)
+    return store.userData.projects.filter(
+      (project) => project?.owner !== store.userData.id
+    )
+})
 </script>

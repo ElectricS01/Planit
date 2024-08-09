@@ -4,6 +4,7 @@ import { serve } from "bun"
 import argon2 from "argon2"
 import cryptoRandomString from "crypto-random-string"
 import dayjs from "dayjs"
+import { Op } from "sequelize"
 
 // Import Libraries
 import auth from "./lib/auth"
@@ -11,7 +12,6 @@ import authSession from "./lib/authSession"
 import nodemailerLibrary from "./lib/mailer"
 
 // Import Seqelize-TS models
-import Messages from "./models/messages"
 import Permissions from "./models/permissions"
 import Projects from "./models/projects"
 import Users from "./models/users"
@@ -27,6 +27,11 @@ const emailLibrary = new nodemailerLibrary()
 
 const headers = {
   "Content-Type": "application/json"
+}
+
+export interface ProjectDate extends Projects {
+  latest: Date | null
+  end: Date | null
 }
 
 /*
@@ -51,8 +56,8 @@ serve({
         return user
       }
       // Get the all the user's projects with a sequelize findAll request where the user has a "Permissions" permission
-      const projects = await Projects.findAll({
-        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+      const projects = (await Projects.findAll({
+        attributes: ["id", "name", "description", "icon", "owner"],
         include: [
           {
             attributes: ["userId", "type"],
@@ -72,7 +77,43 @@ serve({
             model: Users
           }
         ]
-      })
+      })) as [ProjectDate]
+
+      for (let i = 0; i < projects.length; i++) {
+        // Retrieve the next task to start after the current time by getting tasks starting after the current time
+        const futureTasks = await Tasks.findAll({
+          where: {
+            projectId: projects[i].id,
+            startAt: {
+              [Op.gt]: dayjs().toISOString()
+            }
+          },
+          attributes: ["startAt", "dueAt"],
+          order: [["startAt", "ASC"]]
+        })
+
+        let nextTaskStart = null
+        let latestDueDate = null
+
+        // Find the earliest start date and the latest due date among future tasks
+        if (futureTasks.length > 0) {
+          nextTaskStart = futureTasks[0].startAt
+          latestDueDate = futureTasks.sort((a, b) => {
+            if (a?.dueAt && b?.dueAt) {
+              return b.dueAt.getMilliseconds() - a.dueAt.getMilliseconds()
+            } else if (a?.dueAt) {
+              return -1
+            } else if (b?.dueAt) {
+              return 1
+            }
+            return 0
+          })[0].dueAt
+        }
+
+        // Update the project's latest date in the local map if there is a next task to start
+        projects[i].dataValues.latest = nextTaskStart
+        projects[i].dataValues.end = latestDueDate
+      }
 
       // Get all project ids
       const projectIds = projects.map((project) => project.id)
@@ -143,9 +184,9 @@ serve({
         })
       }
 
-      // Find the project and it's permissions, messages, tasks, and owner
+      // Find the project and it's permissions, tasks, and owner
       const project = await Projects.findByPk(url.pathname.split("/")[3], {
-        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+        attributes: ["id", "name", "description", "icon", "owner"],
         include: [
           {
             attributes: ["userId", "type"],
@@ -156,10 +197,6 @@ serve({
                 model: Users
               }
             ]
-          },
-          {
-            attributes: ["messageContents"],
-            model: Messages
           },
           {
             attributes: ["id", "name", "description", "icon"],
@@ -427,28 +464,99 @@ serve({
         userId: user.id
       })
 
-      // Get the user's details for them, these are the same details that a user would get in the UserData API
-      const projects = await Projects.findAll({
-        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+      // Get the all the user's projects with a sequelize findAll request where the user has a "Permissions" permission
+      const projects = (await Projects.findAll({
+        attributes: ["id", "name", "description", "icon", "owner"],
         include: [
           {
             attributes: ["userId", "type"],
             model: Permissions,
-            where: { userId: user.id }
+            where: {
+              userId: user.id
+            },
+            include: [
+              {
+                attributes: ["username", "avatar"],
+                model: Users
+              }
+            ]
           },
           {
             attributes: ["id", "username", "avatar"],
             model: Users
           }
         ]
+      })) as [ProjectDate]
+
+      for (let i = 0; i < projects.length; i++) {
+        // Retrieve the next task to start after the current time by getting tasks starting after the current time
+        const futureTasks = await Tasks.findAll({
+          where: {
+            projectId: projects[i].id,
+            startAt: {
+              [Op.gt]: dayjs().toISOString()
+            }
+          },
+          attributes: ["startAt", "dueAt"],
+          order: [["startAt", "ASC"]]
+        })
+
+        let nextTaskStart = null
+        let latestDueDate = null
+
+        // Find the earliest start date and the latest due date among future tasks
+        if (futureTasks.length > 0) {
+          nextTaskStart = futureTasks[0].startAt
+          latestDueDate = futureTasks.sort((a, b) => {
+            if (a?.dueAt && b?.dueAt) {
+              return b.dueAt.getMilliseconds() - a.dueAt.getMilliseconds()
+            } else if (a?.dueAt) {
+              return -1
+            } else if (b?.dueAt) {
+              return 1
+            }
+            return 0
+          })[0].dueAt
+        }
+
+        // Update the project's latest date in the local map if there is a next task to start
+        projects[i].dataValues.latest = nextTaskStart
+        projects[i].dataValues.end = latestDueDate
+      }
+
+      // Get all project ids
+      const projectIds = projects.map((project) => project.id)
+
+      // Find all permissions
+      const allPermissions = await Permissions.findAll({
+        attributes: ["userId", "type", "projectId"],
+        where: {
+          projectId: projectIds
+        },
+        include: [
+          {
+            attributes: ["username", "avatar"],
+            model: Users
+          }
+        ]
       })
+
+      // Attach all permissions to their respective projects
+      projects.forEach((project) => {
+        project.dataValues.permissions = allPermissions.filter(
+          (permission) => permission.projectId === project.id
+        )
+      })
+
+      // Get all notifications
       const notifications = await Notifications.findAll({
         where: {
           userId: user.id
         }
       })
 
-      // Return the user's session token and UserData to the client
+      // Return the user's session token and UserData to the client so they don't need to make another request,
+      // limiting the number of requests reduces load on the server and load on the client
       return new Response(
         JSON.stringify({
           token: session.token,
@@ -503,7 +611,6 @@ serve({
       const newProject = await Projects.create({
         description: body.description,
         icon: body.icon,
-        latest: Date.now(),
         name: body.name,
         owner: user.id
       })
@@ -590,6 +697,13 @@ serve({
         body.end = null
       }
 
+      // Check if the end date is after the start date
+      if (dayjs(body.end) < dayjs(body.start)) {
+        return new Response("Task end cannot be before task start", {
+          status: 400
+        })
+      }
+
       // If the task doesn't have a provided name then set it to "New Task"
       if (!body.name) {
         body.name = "New Task"
@@ -598,6 +712,16 @@ serve({
       // If the task doesn't have a provided description then set it to "A New Planit Task"
       if (!body.description) {
         body.description = "A New Planit Task"
+      }
+
+      // Check the user's permission to add the task, only project owners and editors can add them
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.id }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response("You do not have permission to add this task", {
+          status: 400
+        })
       }
 
       // Create the new task with the provided details
@@ -609,6 +733,31 @@ serve({
         startAt: body.start,
         dueAt: body.end
       })
+
+      // Retrieve the next task to start after the current time
+      const futureTasks = await Tasks.findAll({
+        where: {
+          projectId: body.id,
+          startAt: {
+            [Op.gt]: dayjs().toISOString() // Get tasks starting after the current time
+          }
+        },
+        attributes: ["startAt"],
+        order: [["startAt", "ASC"]]
+      })
+
+      let nextTaskStart = null
+
+      if (futureTasks.length > 0) {
+        // Find the earliest start date among future tasks
+        nextTaskStart = futureTasks[0].startAt
+      }
+
+      // Update the project's latest date if there is a next task to start
+      const project = await Projects.findByPk(body.id)
+      if (project && nextTaskStart) {
+        await project.update({ latest: nextTaskStart })
+      }
 
       // Send the new task back to the client
       return new Response(JSON.stringify({ task: newTask }), {
@@ -723,7 +872,7 @@ serve({
         return new Response("taskId is required", { status: 400 })
       }
 
-      // Check the user's permission to add the task, only project owners and editors can add them
+      // Check the user's permission to add the resoource, only project owners and editors can add them
       const permission = await Permissions.findOne({
         where: { userId: user.id, projectId: body.id }
       })
@@ -815,9 +964,6 @@ serve({
       if (!resource || resource.projectId !== body.id) {
         return new Response("Resource not found", { status: 400 })
       }
-
-      console.log(body.associationId)
-      console.log(body.resourceId)
 
       // If the resource isn't assiciated to the resource then return 400 Bad Request to the client
       const association = await ResourceAssociations.findOne({
@@ -982,7 +1128,6 @@ serve({
         {
           description: body.description,
           icon: body.icon,
-          latest: Date.now(),
           name: body.name,
           owner: user.id
         },
@@ -1058,10 +1203,6 @@ serve({
             ]
           },
           {
-            attributes: ["messageContents"],
-            model: Messages
-          },
-          {
             attributes: ["id", "name", "description", "icon"],
             model: Resources
           },
@@ -1075,7 +1216,13 @@ serve({
               "startAt",
               "dueAt"
             ],
-            model: Tasks
+            model: Tasks,
+            include: [
+              {
+                attributes: ["id", "resourceId"],
+                model: ResourceAssociations
+              }
+            ]
           },
           {
             attributes: ["id", "username", "avatar"],
@@ -1083,7 +1230,44 @@ serve({
           }
         ]
       })
-      return new Response(JSON.stringify({ project: project }), {
+
+      if (project) {
+        // Retrieve the next task to start after the current time by getting tasks starting after the current time
+        const futureTasks = await Tasks.findAll({
+          where: {
+            projectId: project.id,
+            startAt: {
+              [Op.gt]: dayjs().toISOString()
+            }
+          },
+          attributes: ["startAt", "dueAt"],
+          order: [["startAt", "ASC"]]
+        })
+
+        let nextTaskStart = null
+        let latestDueDate = null
+
+        // Find the earliest start date and the latest due date among future tasks
+        if (futureTasks.length > 0) {
+          nextTaskStart = futureTasks[0].startAt
+          latestDueDate = futureTasks.sort((a, b) => {
+            if (a?.dueAt && b?.dueAt) {
+              return b.dueAt.getMilliseconds() - a.dueAt.getMilliseconds()
+            } else if (a?.dueAt) {
+              return -1
+            } else if (b?.dueAt) {
+              return 1
+            }
+            return 0
+          })[0].dueAt
+        }
+
+        // Update the project's latest date in the local map if there is a next task to start
+        project.dataValues.latest = nextTaskStart
+        project.dataValues.end = latestDueDate
+      }
+
+      return new Response(JSON.stringify({ project }), {
         status: 200
       })
     }

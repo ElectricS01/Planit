@@ -362,7 +362,7 @@
           :id="'task-' + index"
           :key="task.id"
           class="task-item"
-          @click.self="
+          @click="
             (editShown = true),
               (typeOpen = -1),
               (addOpen = -1),
@@ -370,8 +370,12 @@
               (taskNameInput = task.name),
               (taskDescriptionInput = task.description),
               (taskIconInput = task.icon),
-              (taskStartInput = dayjs(task.startAt).format('DD/MM/YYYY')),
-              (taskEndInput = dayjs(task.dueAt).format('DD/MM/YYYY'))
+              (taskStartInput = task.startAt
+                ? dayjs(task.startAt).format('DD/MM/YYYY')
+                : ''),
+              (taskEndInput = task.dueAt
+                ? dayjs(task.dueAt).format('DD/MM/YYYY')
+                : '')
           "
         >
           <div class="task-sub">
@@ -396,10 +400,11 @@
             </div>
           </div>
           <div class="task-sub">
-            <p v-if="task.resources.length">Resources:</p>
+            <p v-if="task.resources?.length">Resources:</p>
             <div v-for="resource in task.resources">
               <button
-                @click="
+                style="display: flex; align-items: center"
+                @click.stop="
                   removeResource(resource.resourceId, resource.id, task.id)
                 "
               >
@@ -408,6 +413,7 @@
                     (res) => res.id === resource.resourceId
                   ).name
                 }}
+                <icons icon="close" size="16"></icons>
               </button>
             </div>
             <div
@@ -427,7 +433,6 @@
                 Add
               </div>
               <ul v-if="addOpen === index" class="dropdown-menu">
-                <input />
                 <li
                   v-for="(option, index) in currentProject.resources"
                   :key="option"
@@ -536,15 +541,13 @@
           <div style="text-align: center" class="loader" />
         </div>
       </div>
-      <p class="title-sub">Charts</p>
-      <div class="spacer" />
-      <div class="menu-section"></div>
     </div>
   </div>
 </template>
 
 <script setup>
 import Modal from "../components/Modal.vue"
+import Icons from "../components/Icons.vue"
 
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
@@ -799,6 +802,7 @@ const createTask = () => {
         end
       })
       .then((res) => {
+        res.data.task.resources = []
         currentProject.value.tasks.push(res.data.task)
         createShown.value = false
         taskNameInput = ""
@@ -898,7 +902,6 @@ async function getProject(id) {
     .get(`/api/project/${id}`)
     .then((res) => {
       currentProject.value = res.data.project
-      currentProject.value.messages.focus = false
       loadingProject.value = false
     })
     .catch((e) => {
