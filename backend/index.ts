@@ -8,7 +8,6 @@ import { Op } from "sequelize"
 
 // Import Libraries
 import auth from "./lib/auth"
-import authSession from "./lib/authSession"
 import nodemailerLibrary from "./lib/mailer"
 
 // Import Seqelize-TS models

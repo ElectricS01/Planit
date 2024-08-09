@@ -289,257 +289,279 @@
   </transition>
   <div class="container-flex">
     <div class="menu">
+      <button @click="page = 0" :class="{ active: page === 0 }">Tasks</button>
+      <button @click="page = 1" :class="{ active: page === 1 }">
+        Gantt Chart
+      </button>
+      <button
+        @click="(page = 2), nextTick(() => drawPieChart())"
+        :class="{ active: page === 2 }"
+      >
+        Graphs
+      </button>
       <p class="title-menu">{{ currentProject?.name }}</p>
-      <p class="title-sub">Tasks</p>
-      <div class="spacer" />
-      <div v-if="!loadingProject" class="menu-section">
-        <div class="toggle-container">
-          <p>Filters:</p>
-          <div class="checkbox-container">
-            <input
-              type="checkbox"
-              id="pending"
-              :checked="pendingTasks"
-              @click="toggle('pending')"
-            />
-            <label for="pending">Pending</label>
+      <div v-if="page === 0">
+        <p class="title-sub">Tasks</p>
+        <div class="spacer" />
+        <div v-if="!loadingProject" class="menu-section">
+          <div class="toggle-container">
+            <p>Filters:</p>
+            <div class="checkbox-container">
+              <input
+                type="checkbox"
+                id="pending"
+                :checked="pendingTasks"
+                @click="toggle('pending')"
+              />
+              <label for="pending">Pending</label>
+            </div>
+            <div class="checkbox-container">
+              <input
+                type="checkbox"
+                id="ongoing"
+                :checked="ongoingTasks"
+                @click="toggle('ongoing')"
+              />
+              <label for="ongoing">Ongoing</label>
+            </div>
+            <div class="checkbox-container">
+              <input
+                type="checkbox"
+                id="complete"
+                :checked="completedTasks"
+                @click="toggle('complete')"
+              />
+              <label for="complete">Complete</label>
+            </div>
+            <div class="checkbox-container">
+              <input
+                type="checkbox"
+                id="hidden"
+                :checked="hiddenTasks"
+                @click="toggle('hidden')"
+              />
+              <label for="hidden">Hidden</label>
+            </div>
           </div>
-          <div class="checkbox-container">
-            <input
-              type="checkbox"
-              id="ongoing"
-              :checked="ongoingTasks"
-              @click="toggle('ongoing')"
-            />
-            <label for="ongoing">Ongoing</label>
-          </div>
-          <div class="checkbox-container">
-            <input
-              type="checkbox"
-              id="complete"
-              :checked="completedTasks"
-              @click="toggle('complete')"
-            />
-            <label for="complete">Complete</label>
-          </div>
-          <div class="checkbox-container">
-            <input
-              type="checkbox"
-              id="hidden"
-              :checked="hiddenTasks"
-              @click="toggle('hidden')"
-            />
-            <label for="hidden">Hidden</label>
-          </div>
-        </div>
-        <div
-          v-if="
-            currentProject.permissions.find(
-              (permissions) => permissions.userId === store.userData.id
-            )?.type !== 2
-          "
-          class="task-item"
-          @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
-        >
-          <div class="task-sub">
-            <img
-              src="https://i.electrics01.com/i/55bae440a2b3.png"
-              alt="Create a new task"
-              class="task-image"
-            />
-            <p class="text-medium">Create a New Task</p>
-          </div>
-          <div class="task-container">
-            <p class="text-medium-grey">
-              Create a New Planit Task, Customise Description, Add Resources
-            </p>
-          </div>
-        </div>
-        <p v-if="!currentProject.tasks?.length">This project has no tasks</p>
-        <p v-else-if="!currentTasks?.length">No tasks match your filters</p>
-        <div
-          v-for="(task, index) in currentTasks"
-          :id="'task-' + index"
-          :key="task.id"
-          class="task-item"
-          @click="
-            (editShown = true),
-              (typeOpen = -1),
-              (addOpen = -1),
-              (editingTask = task),
-              (taskNameInput = task.name),
-              (taskDescriptionInput = task.description),
-              (taskIconInput = task.icon),
-              (taskStartInput = task.startAt
-                ? dayjs(task.startAt).format('DD/MM/YYYY')
-                : ''),
-              (taskEndInput = task.dueAt
-                ? dayjs(task.dueAt).format('DD/MM/YYYY')
-                : '')
-          "
-        >
-          <div class="task-sub">
-            <img
-              :src="task.icon || 'https://i.electrics01.com/i/55bae440a2b3.png'"
-              alt="Task background"
-              class="task-image"
-            />
-            <p class="text-medium">
-              {{ task.name }}
-            </p>
-          </div>
-          <div class="task-container">
-            <p class="text-medium-grey">{{ task.description }}</p>
-            <div class="date-container">
-              <p class="text-medium-grey" style="margin-right: 8px">
-                {{ displayTime(task.startAt, false) }}
-              </p>
+          <div
+            v-if="
+              currentProject.permissions.find(
+                (permissions) => permissions.userId === store.userData.id
+              )?.type !== 2
+            "
+            class="task-item"
+            @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
+          >
+            <div class="task-sub">
+              <img
+                src="https://i.electrics01.com/i/55bae440a2b3.png"
+                alt="Create a new task"
+                class="task-image"
+              />
+              <p class="text-medium">Create a New Task</p>
+            </div>
+            <div class="task-container">
               <p class="text-medium-grey">
-                {{ displayTime(task.dueAt, true) }}
+                Create a New Planit Task, Customise Description, Add Resources
               </p>
             </div>
           </div>
-          <div class="task-sub">
-            <p v-if="task.resources?.length">Resources:</p>
-            <div v-for="resource in task.resources">
-              <button
-                style="display: flex; align-items: center"
-                @click.stop="
-                  removeResource(resource.resourceId, resource.id, task.id)
+          <p v-if="!currentProject.tasks?.length">This project has no tasks</p>
+          <p v-else-if="!currentTasks?.length">No tasks match your filters</p>
+          <div
+            v-for="(task, index) in currentTasks"
+            :id="'task-' + index"
+            :key="task.id"
+            class="task-item"
+            @click="
+              (editShown = true),
+                (typeOpen = -1),
+                (addOpen = -1),
+                (editingTask = task),
+                (taskNameInput = task.name),
+                (taskDescriptionInput = task.description),
+                (taskIconInput = task.icon),
+                (taskStartInput = task.startAt
+                  ? dayjs(task.startAt).format('DD/MM/YYYY')
+                  : ''),
+                (taskEndInput = task.dueAt
+                  ? dayjs(task.dueAt).format('DD/MM/YYYY')
+                  : '')
+            "
+          >
+            <div class="task-sub">
+              <img
+                :src="
+                  task.icon || 'https://i.electrics01.com/i/55bae440a2b3.png'
+                "
+                alt="Task background"
+                class="task-image"
+              />
+              <p class="text-medium">
+                {{ task.name }}
+              </p>
+            </div>
+            <div class="task-container">
+              <p class="text-medium-grey">{{ task.description }}</p>
+              <div class="date-container">
+                <p class="text-medium-grey" style="margin-right: 8px">
+                  {{ displayTime(task.startAt, false) }}
+                </p>
+                <p class="text-medium-grey">
+                  {{ displayTime(task.dueAt, true) }}
+                </p>
+              </div>
+            </div>
+            <div class="task-sub">
+              <p v-if="task.resources?.length">Resources:</p>
+              <div v-for="resource in task.resources">
+                <button
+                  style="display: flex; align-items: center"
+                  @click.stop="
+                    removeResource(resource.resourceId, resource.id, task.id)
+                  "
+                >
+                  {{
+                    currentProject.resources.find(
+                      (res) => res.id === resource.resourceId
+                    ).name
+                  }}
+                  <icons icon="close" size="16"></icons>
+                </button>
+              </div>
+              <div
+                class="dropdown"
+                v-if="
+                  currentProject.permissions.find(
+                    (permissions) => permissions.userId === store.userData.id
+                  )?.type !== 2
                 "
               >
-                {{
-                  currentProject.resources.find(
-                    (res) => res.id === resource.resourceId
-                  ).name
-                }}
-                <icons icon="close" size="16"></icons>
-              </button>
+                <div
+                  class="dropdown-toggle"
+                  @click.stop="
+                    (addOpen = addOpen === index ? -1 : index), (typeOpen = -1)
+                  "
+                >
+                  Add
+                </div>
+                <ul v-if="addOpen === index" class="dropdown-menu">
+                  <li
+                    v-for="(option, index) in currentProject.resources"
+                    :key="option"
+                    @click.stop="addResource(task.id, option.id)"
+                  >
+                    {{ option.name }}
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div
-              class="dropdown"
-              v-if="
-                currentProject.permissions.find(
-                  (permissions) => permissions.userId === store.userData.id
-                )?.type !== 2
-              "
-            >
+            <div class="dropdown-fixed">
               <div
                 class="dropdown-toggle"
                 @click.stop="
-                  (addOpen = addOpen === index ? -1 : index), (typeOpen = -1)
+                  (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
+                "
+                v-if="
+                  currentProject.permissions.find(
+                    (permissions) => permissions.userId === store.userData.id
+                  )?.type !== 2
                 "
               >
-                Add
+                {{ typeOptions[task.type] }}
               </div>
-              <ul v-if="addOpen === index" class="dropdown-menu">
+              <p v-else>{{ typeOptions[task.type] }}</p>
+              <ul v-if="typeOpen === index" class="dropdown-menu">
                 <li
-                  v-for="(option, index) in currentProject.resources"
+                  v-for="(option, index) in typeOptions"
                   :key="option"
-                  @click.stop="addResource(task.id, option.id)"
+                  @click.stop="changeType(task, index)"
                 >
-                  {{ option.name }}
+                  {{ option }}
                 </li>
               </ul>
             </div>
           </div>
-          <div class="dropdown-fixed">
-            <div
-              class="dropdown-toggle"
-              @click.stop="
-                (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
-              "
-              v-if="
-                currentProject.permissions.find(
-                  (permissions) => permissions.userId === store.userData.id
-                )?.type !== 2
-              "
-            >
-              {{ typeOptions[task.type] }}
+        </div>
+        <div v-else class="menu-section">
+          <div class="center">
+            <div style="text-align: center" class="loader" />
+          </div>
+        </div>
+        <p class="title-sub">Resources</p>
+        <div class="spacer" />
+        <div v-if="!loadingProject" class="menu-section">
+          <div
+            v-if="
+              currentProject.permissions.find(
+                (permissions) => permissions.userId === store.userData.id
+              )?.type !== 2
+            "
+            class="task-item"
+            @click="
+              (createResourceShown = true), (typeOpen = -1), (addOpen = -1)
+            "
+          >
+            <div class="task-sub">
+              <img
+                src="https://i.electrics01.com/i/124bd47c48c7.png"
+                alt="Create a new resource"
+                class="task-image"
+              />
+              <p class="text-medium">Create a New Resource</p>
             </div>
-            <p v-else>{{ typeOptions[task.type] }}</p>
-            <ul v-if="typeOpen === index" class="dropdown-menu">
-              <li
-                v-for="(option, index) in typeOptions"
-                :key="option"
-                @click.stop="changeType(task, index)"
-              >
-                {{ option }}
-              </li>
-            </ul>
+            <div class="task-container">
+              <p class="text-medium-grey">
+                Create a New Planit Resource, Customise Name and Description
+              </p>
+            </div>
+          </div>
+          <p v-if="!currentProject.resources?.length">
+            This project has no resources
+          </p>
+          <div
+            v-for="(resource, index) in currentProject.resources"
+            :id="'resource-' + index"
+            :key="resource.id"
+            class="task-item"
+            @click="
+              (editResourceShown = true),
+                (typeOpen = -1),
+                (addOpen = -1),
+                (editingResource = resource),
+                (resourceNameInput = resource.name),
+                (resourceDescriptionInput = resource.description),
+                (resourceIconInput = resource.icon)
+            "
+          >
+            <div class="task-sub">
+              <img
+                :src="
+                  resource.icon ||
+                  'https://i.electrics01.com/i/124bd47c48c7.png'
+                "
+                alt="Resource background"
+                class="task-image"
+              />
+              <p class="text-medium">
+                {{ resource.name }}
+              </p>
+            </div>
+            <div class="task-container">
+              <p class="text-medium-grey">{{ resource.description }}</p>
+            </div>
+          </div>
+        </div>
+        <div v-else class="menu-section">
+          <div class="center">
+            <div style="text-align: center" class="loader" />
           </div>
         </div>
       </div>
-      <div v-else class="menu-section">
-        <div class="center">
-          <div style="text-align: center" class="loader" />
-        </div>
-      </div>
-      <p class="title-sub">Resources</p>
-      <div class="spacer" />
-      <div v-if="!loadingProject" class="menu-section">
-        <div
-          v-if="
-            currentProject.permissions.find(
-              (permissions) => permissions.userId === store.userData.id
-            )?.type !== 2
-          "
-          class="task-item"
-          @click="(createResourceShown = true), (typeOpen = -1), (addOpen = -1)"
-        >
-          <div class="task-sub">
-            <img
-              src="https://i.electrics01.com/i/124bd47c48c7.png"
-              alt="Create a new resource"
-              class="task-image"
-            />
-            <p class="text-medium">Create a New Resource</p>
-          </div>
-          <div class="task-container">
-            <p class="text-medium-grey">
-              Create a New Planit Resource, Customise Name and Description
-            </p>
-          </div>
-        </div>
-        <p v-if="!currentProject.resources?.length">
-          This project has no resources
-        </p>
-        <div
-          v-for="(resource, index) in currentProject.resources"
-          :id="'resource-' + index"
-          :key="resource.id"
-          class="task-item"
-          @click="
-            (editResourceShown = true),
-              (typeOpen = -1),
-              (addOpen = -1),
-              (editingResource = resource),
-              (resourceNameInput = resource.name),
-              (resourceDescriptionInput = resource.description),
-              (resourceIconInput = resource.icon)
-          "
-        >
-          <div class="task-sub">
-            <img
-              :src="
-                resource.icon || 'https://i.electrics01.com/i/124bd47c48c7.png'
-              "
-              alt="Resource background"
-              class="task-image"
-            />
-            <p class="text-medium">
-              {{ resource.name }}
-            </p>
-          </div>
-          <div class="task-container">
-            <p class="text-medium-grey">{{ resource.description }}</p>
-          </div>
-        </div>
-      </div>
-      <div v-else class="menu-section">
-        <div class="center">
-          <div style="text-align: center" class="loader" />
-        </div>
+      <div v-else-if="page === 1"></div>
+      <div v-else-if="page === 2">
+        <p>Tasks</p>
+        <canvas ref="canvas" width="400" height="400"></canvas>
       </div>
     </div>
   </div>
@@ -555,7 +577,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat"
 import { useRouter, useRoute } from "vue-router"
 import axios from "axios"
 import { useDataStore } from "../store.js"
-import { ref, onMounted, computed } from "vue"
+import { ref, onMounted, computed, nextTick } from "vue"
 
 const route = useRoute()
 const router = useRouter()
@@ -571,6 +593,7 @@ const editingResource = ref({})
 const loadingProject = ref(true)
 const typeOpen = ref(-1)
 const addOpen = ref(-1)
+const page = ref(0)
 
 const pendingTasks = ref(true)
 const ongoingTasks = ref(true)
@@ -896,6 +919,69 @@ const displayTime = (date, end) => {
   } else {
     return `Task started on ${dayjs(date).format("DD/MM/YYYY")}`
   }
+}
+const drawPieChart = () => {
+  const canvas = document.querySelector("canvas")
+  const ctx = canvas.getContext("2d")
+  const counts = [0, 1, 2, 3].reduce((acc, type) => {
+    acc[type] = 0
+    return acc
+  }, {})
+
+  currentProject.value.tasks.forEach((task) => {
+    if (counts.hasOwnProperty(task.type)) {
+      counts[task.type] += 1
+    }
+  })
+  const data = [0, 1, 2, 3].map((type) => counts[type])
+
+  const total = data.reduce((acc, val) => acc + val, 0)
+  let startAngle = 0
+
+  data.forEach((value) => {
+    const sliceAngle = (value / total) * 2 * Math.PI
+    const endAngle = startAngle + sliceAngle
+
+    // Draw the slice
+    ctx.beginPath()
+    ctx.moveTo((canvas.width - 2) / 2, (canvas.height - 2) / 2)
+    ctx.arc(
+      (canvas.width - 2) / 2,
+      (canvas.height - 2) / 2,
+      (canvas.height - 2) / 2,
+      startAngle,
+      endAngle
+    )
+    ctx.closePath()
+    ctx.fillStyle = getRandomColor() // Random color for each slice
+    ctx.fill()
+
+    // Draw the slice border
+    ctx.beginPath()
+    ctx.moveTo((canvas.width - 1) / 2, (canvas.height - 1) / 2)
+    ctx.arc(
+      canvas.width / 2,
+      canvas.height / 2,
+      canvas.height / 2,
+      startAngle,
+      endAngle
+    )
+    ctx.lineWidth = 2
+    ctx.strokeStyle = "#fff"
+    ctx.stroke()
+
+    startAngle = endAngle
+  })
+}
+
+// Random color generator
+const getRandomColor = () => {
+  const letters = "0123456789ABCDEF"
+  let color = "#"
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)]
+  }
+  return color
 }
 async function getProject(id) {
   await axios
