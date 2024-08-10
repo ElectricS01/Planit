@@ -104,6 +104,7 @@
         >
           <div class="switcher-modal">
             <div class="switch-container scroll-bar">
+              <p class="title-sub" style="text-align: center">Notifications</p>
               <div v-if="store.userData.notifications.length">
                 <div
                   v-for="(item, index) in store.userData.notifications"
