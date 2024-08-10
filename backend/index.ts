@@ -429,13 +429,12 @@ serve({
 
       // Return 204 No Content
       return new Response("", { status: 204 })
-    }
+    } else if (url.pathname === "/api/login" && request.method === "POST") {
 
     /*
      * This API is for signing in, it uses the user's username and password to valid the user and create a session token to be
      * stored in their browser
      */
-    else if (url.pathname === "/api/login" && request.method === "POST") {
       // Check that the user provided both a username and password
       if (
         !body.username ||
@@ -579,13 +578,12 @@ serve({
         }),
         { headers, status: 200 }
       )
-    }
+    } else if (
 
     /*
      * This API is for creating projects, it takes a name, description, icon URL, and list of
      * user permissions, non of these properties are required for the project to be created
      */
-    else if (
       url.pathname === "/api/create-project" &&
       request.method === "POST"
     ) {
@@ -862,13 +860,12 @@ serve({
       return new Response(JSON.stringify({ resource: newResource }), {
         status: 200
       })
-    }
+    } else if (
 
     /*
      * This API is very similar in layout to the create APIs but instead it validates
      * the projectId, taskId, and resourceId creates a ResourceAssociation
      */
-    else if (
       url.pathname === "/api/add-resource" &&
       request.method === "POST"
     ) {
@@ -937,13 +934,12 @@ serve({
           status: 200
         }
       )
-    }
+    } else if (
 
     /*
      * This API is very similar in layout to the create APIs and the add resource API but instead
      * it validates the projectId and associationId then deletes a ResourceAssociation
      */
-    else if (
       url.pathname === "/api/remove-resource" &&
       request.method === "POST"
     ) {
@@ -1128,7 +1124,7 @@ serve({
 
       // Get the project's current details to find which permissions need to be modified and validate that the project exists
       const editedProject = await Projects.findByPk(body.id, {
-        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+        attributes: ["id", "name", "description", "icon", "owner"],
         include: [
           {
             attributes: ["userId", "type"],
@@ -1213,7 +1209,7 @@ serve({
 
       // Get the project's details again to send it back to the client
       const project = await Projects.findByPk(body.id, {
-        attributes: ["id", "name", "description", "icon", "owner", "latest"],
+        attributes: ["id", "name", "description", "icon", "owner"],
         include: [
           {
             attributes: ["userId", "type"],
@@ -1488,9 +1484,8 @@ serve({
      * If the route/API could not be found then send 404 Not Found to the
      * client, this will be displayed as an error banner in the client
      */
-    
-      return new Response("Not Found", { status: 404 })
-    
+
+    return new Response("Not Found", { status: 404 })
   },
 
   /*
