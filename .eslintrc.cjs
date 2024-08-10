@@ -1,6 +1,5 @@
 module.exports = {
   root: true,
-  files: ["**/*.js", "**/*.vue"],
   env: {
     node: true
   },

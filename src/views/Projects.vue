@@ -208,7 +208,7 @@
       <p class="title-sub">Your projects</p>
       <div class="spacer" />
       <div class="menu-section">
-        <div class="menu-container" v-if="!store.loadingProjects">
+        <div v-if="!store.loadingProjects" class="menu-container">
           <div class="box">
             <div class="project-item" @click="createShown = true">
               <img
@@ -284,7 +284,7 @@
       <p class="title-sub">Shared with you</p>
       <div class="spacer" />
       <div class="menu-section">
-        <div class="menu-container" v-if="!store.loadingProjects">
+        <div v-if="!store.loadingProjects" class="menu-container">
           <div
             v-for="(project, index) in sharedProjects"
             :id="'project-' + index"

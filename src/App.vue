@@ -1,3 +1,5 @@
+<!-- Comment -->
+
 <template>
   <header :class="isDarkMode === 'true' ? 'dark-mode' : 'light-mode'">
     <div id="mobile-navbar" class="navbar">

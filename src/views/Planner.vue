@@ -289,15 +289,15 @@
   </transition>
   <div class="container-flex">
     <div class="menu">
-      <button @click="page = 0" :class="{ highlighted: page === 0 }">
+      <button :class="{ highlighted: page === 0 }" @click="page = 0">
         Tasks
       </button>
-      <button @click="page = 1" :class="{ highlighted: page === 1 }">
+      <button :class="{ highlighted: page === 1 }" @click="page = 1">
         Gantt Chart
       </button>
       <button
-        @click="(page = 2), nextTick(() => drawPieChart())"
         :class="{ highlighted: page === 2 }"
+        @click="(page = 2), nextTick(() => drawPieChart())"
       >
         Graphs
       </button>
@@ -310,8 +310,8 @@
             <p>Filters:</p>
             <div class="checkbox-container">
               <input
-                type="checkbox"
                 id="pending"
+                type="checkbox"
                 :checked="pendingTasks"
                 @click="toggle('pending')"
               />
@@ -319,8 +319,8 @@
             </div>
             <div class="checkbox-container">
               <input
-                type="checkbox"
                 id="ongoing"
+                type="checkbox"
                 :checked="ongoingTasks"
                 @click="toggle('ongoing')"
               />
@@ -328,8 +328,8 @@
             </div>
             <div class="checkbox-container">
               <input
-                type="checkbox"
                 id="complete"
+                type="checkbox"
                 :checked="completedTasks"
                 @click="toggle('complete')"
               />
@@ -337,8 +337,8 @@
             </div>
             <div class="checkbox-container">
               <input
-                type="checkbox"
                 id="hidden"
+                type="checkbox"
                 :checked="hiddenTasks"
                 @click="toggle('hidden')"
               />
@@ -432,12 +432,12 @@
                 </button>
               </div>
               <div
-                class="dropdown"
                 v-if="
                   currentProject.permissions.find(
                     (permissions) => permissions.userId === store.userData.id
                   )?.type !== 2
                 "
+                class="dropdown"
               >
                 <div
                   class="dropdown-toggle"
@@ -460,14 +460,14 @@
             </div>
             <div class="dropdown-fixed">
               <div
-                class="dropdown-toggle"
-                @click.stop="
-                  (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
-                "
                 v-if="
                   currentProject.permissions.find(
                     (permissions) => permissions.userId === store.userData.id
                   )?.type !== 2
+                "
+                class="dropdown-toggle"
+                @click.stop="
+                  (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
                 "
               >
                 {{ typeOptions[task.type] }}
@@ -956,14 +956,14 @@ const drawPieChart = () => {
     ctx.moveTo(centerX, centerY)
     ctx.arc(centerX, centerY, radius, startAngle, endAngle)
     ctx.closePath()
-    ctx.fillStyle = colours[index] // Random color for each slice
+    ctx.fillStyle = colours[index]
     ctx.fill()
 
     // Draw the slice border
     ctx.beginPath()
     ctx.arc(centerX, centerY, radius, startAngle, endAngle)
     ctx.lineWidth = 2
-    ctx.strokeStyle = "#fff" // Border color
+    ctx.strokeStyle = "#fff"
     ctx.stroke()
 
     // Draw the inside separator lines

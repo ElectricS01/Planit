@@ -177,41 +177,6 @@ body {
   background-color: #00000013;
 }
 
-.highlighted,
-.mode-switch:hover,
-.edit-button:hover,
-.navbar a:hover,
-.dropdown-toggle:hover,
-.dropdown-menu li:hover,
-button:hover,
-.menu-button:hover,
-.task-item:hover,
-.project-item:hover,
-.icon-mobile:hover {
-  background-color: #ffffff1a;
-  transition:
-    background-color 0.25s ease,
-    fill 1s ease;
-}
-
-.light-mode .highlighted,
-.light-mode .container-flex::-webkit-scrollbar-thumb:hover,
-.light-mode .mode-switch:hover,
-.light-mode .dropdown-toggle:hover,
-.light-mode .dropdown-menu li:hover,
-.light-mode button:hover,
-.light-mode .menu-button:hover,
-.light-mode .task-item:hover,
-.light-mode .project-item:hover,
-.light-mode .edit-button:hover,
-.light-mode .navbar a:hover,
-.light-mode .icon-mobile:hover {
-  background-color: #0000001a;
-  transition:
-    background-color 0.25s ease,
-    fill 1s ease;
-}
-
 .navbar a:not(:first-child) {
   margin: 4px 4px 4px 0;
 }
@@ -222,6 +187,8 @@ button:hover,
     background-color 1s ease,
     color 1s ease;
 }
+
+/* Responsive navbar styling */
 
 @media screen and (max-width: 360px) {
   .navbar a:not(:first-child) {
@@ -256,6 +223,43 @@ button:hover,
     top: 0;
     right: 44px;
   }
+}
+
+/* Colours used in multuple CSS classes */
+
+.highlighted,
+.mode-switch:hover,
+.edit-button:hover,
+.navbar a:hover,
+.dropdown-toggle:hover,
+.dropdown-menu li:hover,
+button:hover,
+.menu-button:hover,
+.task-item:hover,
+.project-item:hover,
+.icon-mobile:hover {
+  background-color: #ffffff1a;
+  transition:
+    background-color 0.25s ease,
+    fill 1s ease;
+}
+
+.light-mode .highlighted,
+.light-mode .container-flex::-webkit-scrollbar-thumb:hover,
+.light-mode .mode-switch:hover,
+.light-mode .dropdown-toggle:hover,
+.light-mode .dropdown-menu li:hover,
+.light-mode button:hover,
+.light-mode .menu-button:hover,
+.light-mode .task-item:hover,
+.light-mode .project-item:hover,
+.light-mode .edit-button:hover,
+.light-mode .navbar a:hover,
+.light-mode .icon-mobile:hover {
+  background-color: #0000001a;
+  transition:
+    background-color 0.25s ease,
+    fill 1s ease;
 }
 
 /* Menus */
@@ -297,17 +301,49 @@ button:hover,
   align-content: center;
 }
 
+.modal-menu {
+  text-align: center;
+  margin: 32px 32px 18px;
+}
+
+/* Styling for the error bannar at the top of the screen */
+
+.error-banner {
+  margin: 0;
+  font-size: 16px;
+  overflow: hidden;
+  background-color: #ff2f2f;
+  position: fixed;
+  top: 48px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  text-align: left;
+  padding: 4px 24px;
+}
+
+/* Styling for the Vue Transition component */
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+/* Menu styling */
+
 .menu-section {
   min-height: 257px;
   width: calc(100vw - 88px);
 }
 
-.box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-}
+/* Tasks and resources */
 
 .task-item {
   background-color: #282a2bbf;
@@ -337,35 +373,13 @@ button:hover,
   margin: 0 8px 0 0;
 }
 
-.error-banner {
-  margin: 0;
-  font-size: 16px;
-  overflow: hidden;
-  background-color: #ff2f2f;
-  position: fixed;
-  top: 48px;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
-  text-align: left;
-  padding: 4px 24px;
-}
+/* Projects page */
 
-.modal-menu {
-  text-align: center;
-  margin: 32px 32px 18px;
-}
-
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.25s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
 }
 
 .project-item {
@@ -400,6 +414,8 @@ button:hover,
   border-radius: 10px;
 }
 
+/* Buttons */
+
 button {
   cursor: pointer;
   margin: 2px 4px;
@@ -425,6 +441,8 @@ button {
     background-color 1s ease,
     color 1s ease;
 }
+
+/* Miscellaneous styles */
 
 .center {
   display: flex;
@@ -458,6 +476,8 @@ button {
   margin: 8px 0;
 }
 
+/* Quick switcher */
+
 .switcher-modal {
   height: 400px;
   width: min(calc(100vw - 48px), 400px);
@@ -488,6 +508,8 @@ button {
   border-radius: 4px;
 }
 
+/* Standard styles for lighter/darker components */
+
 .dropdown-toggle:hover,
 .dropdown-menu li:hover,
 .switcher-item:hover {
@@ -508,6 +530,8 @@ button:active,
 .light-mode .menu-button:active {
   background-color: #00000013;
 }
+
+/* Text and checkbox inputs */
 
 input {
   color: white;
@@ -620,6 +644,8 @@ input:focus {
   transition: background-color 1s ease;
 }
 
+/* Style overrides for low resolution devices with widths of 720px or lower */
+
 @media only screen and (max-width: 720px) {
   .task-item {
     width: calc(100% - 16px);
@@ -636,6 +662,8 @@ input:focus {
     right: 0;
   }
 }
+
+/* All the different font styles */
 
 a {
   text-decoration: none;
@@ -706,6 +734,8 @@ a {
   word-break: break-word;
 }
 
+/* Slide/fade animations */
+
 @keyframes slideIn {
   0% {
     margin-top: 12px;
@@ -733,6 +763,8 @@ a {
   }
 }
 
+/* Theme change animations */
+
 .text-small,
 .switcher-item,
 .dropdown-toggle,
@@ -747,6 +779,11 @@ input,
     background-color 1s ease,
     color 1s ease;
 }
+
+/*
+ * Light theme style overrides
+ * When the theme is changed to light, all the dark colours are overridden by light colours
+ */
 
 .light-mode svg {
   fill: black;
