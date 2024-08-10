@@ -1,7 +1,8 @@
-<!-- Comment -->
+<!-- The App.vue contains the core of Planit's UI, these is where pages are injected into using the Vue Router -->
 
 <template>
   <header :class="isDarkMode === 'true' ? 'dark-mode' : 'light-mode'">
+    <!-- The navbar of planit -->
     <div id="mobile-navbar" class="navbar">
       <router-link
         to="/"
@@ -24,6 +25,7 @@
         class="right"
         to="/projects"
         title="Settings"
+        @click="responsiveNavbar()"
       >
         Projects
       </router-link>
@@ -53,6 +55,7 @@
       />
       <div class="icon-mobile" @click="responsiveNavbar()">☰</div>
     </div>
+    <!-- Error bannar -->
     <transition>
       <p v-if="store.error" class="error-banner">
         {{ store.error }}
@@ -61,6 +64,7 @@
   </header>
   <main :class="isDarkMode === 'true' ? 'dark-mode' : 'light-mode'">
     <div class="background-container">
+      <!-- Animated background -->
       <img
         class="background"
         :style="{ opacity: loaded ? 1 : 0 }"
@@ -68,6 +72,7 @@
         src="/src/assets/background.webp"
         @load="loaded = true"
       />
+      <!-- Quick switcher -->
       <transition>
         <modal-simple
           v-if="store.quickSwitcherShown"
@@ -98,6 +103,7 @@
           </div>
         </modal-simple>
       </transition>
+      <!-- Notifications menu -->
       <transition>
         <modal-simple
           v-if="store.notificationsShown && !store.quickSwitcherShown"
@@ -130,12 +136,14 @@
           </div>
         </modal-simple>
       </transition>
+      <!-- Every page in Planit is injected here -->
       <router-view />
     </div>
   </main>
 </template>
 
 <script setup>
+// Imports
 import ModalSimple from "./components/ModalSimple.vue"
 import Icons from "./components/Icons.vue"
 
@@ -144,10 +152,12 @@ import { useDataStore } from "./store.js"
 import { nextTick, ref, watch } from "vue"
 import axios from "axios"
 
+// Define Global functions
 const route = useRoute()
 const router = useRouter()
 const store = useDataStore()
 
+// Store variables to update the UI
 const highlightedIndex = ref(0)
 const switcherInput = ref()
 const isDarkMode = ref("true")
@@ -155,29 +165,41 @@ const loaded = ref(false)
 
 let searchedItems = store.switcherItems
 
+// Check if the user has set their theme when Planit is loaded
 if (localStorage.getItem("isDarkMode")) {
   isDarkMode.value = localStorage.getItem("isDarkMode")
 } else {
   localStorage.setItem("isDarkMode", "true")
   isDarkMode.value = "true"
 }
+
+// Change the background colour of the webpage
 if (localStorage.getItem("isDarkMode") !== "true") {
   document.body.style.backgroundColor = "white"
 }
+
+// Set the "Authorization" header of Axios to the token that is stored in localStorage
 Object.assign(axios.defaults, {
   headers: { Authorization: localStorage.getItem("token") }
 })
+
 if (localStorage.getItem("token")) {
+  // If the user has a token then their UserData will be requested from the backend
   store.getUser()
 } else {
+  // If the user doesn't have a token then they they're not logged in so switcher history will be gotten from localStorage
   store.userData.switcherHistory =
     JSON.parse(localStorage.getItem("switcherHistory")) || []
   store.sortSwitcher()
 }
 
+// This function checks a variable to see if it is the current path, this function
+// makes the button in the navbar brighter when it is selected
 const active = (routePattern) => {
   return route.path === routePattern
 }
+
+// This function is called by byttons in the navbar, it closes the navbar drop down when a button is pressed
 const responsiveNavbar = () => {
   const responsiveNavbar = document.getElementById("mobile-navbar")
   if (responsiveNavbar.className === "navbar") {
@@ -186,7 +208,10 @@ const responsiveNavbar = () => {
     responsiveNavbar.className = "navbar"
   }
 }
-let toggleMode = () => {
+
+// Toggle the theme from dark to light or vice versa, the value is saved in
+// localStorage so the user's theme stays the same when they reload the page
+const toggleMode = () => {
   if (localStorage.getItem("isDarkMode") !== "true") {
     localStorage.setItem("isDarkMode", "true")
     document.body.style.backgroundColor = "#181a1b"
@@ -197,6 +222,8 @@ let toggleMode = () => {
   isDarkMode.value = localStorage.getItem("isDarkMode")
 }
 
+// This function is called by an event listener when ever the user presses the keyboard,
+// it shows/hides the quickswitcher when the user hits command or control plus k or /
 const toggleQuickSwitcher = ({ repeat, metaKey, ctrlKey, key }) => {
   if (repeat) return
   if ((metaKey || ctrlKey) && (key === "k" || key === "/")) {
@@ -210,6 +237,9 @@ const toggleQuickSwitcher = ({ repeat, metaKey, ctrlKey, key }) => {
     }
   }
 }
+
+// This function filters the items in the QuickSwitcher when the switcherInput input box updates then
+// returns the searched items to the searchedItems variable
 const searchItems = () => {
   if (store.quickSwitcherShown) {
     const lastSearchedItems = searchedItems
@@ -239,6 +269,8 @@ const searchItems = () => {
     }
   }
 }
+
+// This function moves the highlighted quickswitcher item up or down when they pess the up or down arrow keys
 const moveHighlight = (step) => {
   if (Object.keys(searchedItems).length === 0) return
   if (highlightedIndex.value === -1 && step === -1) {
@@ -264,6 +296,10 @@ const moveHighlight = (step) => {
     }
   })
 }
+
+// This function is called when the user either clicks on a QuickSwitcher item
+// or presses enter on a QuickSwitcher item, it changes the page to that given item
+// hen updates the QuickSwitcher history in loclaStorage or on the server for loged in users
 const activateItem = (id) => {
   if (id !== -1 && searchedItems.length && store.quickSwitcherShown) {
     store.quickSwitcherShown = false
@@ -307,15 +343,24 @@ const activateItem = (id) => {
     store.sortSwitcher()
   }
 }
+
+// This function is called when the user presses any key on the keyboard by an event listener, it then checks
+// if the key was escape and hides the QuickSwitcher or notifications menu
 const escPressed = ({ key }) => {
   if (key === "Escape") {
-    store.quickSwitcherShown = false
+    if (store.quickSwitcherShown) {
+      store.quickSwitcherShown = false
+    } else {
+      store.notificationsShown = false
+    }
   }
 }
 
+// Add event listeners to listen for when the user presses a key on the keyboard
 document.addEventListener("keydown", toggleQuickSwitcher)
 document.addEventListener("keydown", escPressed)
 
+// Watch the QuickSwitcher input and search the QuickSwitcher when ever the input changes
 watch(switcherInput, () => {
   searchItems()
 })
