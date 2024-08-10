@@ -1,7 +1,13 @@
+<!--
+    Login.vue contains a login form, this form takes your username and password and passes it to the login api,
+    the form also has a button to go to the register page
+-->
+
 <template>
   <div class="container-flex">
     <div class="menu-grid">
       <div class="small-menu">
+        <!-- Username and password inputs -->
         <p>Login</p>
         <div class="text-small">
           <label for="username">Username</label>
@@ -22,9 +28,11 @@
           type="password"
           @keydown.enter="submit"
         />
+        <!-- Register button takes you to the register page -->
         <div class="text-small">
           <router-link class="text-small" to="/register">Register?</router-link>
         </div>
+        <!-- This button calls the submit function -->
         <button @click="submit">Enter</button>
       </div>
     </div>
@@ -32,16 +40,23 @@
 </template>
 
 <script setup>
+// Import functions used in this file
 import { useDataStore } from "../store.js"
 import axios from "axios"
 import { useRouter } from "vue-router"
 
+// Define these functions to be called
 const store = useDataStore()
 const router = useRouter()
 
+// These variables store the values of inputs
 let username = ""
 let password = ""
 
+// This function calls the login API with the username and password inputted, if this login is
+// successful then the token sent back from the API is saved to localStorage and assigned to
+// axios. After this the UserData sent by the API is saved to the global varaible and the
+// QuickSwitcher is sorted then the user is sent to the projects page
 const submit = () => {
   store.error = ""
   axios

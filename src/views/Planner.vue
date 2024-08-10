@@ -1,4 +1,10 @@
+<!--
+    Planner.vue contains the page for each project, it gets, displays, and edits a project's
+    tasks, resources, and charts
+-->
+
 <template>
+  <!-- This menu is for creating tasks -->
   <transition>
     <modal
       v-if="
@@ -81,6 +87,7 @@
       </div>
     </modal>
   </transition>
+  <!-- This menu is for editing tasks -->
   <transition>
     <modal
       v-if="
@@ -163,6 +170,7 @@
       </div>
     </modal>
   </transition>
+  <!-- This menu is for creating resources -->
   <transition>
     <modal
       v-if="
@@ -225,6 +233,7 @@
       </div>
     </modal>
   </transition>
+  <!-- This menu is for editing resources -->
   <transition>
     <modal
       v-if="
@@ -289,6 +298,7 @@
   </transition>
   <div class="container-flex">
     <div class="menu">
+      <!-- Navigation buttons for changing pages -->
       <button :class="{ highlighted: page === 0 }" @click="page = 0">
         Tasks
       </button>
@@ -302,6 +312,7 @@
         Graphs
       </button>
       <p class="title-menu">{{ currentProject?.name }}</p>
+      <!-- Tasks and resources page, this contains a list of the project's tasks and resources -->
       <div v-if="page === 0">
         <p class="title-sub">Tasks</p>
         <div class="spacer" />
@@ -560,19 +571,26 @@
           </div>
         </div>
       </div>
+      <!-- Gantt Chart page, this page contains a Gantt Chart -->
       <div v-else-if="page === 1"></div>
+      <!-- Charts page containing an assortment of different charts -->
       <div v-else-if="page === 2">
         <p>Tasks</p>
         <canvas ref="canvas" width="400" height="400"></canvas>
+        <p style="background-color: #ffd70780">Open tasks</p>
+        <p style="background-color: #32cd3280">Complete tasks</p>
+        <p style="background-color: #18181880">Hidden tasks</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+// import components to be used in this file
 import Modal from "../components/Modal.vue"
 import Icons from "../components/Icons.vue"
 
+// Import functions used in this file
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
 import localizedFormat from "dayjs/plugin/localizedFormat"
@@ -581,10 +599,12 @@ import axios from "axios"
 import { useDataStore } from "../store.js"
 import { ref, onMounted, computed, nextTick } from "vue"
 
+// Define these functions to be called
 const route = useRoute()
 const router = useRouter()
 const store = useDataStore()
 
+// These variables are for menus
 const createShown = ref(false)
 const editShown = ref(false)
 const createResourceShown = ref(false)
@@ -597,11 +617,13 @@ const typeOpen = ref(-1)
 const addOpen = ref(-1)
 const page = ref(0)
 
+// These variables are for filters
 const pendingTasks = ref(true)
 const ongoingTasks = ref(true)
 const completedTasks = ref(false)
 const hiddenTasks = ref(false)
 
+// These variables store the values of inputs
 const taskStartInput = ref("")
 const taskEndInput = ref("")
 
@@ -612,11 +634,14 @@ let resourceNameInput
 let resourceDescriptionInput
 let resourceIconInput
 
+// Define an array to be reused
 const typeOptions = ["hidden", "complete", "open"]
 
+// This adds additional libraries to Day.js
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
+// If the user isn't logged in then send them to the login page
 if (!localStorage.getItem("token")) {
   router.push("/login")
 }
@@ -925,7 +950,7 @@ const displayTime = (date, end) => {
 const drawPieChart = () => {
   const canvas = document.querySelector("canvas")
   const ctx = canvas.getContext("2d")
-  const colours = ["#ffd707", "#0190ea", "#32CD32", "#181818"]
+  const colours = ["#ffd707", "#32CD32", "#181818", "#0190ea"]
   const counts = [0, 1, 2, 3].reduce((acc, type) => {
     acc[type] = 0
     return acc
@@ -936,14 +961,25 @@ const drawPieChart = () => {
       counts[task.type] += 1
     }
   })
+
   const data = [0, 1, 2, 3].map((type) => counts[type])
+  const total = data.reduce((acc, val) => acc + val, 0)
+
+  if (total === 0) {
+    // Clear the canvas and optionally display a message or graphic indicating no data
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.font = "20px Arial"
+    ctx.fillStyle = "#000"
+    ctx.textAlign = "center"
+    ctx.fillText("No data available", canvas.width / 2, canvas.height / 2)
+    return
+  }
 
   const canvasSize = Math.min(canvas.width, canvas.height)
   const padding = 20 // Padding from the canvas edges
   const radius = canvasSize / 2 - padding
   const centerX = canvas.width / 2
   const centerY = canvas.height / 2
-  const total = data.reduce((acc, val) => acc + val, 0)
 
   let startAngle = 0
 

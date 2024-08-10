@@ -5,10 +5,6 @@ import { ref } from "vue"
 import axios from "axios"
 import { useRoute, useRouter } from "vue-router"
 
-// Define constant
-
-const switcherPages = ["Home", "Projects"]
-
 export const useDataStore = defineStore("store", () => {
   // Define Vue router properties
   const route = useRoute()
@@ -20,7 +16,7 @@ export const useDataStore = defineStore("store", () => {
   const userData = ref({})
   const quickSwitcherShown = ref(false)
   const notificationsShown = ref(false)
-  const switcherItems = ref(switcherPages)
+  const switcherItems = ref(["Home", "Projects"])
 
   // This function sets the error message to empty
   const errorFalse = () => {
