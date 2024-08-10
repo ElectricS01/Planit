@@ -316,7 +316,9 @@
       <div v-if="page === 0">
         <p class="title-sub">Tasks</p>
         <div class="spacer" />
+        <!-- This is visible if your project has loaded -->
         <div v-if="!loadingProject" class="menu-section">
+          <!-- these are check boxes to filter your tasks by their type -->
           <div class="toggle-container">
             <p>Filters:</p>
             <div class="checkbox-container">
@@ -356,6 +358,7 @@
               <label for="hidden">Hidden</label>
             </div>
           </div>
+          <!-- This button opens the create task menu, it is only visible if you are an editor or owner of this project -->
           <div
             v-if="
               currentProject.permissions.find(
@@ -379,8 +382,11 @@
               </p>
             </div>
           </div>
+          <!-- This message is visiable if your project doesn't have any tasks -->
           <p v-if="!currentProject.tasks?.length">This project has no tasks</p>
+          <!-- This message is shown if you're filters have hidden all the tasks -->
           <p v-else-if="!currentTasks?.length">No tasks match your filters</p>
+          <!-- This is a for loop which displays all the project's tasks -->
           <div
             v-for="(task, index) in currentTasks"
             :id="'task-' + index"
@@ -496,6 +502,7 @@
             </div>
           </div>
         </div>
+        <!-- This loading spinner is visible if your projects have not loaded -->
         <div v-else class="menu-section">
           <div class="center">
             <div style="text-align: center" class="loader" />
@@ -503,7 +510,9 @@
         </div>
         <p class="title-sub">Resources</p>
         <div class="spacer" />
+        <!-- This is visible if your project has loaded -->
         <div v-if="!loadingProject" class="menu-section">
+          <!-- This button opens the create resource menu, it is only visible if you are an editor or owner of this project -->
           <div
             v-if="
               currentProject.permissions.find(
@@ -529,9 +538,11 @@
               </p>
             </div>
           </div>
+          <!-- This message is visiable if your project doesn't have any resources -->
           <p v-if="!currentProject.resources?.length">
             This project has no resources
           </p>
+          <!-- This is a for loop which displays all the project's tasks -->
           <div
             v-for="(resource, index) in currentProject.resources"
             :id="'resource-' + index"
@@ -565,6 +576,7 @@
             </div>
           </div>
         </div>
+        <!-- This loading spinner is visible if your projects have not loaded -->
         <div v-else class="menu-section">
           <div class="center">
             <div style="text-align: center" class="loader" />
@@ -572,7 +584,18 @@
         </div>
       </div>
       <!-- Gantt Chart page, this page contains a Gantt Chart -->
-      <div v-else-if="page === 1"></div>
+      <div v-else-if="page === 1" class="table">
+        <div
+          v-for="task in currentProject.tasks"
+          :key="task.id"
+          class="table-row"
+        >
+          <div>{{ task.name }}</div>
+          <div>{{ task.description }}</div>
+          <div>{{ task.icon }}</div>
+          <div>{{ task.permissions }}</div>
+        </div>
+      </div>
       <!-- Charts page containing an assortment of different charts -->
       <div v-else-if="page === 2">
         <p>Tasks</p>
@@ -646,6 +669,7 @@ if (!localStorage.getItem("token")) {
   router.push("/login")
 }
 
+// This computed variable updates when you change the filter toggles
 const currentTasks = computed(() =>
   currentProject.value.tasks.filter(
     (task) =>
@@ -660,6 +684,9 @@ const currentTasks = computed(() =>
   )
 )
 
+// This function takes in a projectId, resourceId, and taskId, and posts it to
+// the add-resource API to add the resource to the task then closes the add resource
+// drop-down and adds the resource to the task
 const addResource = (taskId, resourceId) => {
   axios
     .post("/api/add-resource", {
@@ -681,6 +708,9 @@ const addResource = (taskId, resourceId) => {
       setTimeout(store.errorFalse, 5000)
     })
 }
+
+// Remove a resource from a task, this function takes the resourceId, associationId, and projectId
+// and posts it to the remove-resource API, then it removes the resource from the task
 const removeResource = (resourceId, associationId, taskId) => {
   axios
     .post("/api/remove-resource", {
@@ -706,6 +736,9 @@ const removeResource = (resourceId, associationId, taskId) => {
       setTimeout(store.errorFalse, 5000)
     })
 }
+
+// This function is called by the Task-type drop-down menu, the function changes the type with the edit-task API,
+// then updates it in the frontend and closes the drop-down
 const changeType = (task, type) => {
   axios
     .patch("/api/edit-task", {
@@ -734,6 +767,8 @@ const changeType = (task, type) => {
       setTimeout(store.errorFalse, 5000)
     })
 }
+
+// This function is called by the toggles, it takes the name of a type and toggles it
 const toggle = (type) => {
   typeOpen.value = -1
   addOpen.value = -1
@@ -747,10 +782,14 @@ const toggle = (type) => {
     hiddenTasks.value = !hiddenTasks.value
   }
 }
+
+// This function is for editing tasks, it takes in the variables from the inputs and validates them
+// before sending the edited details and the projectId and taskId to the edit-task API
 const editTask = () => {
   let start
   let end
 
+  // Check if the start date is a valid date and time
   if (taskStartInput.value?.trim()) {
     start =
       dayjs(
@@ -760,6 +799,8 @@ const editTask = () => {
           .trim()
       ).toISOString() || Date.now()
   }
+
+  // Check if the end date is a valid date and time
   if (taskEndInput.value?.trim()) {
     end = dayjs(
       taskEndInput.value
@@ -768,6 +809,8 @@ const editTask = () => {
         .trim()
     ).toISOString()
   }
+
+  // Check if the right menu is open before executing the function
   if (
     editShown.value &&
     !store.quickSwitcherShown &&
@@ -785,6 +828,7 @@ const editTask = () => {
         end
       })
       .then((res) => {
+        // Update the frontend and close the menu
         currentProject.value.tasks[
           currentProject.value.tasks.indexOf(
             currentProject.value.tasks.find(
@@ -805,6 +849,9 @@ const editTask = () => {
         setTimeout(store.errorFalse, 5000)
       })
 }
+
+// This function is for creating tasks, it takes in the variables from the inputs and validates them
+// before sending the new details and the projectId  to the create-task API
 const createTask = () => {
   if (
     createShown.value &&
@@ -815,6 +862,7 @@ const createTask = () => {
     let start
     let end
 
+    // Check if the start date is a valid date and time
     if (taskStartInput.value?.trim()) {
       if (!dayjs(taskStartInput.value.trim()).isValid()) {
         store.error = "Invalid date"
@@ -829,6 +877,8 @@ const createTask = () => {
             .trim()
         ).toISOString() || Date.now()
     }
+
+    // Check if the end date is a valid date and time
     if (taskEndInput.value?.trim()) {
       if (!dayjs(taskEndInput.value.trim()).isValid()) {
         store.error = "Invalid date"
@@ -852,6 +902,7 @@ const createTask = () => {
         end
       })
       .then((res) => {
+        // Add the task to the tasks list and close the menu
         res.data.task.resources = []
         currentProject.value.tasks.push(res.data.task)
         createShown.value = false
@@ -867,7 +918,11 @@ const createTask = () => {
       })
   }
 }
+
+// This function is for editing tasks, it takes in the variables from the inputs and validates them
+// before sending the edited details and the projectId to the edit-resource API then closes the menu
 const editResource = () => {
+  // Check if the right menu is open before executing the function
   if (
     editResourceShown.value &&
     !store.quickSwitcherShown &&
@@ -901,7 +956,11 @@ const editResource = () => {
         setTimeout(store.errorFalse, 5000)
       })
 }
+
+// This function is for creating tasks, it takes in the variables from the inputs and validates them
+// before sending the new details and the projectId to the create-resource API then closes the menu
 const createResource = () => {
+  // Check if the right menu is open before executing the function
   if (
     createResourceShown.value &&
     !store.quickSwitcherShown &&
@@ -924,6 +983,9 @@ const createResource = () => {
         setTimeout(store.errorFalse, 5000)
       })
 }
+
+// This function returns the formatted date, it takes a given date and a variable to see
+// if it's an end date or a start date, then returns the formatted date
 const displayTime = (date, end) => {
   if (!date) return "No due date"
   const hoursDifference = dayjs(date).diff(dayjs(), "hour")
@@ -947,10 +1009,17 @@ const displayTime = (date, end) => {
     return `Task started on ${dayjs(date).format("DD/MM/YYYY")}`
   }
 }
+
+// This function takes in the project's task and generates a pie chart which is then rendered in the UI,
+// the function is executed when the user changes to the charts page
 const drawPieChart = () => {
+  // Create the canvas
   const canvas = document.querySelector("canvas")
   const ctx = canvas.getContext("2d")
   const colours = ["#ffd707", "#32CD32", "#181818", "#0190ea"]
+
+  // Count the tasks
+
   const counts = [0, 1, 2, 3].reduce((acc, type) => {
     acc[type] = 0
     return acc
@@ -966,7 +1035,7 @@ const drawPieChart = () => {
   const total = data.reduce((acc, val) => acc + val, 0)
 
   if (total === 0) {
-    // Clear the canvas and optionally display a message or graphic indicating no data
+    // Clear the canvas and display a message or graphic indicating no data
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.font = "20px Arial"
     ctx.fillStyle = "#000"
@@ -975,14 +1044,17 @@ const drawPieChart = () => {
     return
   }
 
+  // Starts the drawing on the canvas
+
   const canvasSize = Math.min(canvas.width, canvas.height)
-  const padding = 20 // Padding from the canvas edges
+  const padding = 20
   const radius = canvasSize / 2 - padding
   const centerX = canvas.width / 2
   const centerY = canvas.height / 2
 
   let startAngle = 0
 
+  // Draw each slice of the pie chart
   data.forEach((value, index) => {
     const sliceAngle = (value / total) * 2 * Math.PI
     const endAngle = startAngle + sliceAngle
@@ -1021,6 +1093,8 @@ const drawPieChart = () => {
     startAngle = endAngle
   })
 }
+
+// Get project's data when the page loads based on the id in the route params (URL)
 async function getProject(id) {
   await axios
     .get(`/api/project/${id}`)
@@ -1040,6 +1114,7 @@ async function getProject(id) {
     })
 }
 
+// onMounted is a Vue function that executes when the page loads
 onMounted(async () => {
   await getProject(route.params.id)
 })

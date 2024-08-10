@@ -288,7 +288,7 @@
             </router-link>
           </div>
         </div>
-        <!-- This is visible if your projects have not loaded -->
+        <!-- This loading spinner is visible if your projects have not loaded -->
         <div v-else class="center">
           <div style="text-align: center" class="loader" />
         </div>
@@ -342,10 +342,11 @@
             </router-link>
           </div>
         </div>
+        <!-- This loading spinner is visible if your projects have not loaded -->
         <div v-else class="center">
           <div style="text-align: center" class="loader" />
         </div>
-        <!-- This is visible if your projects have not loaded -->
+        <!-- This message is visible if you don't have any projects shared to you -->
         <p v-if="!sharedProjects?.length && !store.loadingProjects">
           You don't have any projects shared with you
         </p>

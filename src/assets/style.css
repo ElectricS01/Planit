@@ -373,6 +373,15 @@ button:hover,
   margin: 0 8px 0 0;
 }
 
+/* Gantt charts page */
+
+.table {
+}
+
+.table-row {
+  display: flex;
+}
+
 /* Projects page */
 
 .box {
