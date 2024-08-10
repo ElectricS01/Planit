@@ -8,6 +8,7 @@ module.exports = {
   root: true,
   rules: {
     "array-element-newline": "off",
+    complexity: "off",
     "consistent-return": "off",
     curly: "off",
     "dot-location": "off",

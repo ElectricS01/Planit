@@ -1,7 +1,13 @@
+<!--
+    Modal.vue is a menu that can be shown on the screen, it dims the rest of the page,
+    this component also styles the menu and includes a close button
+-->
+
 <template>
   <div class="model-background">
     <div class="modal" :class="{ 'is-active': isActive }" @click="closeModal">
       <div class="modal-content" @click.stop>
+        <!-- Close button -->
         <button class="modal-close" @click="closeModal">
           <icons width="32" height="32" icon="close" class="close-icon" />
         </button>
@@ -12,20 +18,26 @@
 </template>
 
 <script setup>
+// import this component to be used
 import Icons from "./Icons.vue"
 
+// These are the properties that can be passed to the component
 defineProps({
   isActive: {
     default: false,
     type: Boolean
   }
 })
+
+// This is an event that can be sent out of the component and back to where it is called
 const emit = defineEmits(["close"])
 
+// This function closes the model
 const closeModal = () => emit("close")
 </script>
 
 <style scoped>
+/* Styling for the menu */
 .model-background {
   position: fixed;
   top: 0;

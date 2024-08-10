@@ -482,7 +482,7 @@ const projectUserEnter = async () => {
   const userId = await getUserByName(projectUserInput.value)
   if (!userId) return
   if (projectUsers.value.find((user) => user.userId === userId.id)) {
-    store.error = "This user is already apart of this group"
+    store.error = "This user is already a part of this group"
     setTimeout(store.errorFalse, 2500)
     projectUserInput.value = ""
     return

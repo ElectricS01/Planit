@@ -1,3 +1,7 @@
+<!--
+    About.vue is shown at /about, it contains information about Planit and links to my personal website
+-->
+
 <template>
   <div class="container-flex">
     <div class="menu">

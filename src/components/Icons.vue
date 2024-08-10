@@ -1,3 +1,9 @@
+<!--
+    Icons.vue is a reusable component which can be inserted into any Vue file in Planit,
+    the component shows an icon depending on the property passed to the component.
+    Components are used so that code can be reused accross multiple files.
+-->
+
 <template>
   <svg
     fill="white"
@@ -29,6 +35,7 @@
 </template>
 
 <script setup>
+// These are the properties that can be passed to the component
 defineProps({
   icon: { type: String, default: "sun" },
   size: { type: Number, default: 24 }
