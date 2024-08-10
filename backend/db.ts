@@ -3,7 +3,7 @@ import { Sequelize } from "sequelize-typescript"
 import config from "./config/config.json"
 
 /*
- * db.ts manages the Database connection with Sequelize, in this file the connection between the Databse and Bun is established
+ * Db.ts manages the Database connection with Sequelize, in this file the connection between the Databse and Bun is established
  */
 
 // Configuration options for the Database are imported from config.json and made into a config Sequelize object

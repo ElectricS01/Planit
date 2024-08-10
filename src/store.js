@@ -1,15 +1,20 @@
-import { defineStore } from "pinia"
+// Imports
 
+import { defineStore } from "pinia"
 import { ref } from "vue"
 import axios from "axios"
 import { useRoute, useRouter } from "vue-router"
 
+// Define constant
+
 const switcherPages = ["Home", "Projects"]
 
 export const useDataStore = defineStore("store", () => {
+  // Define Vue router properties
   const route = useRoute()
   const router = useRouter()
 
+  // Global variables
   const error = ref("")
   const loadingProjects = ref(true)
   const userData = ref({})
@@ -17,10 +22,12 @@ export const useDataStore = defineStore("store", () => {
   const notificationsShown = ref(false)
   const switcherItems = ref(switcherPages)
 
+  // This function sets the error message to empty
   const errorFalse = () => {
     error.value = ""
   }
 
+  // Returns an item from userData.value.switcherHistory
   const getItemSearches = (item) => {
     if (Array.isArray(item)) {
       const id = item[0]
@@ -42,6 +49,8 @@ export const useDataStore = defineStore("store", () => {
       })?.searches || 0
     )
   }
+
+  // Sorts switcherItems
   const sortSwitcher = () => {
     switcherItems.value.sort((a, b) => {
       const searchesA = getItemSearches(a)
@@ -50,6 +59,8 @@ export const useDataStore = defineStore("store", () => {
       return searchesB - searchesA
     })
   }
+
+  // Sorts projects
   const sortProjects = () => {
     userData.value.projects.sort((a, b) => {
       if (a?.latest && b?.latest) {
@@ -62,6 +73,8 @@ export const useDataStore = defineStore("store", () => {
       return 0
     })
   }
+
+  // Gets the UserData
   const getUser = () => {
     axios
       .get("/api/user")
@@ -102,6 +115,7 @@ export const useDataStore = defineStore("store", () => {
       })
   }
 
+  // Returns these values and functions so they can be used in all files
   return {
     error,
     errorFalse,

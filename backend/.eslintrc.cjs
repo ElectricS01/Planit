@@ -4,17 +4,8 @@ module.exports = {
   },
   extends: ["eslint:all", "plugin:@typescript-eslint/recommended"],
   parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint", "sort-keys-fix"],
+  plugins: ["@typescript-eslint"],
   root: true,
-  overrides: [
-    {
-      files: ["*.js"],
-      rules: {
-        "sort-keys-fix/sort-keys-fix": "off",
-        "sort-keys": "off"
-      }
-    }
-  ],
   rules: {
     "array-element-newline": "off",
     "consistent-return": "off",
@@ -49,7 +40,7 @@ module.exports = {
     "require-unicode-regexp": "off",
     semi: "off",
     "sort-imports": "off",
-    "sort-keys-fix/sort-keys-fix": "error",
+    "sort-keys": "off",
     "space-before-function-paren": "off"
   }
 }

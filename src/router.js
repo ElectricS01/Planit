@@ -1,5 +1,8 @@
+// Imports
 import { createRouter, createWebHistory } from "vue-router"
 
+// Define the routes, these are all Planit's pages, each page is associated with a .vue file
+// some routes have a meta.title which is the title displayed in the tab bar of your browser
 const routes = [
   {
     path: "/",
@@ -68,13 +71,16 @@ const routes = [
   }
 ]
 
+// Create the router to be exported to main.js
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 
+// When the route changes, update the title in the borwser tab bar
 router.beforeEach((to) => {
   document.title = to.meta?.title ?? "Planit Project Management"
 })
 
+// Export the router to be used in main.js
 export default router

@@ -34,7 +34,7 @@ export interface ProjectDate extends Projects {
 }
 
 /*
- * index.ts is the core file of Planit's backend, all libraries from other files are imported here and called,
+ * Index.ts is the core file of Planit's backend, all libraries from other files are imported here and called,
  * all of Planit's APIs are also located here using Bun's serve function
  */
 
@@ -348,10 +348,12 @@ serve({
         return new Response("Email is taken", { status: 400 })
       }
 
-      // If all the validation checks pass then create the user with the provided email, username,
-      // and password hash and salt regenerated from the password provided using Argon2's industry
-      // trusted hashing and salting algorithms, and also an emailToken which will be sent to the user's
-      // email address for verification
+      /*
+       * If all the validation checks pass then create the user with the provided email, username,
+       * and password hash and salt regenerated from the password provided using Argon2's industry
+       * trusted hashing and salting algorithms, and also an emailToken which will be sent to the user's
+       * email address for verification
+       */
       const user = await Users.create({
         email: body.email,
         emailToken: cryptoRandomString({
@@ -361,8 +363,10 @@ serve({
         username: body.username
       })
 
-      // Parse the sender name, email to send the message too, the subject of the email, and the body to the
-      // emailLibrary to be sent asynchronously which avoids slowing down the backend while the email is being sent
+      /*
+       * Parse the sender name, email to send the message too, the subject of the email, and the body to the
+       * emailLibrary to be sent asynchronously which avoids slowing down the backend while the email is being sent
+       */
       emailLibrary
         .sendEmail(
           "support@electrics01.com",
@@ -376,8 +380,10 @@ serve({
           console.log("Error occurred while sending email:", e)
         })
 
-      // Create a session for this new user, sessions are used to validate a user's permission to use the account
-      // without storing their password anywehere
+      /*
+       * Create a session for this new user, sessions are used to validate a user's permission to use the account
+       * without storing their password anywehere
+       */
       const session = await Sessions.create({
         expiredAt: Date.now() + 15552000000,
         token: cryptoRandomString({ length: 128 }),
@@ -425,8 +431,10 @@ serve({
       return new Response("", { status: 204 })
     }
 
-    // This API is for signing in, it uses the user's username and password to valid the user and create a session token to be
-    // stored in their browser
+    /*
+     * This API is for signing in, it uses the user's username and password to valid the user and create a session token to be
+     * stored in their browser
+     */
     else if (url.pathname === "/api/login" && request.method === "POST") {
       // Check that the user provided both a username and password
       if (
@@ -453,9 +461,11 @@ serve({
         return new Response("Incorrect password", { status: 401 })
       }
 
-      // If the user's username and password are correct then generate a session token for them to securely save in
-      // their browser, session tokens allow the user to stay authenticated so they do not need to login again whenever
-      // they try to access Planit
+      /*
+       * If the user's username and password are correct then generate a session token for them to securely save in
+       * their browser, session tokens allow the user to stay authenticated so they do not need to login again whenever
+       * they try to access Planit
+       */
       const session = await Sessions.create({
         expiredAt: Date.now() + 15552000000,
         token: cryptoRandomString({ length: 128 }),
@@ -554,8 +564,10 @@ serve({
         }
       })
 
-      // Return the user's session token and UserData to the client so they don't need to make another request,
-      // limiting the number of requests reduces load on the server and load on the client
+      /*
+       * Return the user's session token and UserData to the client so they don't need to make another request,
+       * limiting the number of requests reduces load on the server and load on the client
+       */
       return new Response(
         JSON.stringify({
           token: session.token,
@@ -569,8 +581,10 @@ serve({
       )
     }
 
-    // This API is for creating projects, it takes a name, description, icon URL, and list of
-    // user permissions, non of these properties are required for the project to be created
+    /*
+     * This API is for creating projects, it takes a name, description, icon URL, and list of
+     * user permissions, non of these properties are required for the project to be created
+     */
     else if (
       url.pathname === "/api/create-project" &&
       request.method === "POST"
@@ -621,8 +635,10 @@ serve({
         userId: newProject.owner
       })
 
-      // "map" is a form of for loop in JavaScript that allows you to easily iterate over an array,
-      // this use of map iterates over the array of permissions sent from the client
+      /*
+       * "map" is a form of for loop in JavaScript that allows you to easily iterate over an array,
+       * this use of map iterates over the array of permissions sent from the client
+       */
 
       body.users.map(async (user: Permissions) => {
         // Check that the user exists
@@ -680,16 +696,20 @@ serve({
         return new Response("Task description too long", { status: 400 })
       }
 
-      // Check that the date provided is valid using the dayjs "isValid" function, if there is
-      // no date or if it is not valid then set the start date of the class to right now
+      /*
+       * Check that the date provided is valid using the dayjs "isValid" function, if there is
+       * no date or if it is not valid then set the start date of the class to right now
+       */
       if (body.start && dayjs(body.start).isValid()) {
         body.start = dayjs(body.start).toISOString()
       } else {
         body.start = Date.now()
       }
 
-      // Check that the date provided is valid using the dayjs "isValid" function,
-      // if it is not then discard it
+      /*
+       * Check that the date provided is valid using the dayjs "isValid" function,
+       * if it is not then discard it
+       */
       if (body.end && dayjs(body.end).isValid()) {
         body.end = dayjs(body.end).toISOString()
       } else {
@@ -844,8 +864,10 @@ serve({
       })
     }
 
-    // This API is very similar in layout to the create APIs but instead it validates
-    // the projectId, taskId, and resourceId creates a ResourceAssociation
+    /*
+     * This API is very similar in layout to the create APIs but instead it validates
+     * the projectId, taskId, and resourceId creates a ResourceAssociation
+     */
     else if (
       url.pathname === "/api/add-resource" &&
       request.method === "POST"
@@ -917,8 +939,10 @@ serve({
       )
     }
 
-    // This API is very similar in layout to the create APIs and the add resource API but instead
-    // it validates the projectId and associationId then deletes a ResourceAssociation
+    /*
+     * This API is very similar in layout to the create APIs and the add resource API but instead
+     * it validates the projectId and associationId then deletes a ResourceAssociation
+     */
     else if (
       url.pathname === "/api/remove-resource" &&
       request.method === "POST"
@@ -1301,16 +1325,20 @@ serve({
         return new Response("Task description too long", { status: 400 })
       }
 
-      // Check that the date provided is valid using the dayjs "isValid" function, if there is
-      // no date or if it is not valid then set the start date of the class to right now
+      /*
+       * Check that the date provided is valid using the dayjs "isValid" function, if there is
+       * no date or if it is not valid then set the start date of the class to right now
+       */
       if (body.start && dayjs(body.start).isValid()) {
         body.start = dayjs(body.start).toISOString()
       } else {
         body.start = Date.now()
       }
 
-      // Check that the date provided is valid using the dayjs "isValid" function,
-      // if it is not then discard it
+      /*
+       * Check that the date provided is valid using the dayjs "isValid" function,
+       * if it is not then discard it
+       */
       if (body.end && dayjs(body.end).isValid()) {
         body.end = dayjs(body.end).toISOString()
       } else {
@@ -1456,16 +1484,20 @@ serve({
       })
     }
 
-    // If the route/API could not be found then send 404 Not Found to the
-    // client, this will be displayed as an error banner in the client
-    else {
+    /*
+     * If the route/API could not be found then send 404 Not Found to the
+     * client, this will be displayed as an error banner in the client
+     */
+    
       return new Response("Not Found", { status: 404 })
-    }
+    
   },
 
-  // If the server encountered an error like a database issue or logic error,
-  // then send back a short message to the client explaining what went wrong
-  // and then log the full error to the console for debugging
+  /*
+   * If the server encountered an error like a database issue or logic error,
+   * then send back a short message to the client explaining what went wrong
+   * and then log the full error to the console for debugging
+   */
   error(error) {
     console.log(`${error}\n${error.stack}`)
     return new Response(error.message, {

@@ -57,8 +57,10 @@ class NodemailerLibrary {
       to
     }
 
-    // Create a JavaScript Promise so that code can be ran when the email has been sent
-    // this is to avoid slowing down the backend while the email is still being sent
+    /*
+     * Create a JavaScript Promise so that code can be ran when the email has been sent
+     * this is to avoid slowing down the backend while the email is still being sent
+     */
     return new Promise((resolve, reject) => {
       this.transporter.sendMail(mailOptions, (error, info) => {
         // Return the error to index.ts if there is one, this is usually when there is a configuration error in the config.json

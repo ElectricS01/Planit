@@ -9,7 +9,6 @@ import {
 } from "sequelize-typescript"
 import Projects from "./projects"
 import ResourceAssociations from "./resourceAssociations"
-import Tasks from "./tasks"
 
 /*
  * Sequelize-TS Model file, these files manage the types of the database so they can be validated by TypeScript.

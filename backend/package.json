@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "bun --hot run index.ts",
     "prod": "bun run index.ts",
-    "lint": "eslint --fix "
+    "lint": "eslint --ext .js,.ts --fix ./"
   },
   "devDependencies": {
     "@types/bun": "latest",
