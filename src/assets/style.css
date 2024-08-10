@@ -1,3 +1,5 @@
+/* Main styles, global styles and scroll bars */
+
 body {
   height: 100%;
   margin: 48px 0 0;
@@ -25,6 +27,8 @@ body {
 .container-flex::-webkit-scrollbar-thumb:hover {
   background-color: #313435bf;
 }
+
+/* Containers, these contain other elements */
 
 .container {
   position: fixed;
@@ -80,6 +84,8 @@ body {
   justify-content: center;
 }
 
+/* Dynamic background system, these make the background look nice and move around */
+
 .background {
   position: absolute;
   top: -50%;
@@ -116,6 +122,11 @@ body {
     transform: scale(1.2) translate(-8%, 25%);
   }
 }
+
+/*
+ *Navbar styling, these sytles are for the navbar it's self and the buttons on the mavbar,
+ *this sytyling also makes it responsive for mobile and small screened devices
+ */
 
 .navbar {
   overflow: hidden;
@@ -154,16 +165,6 @@ body {
   transition:
     background-color 1s ease,
     fill 1s ease;
-}
-
-.edit-button {
-  cursor: pointer;
-  padding: 2px;
-  margin: 0 4px;
-  border-radius: 4px;
-  transition:
-    fill 1s ease,
-    background-color 1s ease;
 }
 
 .mode-switch.active,
@@ -256,6 +257,8 @@ button:hover,
     right: 44px;
   }
 }
+
+/* Menus */
 
 .menu-grid {
   width: 100%;
@@ -376,6 +379,16 @@ button:hover,
   transition:
     background-color 1s ease,
     color 1s ease;
+}
+
+.edit-button {
+  cursor: pointer;
+  padding: 2px;
+  margin: 0 4px;
+  border-radius: 4px;
+  transition:
+    fill 1s ease,
+    background-color 1s ease;
 }
 
 .grid-image {
@@ -620,6 +633,7 @@ input:focus {
 
   .dropdown-fixed {
     position: relative;
+    right: 0;
   }
 }
 

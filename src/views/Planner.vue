@@ -289,13 +289,15 @@
   </transition>
   <div class="container-flex">
     <div class="menu">
-      <button @click="page = 0" :class="{ active: page === 0 }">Tasks</button>
-      <button @click="page = 1" :class="{ active: page === 1 }">
+      <button @click="page = 0" :class="{ highlighted: page === 0 }">
+        Tasks
+      </button>
+      <button @click="page = 1" :class="{ highlighted: page === 1 }">
         Gantt Chart
       </button>
       <button
         @click="(page = 2), nextTick(() => drawPieChart())"
-        :class="{ active: page === 2 }"
+        :class="{ highlighted: page === 2 }"
       >
         Graphs
       </button>
@@ -923,6 +925,7 @@ const displayTime = (date, end) => {
 const drawPieChart = () => {
   const canvas = document.querySelector("canvas")
   const ctx = canvas.getContext("2d")
+  const colours = ["#ffd707", "#0190ea", "#32CD32", "#181818"]
   const counts = [0, 1, 2, 3].reduce((acc, type) => {
     acc[type] = 0
     return acc
@@ -935,36 +938,45 @@ const drawPieChart = () => {
   })
   const data = [0, 1, 2, 3].map((type) => counts[type])
 
+  const canvasSize = Math.min(canvas.width, canvas.height)
+  const padding = 20 // Padding from the canvas edges
+  const radius = canvasSize / 2 - padding
+  const centerX = canvas.width / 2
+  const centerY = canvas.height / 2
   const total = data.reduce((acc, val) => acc + val, 0)
+
   let startAngle = 0
 
-  data.forEach((value) => {
+  data.forEach((value, index) => {
     const sliceAngle = (value / total) * 2 * Math.PI
     const endAngle = startAngle + sliceAngle
 
     // Draw the slice
     ctx.beginPath()
-    ctx.moveTo((canvas.width - 2) / 2, (canvas.height - 2) / 2)
-    ctx.arc(
-      (canvas.width - 2) / 2,
-      (canvas.height - 2) / 2,
-      (canvas.height - 2) / 2,
-      startAngle,
-      endAngle
-    )
+    ctx.moveTo(centerX, centerY)
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle)
     ctx.closePath()
-    ctx.fillStyle = getRandomColor() // Random color for each slice
+    ctx.fillStyle = colours[index] // Random color for each slice
     ctx.fill()
 
     // Draw the slice border
     ctx.beginPath()
-    ctx.moveTo((canvas.width - 1) / 2, (canvas.height - 1) / 2)
-    ctx.arc(
-      canvas.width / 2,
-      canvas.height / 2,
-      canvas.height / 2,
-      startAngle,
-      endAngle
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle)
+    ctx.lineWidth = 2
+    ctx.strokeStyle = "#fff" // Border color
+    ctx.stroke()
+
+    // Draw the inside separator lines
+    ctx.beginPath()
+    ctx.moveTo(centerX, centerY)
+    ctx.lineTo(
+      centerX + radius * Math.cos(startAngle),
+      centerY + radius * Math.sin(startAngle)
+    )
+    ctx.moveTo(centerX, centerY)
+    ctx.lineTo(
+      centerX + radius * Math.cos(endAngle),
+      centerY + radius * Math.sin(endAngle)
     )
     ctx.lineWidth = 2
     ctx.strokeStyle = "#fff"
@@ -972,16 +984,6 @@ const drawPieChart = () => {
 
     startAngle = endAngle
   })
-}
-
-// Random color generator
-const getRandomColor = () => {
-  const letters = "0123456789ABCDEF"
-  let color = "#"
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)]
-  }
-  return color
 }
 async function getProject(id) {
   await axios
