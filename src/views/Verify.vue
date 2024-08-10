@@ -25,10 +25,10 @@ const submit = () => {
       token: route.query.token
     })
     .then(() => {
-      router.push("/chat")
+      router.push("/projects")
     })
     .catch((e) => {
-      store.error = e.response.data.message
+      store.error = e.response?.data || e.message
       setTimeout(store.errorFalse, 5000)
     })
 }

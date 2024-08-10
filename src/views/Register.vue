@@ -90,7 +90,7 @@ const submit = async () => {
       router.push("/projects")
     })
     .catch((e) => {
-      store.error = e.response.data || e.message
+      store.error = e.response?.data || e.message
       setTimeout(store.errorFalse, 5000)
     })
 }
