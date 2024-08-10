@@ -384,7 +384,7 @@ const deleteProject = () => {
       id: editingProject.value.id,
       password
     })
-    .then((res) => {
+    .then(() => {
       store.userData.projects.splice(
         store.userData.projects.indexOf(
           store.userData.projects.find(
@@ -458,7 +458,7 @@ const createProject = () => {
         store.userData.projects.push(res.data.project)
         store.switcherItems.push(
           ...[res.data.project].map((obj) => [
-            obj.type === 1 && obj.ownerDetails.id !== userData.value.id
+            obj.type === 1 && obj.ownerDetails.id !== store.userData.value.id
               ? obj.ownerDetails.username
               : obj.name,
             obj.id
@@ -536,11 +536,13 @@ const myProjects = computed(() => {
     return store.userData.projects.filter(
       (project) => project?.owner === store.userData.id
     )
+  return []
 })
 const sharedProjects = computed(() => {
   if (store.userData.projects)
     return store.userData.projects.filter(
       (project) => project?.owner !== store.userData.id
     )
+  return []
 })
 </script>

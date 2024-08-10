@@ -416,7 +416,7 @@
             </div>
             <div class="task-sub">
               <p v-if="task.resources?.length">Resources:</p>
-              <div v-for="resource in task.resources">
+              <div v-for="resource in task.resources" :key="resource.id">
                 <button
                   style="display: flex; align-items: center"
                   @click.stop="
@@ -449,7 +449,7 @@
                 </div>
                 <ul v-if="addOpen === index" class="dropdown-menu">
                   <li
-                    v-for="(option, index) in currentProject.resources"
+                    v-for="option in currentProject.resources"
                     :key="option"
                     @click.stop="addResource(task.id, option.id)"
                   >
@@ -475,9 +475,9 @@
               <p v-else>{{ typeOptions[task.type] }}</p>
               <ul v-if="typeOpen === index" class="dropdown-menu">
                 <li
-                  v-for="(option, index) in typeOptions"
+                  v-for="(option, optionIndex) in typeOptions"
                   :key="option"
-                  @click.stop="changeType(task, index)"
+                  @click.stop="changeType(task, optionIndex)"
                 >
                   {{ option }}
                 </li>
@@ -663,7 +663,7 @@ const removeResource = (resourceId, associationId, taskId) => {
       resourceId,
       associationId
     })
-    .then((res) => {
+    .then(() => {
       currentProject.value.tasks[
         currentProject.value.tasks.indexOf(
           currentProject.value.tasks.find((task) => task.id === taskId)
