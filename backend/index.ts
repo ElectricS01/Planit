@@ -430,11 +430,10 @@ serve({
       // Return 204 No Content
       return new Response("", { status: 204 })
     } else if (url.pathname === "/api/login" && request.method === "POST") {
-
-    /*
-     * This API is for signing in, it uses the user's username and password to valid the user and create a session token to be
-     * stored in their browser
-     */
+      /*
+       * This API is for signing in, it uses the user's username and password to valid the user and create a session token to be
+       * stored in their browser
+       */
       // Check that the user provided both a username and password
       if (
         !body.username ||
@@ -579,11 +578,10 @@ serve({
         { headers, status: 200 }
       )
     } else if (
-
-    /*
-     * This API is for creating projects, it takes a name, description, icon URL, and list of
-     * user permissions, non of these properties are required for the project to be created
-     */
+      /*
+       * This API is for creating projects, it takes a name, description, icon URL, and list of
+       * user permissions, non of these properties are required for the project to be created
+       */
       url.pathname === "/api/create-project" &&
       request.method === "POST"
     ) {
@@ -638,11 +636,11 @@ serve({
        * this use of map iterates over the array of permissions sent from the client
        */
 
-      body.users.map(async (user: Permissions) => {
+      body.users.map(async (permission: Permissions) => {
         // Check that the user exists
         const checkUser = await Users.findOne({
           where: {
-            id: user.userId
+            id: permission.userId
           }
         })
 
@@ -650,13 +648,13 @@ serve({
         if (checkUser) {
           await Permissions.create({
             projectId: newProject.id,
-            userId: user.userId,
-            type: user.type
+            userId: permission.userId,
+            type: permission.type
           })
           await Notifications.create({
             otherId: newProject.id,
             type: 1,
-            userId: user.userId
+            userId: permission.userId
           })
         }
       })
@@ -861,11 +859,10 @@ serve({
         status: 200
       })
     } else if (
-
-    /*
-     * This API is very similar in layout to the create APIs but instead it validates
-     * the projectId, taskId, and resourceId creates a ResourceAssociation
-     */
+      /*
+       * This API is very similar in layout to the create APIs but instead it validates
+       * the projectId, taskId, and resourceId creates a ResourceAssociation
+       */
       url.pathname === "/api/add-resource" &&
       request.method === "POST"
     ) {
@@ -935,11 +932,10 @@ serve({
         }
       )
     } else if (
-
-    /*
-     * This API is very similar in layout to the create APIs and the add resource API but instead
-     * it validates the projectId and associationId then deletes a ResourceAssociation
-     */
+      /*
+       * This API is very similar in layout to the create APIs and the add resource API but instead
+       * it validates the projectId and associationId then deletes a ResourceAssociation
+       */
       url.pathname === "/api/remove-resource" &&
       request.method === "POST"
     ) {
@@ -1371,6 +1367,12 @@ serve({
           "type",
           "startAt",
           "dueAt"
+        ],
+        include: [
+          {
+            attributes: ["id", "resourceId"],
+            model: ResourceAssociations
+          }
         ]
       })
       if (!editedTask) {

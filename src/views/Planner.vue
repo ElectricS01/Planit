@@ -401,10 +401,10 @@
                 (taskDescriptionInput = task.description),
                 (taskIconInput = task.icon),
                 (taskStartInput = task.startAt
-                  ? dayjs(task.startAt).format('DD/MM/YYYY')
+                  ? dayjs(task.startAt).format('MM/DD/YYYY')
                   : ''),
                 (taskEndInput = task.dueAt
-                  ? dayjs(task.dueAt).format('DD/MM/YYYY')
+                  ? dayjs(task.dueAt).format('MM/DD/YYYY')
                   : '')
             "
           >
@@ -432,7 +432,16 @@
               </div>
             </div>
             <div class="task-sub">
-              <p v-if="task.resources?.length">Resources:</p>
+              <p
+                v-if="
+                  task.resources?.length ||
+                  currentProject.permissions.find(
+                    (permissions) => permissions.userId === store.userData.id
+                  )?.type !== 2
+                "
+              >
+                Resources:
+              </p>
               <div v-for="resource in task.resources" :key="resource.id">
                 <button
                   style="display: flex; align-items: center"
@@ -445,14 +454,15 @@
                       (res) => res.id === resource.resourceId
                     ).name
                   }}
-                  <icons icon="close" size="16"></icons>
+                  <icons icon="close" :size="16"></icons>
                 </button>
               </div>
               <div
                 v-if="
                   currentProject.permissions.find(
                     (permissions) => permissions.userId === store.userData.id
-                  )?.type !== 2
+                  )?.type !== 2 &&
+                  task.resources.length !== currentProject.resources.length
                 "
                 class="dropdown"
               >
@@ -466,7 +476,7 @@
                 </div>
                 <ul v-if="addOpen === index" class="dropdown-menu">
                   <li
-                    v-for="option in currentProject.resources"
+                    v-for="option in options"
                     :key="option"
                     @click.stop="addResource(task.id, option.id)"
                   >
@@ -684,6 +694,17 @@ const currentTasks = computed(() =>
   )
 )
 
+// This computed variable updates when you add resources to tasks
+const options = computed(() => {
+  return currentProject.value.resources.filter(
+    (resource) =>
+      currentTasks.value[addOpen.value].resources.length === 0 ||
+      !currentTasks.value[addOpen.value].resources.find(
+        (res) => res.resourceId === resource.id
+      )
+  )
+})
+
 // This function takes in a projectId, resourceId, and taskId, and posts it to
 // the add-resource API to add the resource to the task then closes the add resource
 // drop-down and adds the resource to the task
@@ -748,7 +769,7 @@ const changeType = (task, type) => {
       icon: task.icon,
       name: task.name,
       start: task.startAt,
-      end: task.endAt,
+      end: task.dueAt,
       type
     })
     .then((res) => {
@@ -791,6 +812,11 @@ const editTask = () => {
 
   // Check if the start date is a valid date and time
   if (taskStartInput.value?.trim()) {
+    if (!dayjs(taskStartInput.value.trim()).isValid()) {
+      store.error = "Invalid date"
+      setTimeout(store.errorFalse, 5000)
+      return
+    }
     start =
       dayjs(
         taskStartInput.value
@@ -802,6 +828,11 @@ const editTask = () => {
 
   // Check if the end date is a valid date and time
   if (taskEndInput.value?.trim()) {
+    if (!dayjs(taskEndInput.value.trim()).isValid()) {
+      store.error = "Invalid date"
+      setTimeout(store.errorFalse, 5000)
+      return
+    }
     end = dayjs(
       taskEndInput.value
         .replace(/(\d+)(th|st|nd|rd)/gi, "$1")
@@ -829,6 +860,9 @@ const editTask = () => {
       })
       .then((res) => {
         // Update the frontend and close the menu
+        if (!res.data.task.resources) {
+          res.data.task.resources = []
+        }
         currentProject.value.tasks[
           currentProject.value.tasks.indexOf(
             currentProject.value.tasks.find(
@@ -1016,7 +1050,7 @@ const drawPieChart = () => {
   // Create the canvas
   const canvas = document.querySelector("canvas")
   const ctx = canvas.getContext("2d")
-  const colours = ["#ffd707", "#32CD32", "#181818", "#0190ea"]
+  const colours = ["#181818", "#32CD32", "#ffd707", "#0190ea"]
 
   // Count the tasks
 
