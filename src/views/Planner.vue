@@ -595,16 +595,63 @@
       </div>
       <!-- Gantt Chart page, this page contains a Gantt Chart -->
       <div v-else-if="page === 1" class="table">
+        <div class="table-row">
+          <div class="table-box">Name</div>
+          <div class="table-box">Description</div>
+          <div class="table-box">Icon</div>
+          <div class="table-box">Start</div>
+          <div class="table-box">End</div>
+          <div class="table-box">Resources</div>
+        </div>
         <div
-          v-for="task in currentProject.tasks"
+          v-for="(task, index) in currentProject.tasks"
           :key="task.id"
           class="table-row"
         >
-          <div>{{ task.name }}</div>
-          <div>{{ task.description }}</div>
-          <div>{{ task.icon }}</div>
-          <div>{{ task.permissions }}</div>
+          <div
+            v-if="ganttEdit !== index"
+            class="table-box"
+            @click="ganttEdit = index"
+          >
+            {{ task.name }}
+          </div>
+          <div
+            v-if="ganttEdit !== index"
+            class="table-box"
+            @click="ganttEdit = index"
+          >
+            {{ task.description }}
+          </div>
+          <div
+            v-if="ganttEdit !== index"
+            class="table-box"
+            @click="ganttEdit = index"
+          >
+            {{ task.icon || "No icon" }}
+          </div>
+          <div
+            v-if="ganttEdit !== index"
+            class="table-box"
+            @click="ganttEdit = index"
+          >
+            {{ dayjs(task.startAt).format("DD/MM/YYYY HH:mm:ss") }}
+          </div>
+          <div
+            v-if="ganttEdit !== index"
+            class="table-box"
+            @click="ganttEdit = index"
+          >
+            {{ dayjs(task.dueAt).format("DD/MM/YYYY HH:mm:ss") }}
+          </div>
+          <div
+            v-if="ganttEdit !== index"
+            class="table-box"
+            @click="ganttEdit = index"
+          >
+            {{ task.resources || "No icon" }}
+          </div>
         </div>
+        <div class="table-add" @click="createTask(true)">+</div>
       </div>
       <!-- Charts page containing an assortment of different charts -->
       <div v-else-if="page === 2">
@@ -649,6 +696,7 @@ const loadingProject = ref(true)
 const typeOpen = ref(-1)
 const addOpen = ref(-1)
 const page = ref(0)
+const ganttEdit = ref(-1)
 
 // These variables are for filters
 const pendingTasks = ref(true)
@@ -886,9 +934,9 @@ const editTask = () => {
 
 // This function is for creating tasks, it takes in the variables from the inputs and validates them
 // before sending the new details and the projectId  to the create-task API
-const createTask = () => {
+const createTask = (gantt) => {
   if (
-    createShown.value &&
+    (createShown.value || gantt === true) &&
     !store.quickSwitcherShown &&
     !store.notificationsShown &&
     !editShown.value
@@ -1108,21 +1156,23 @@ const drawPieChart = () => {
     ctx.strokeStyle = "#fff"
     ctx.stroke()
 
-    // Draw the inside separator lines
-    ctx.beginPath()
-    ctx.moveTo(centerX, centerY)
-    ctx.lineTo(
-      centerX + radius * Math.cos(startAngle),
-      centerY + radius * Math.sin(startAngle)
-    )
-    ctx.moveTo(centerX, centerY)
-    ctx.lineTo(
-      centerX + radius * Math.cos(endAngle),
-      centerY + radius * Math.sin(endAngle)
-    )
-    ctx.lineWidth = 2
-    ctx.strokeStyle = "#fff"
-    ctx.stroke()
+    if (total === 1) {
+      // Draw the inside separator lines
+      ctx.beginPath()
+      ctx.moveTo(centerX, centerY)
+      ctx.lineTo(
+        centerX + radius * Math.cos(startAngle),
+        centerY + radius * Math.sin(startAngle)
+      )
+      ctx.moveTo(centerX, centerY)
+      ctx.lineTo(
+        centerX + radius * Math.cos(endAngle),
+        centerY + radius * Math.sin(endAngle)
+      )
+      ctx.lineWidth = 2
+      ctx.strokeStyle = "#fff"
+      ctx.stroke()
+    }
 
     startAngle = endAngle
   })

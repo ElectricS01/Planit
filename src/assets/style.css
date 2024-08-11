@@ -227,6 +227,7 @@ body {
 
 /* Colours used in multuple CSS classes */
 
+.table-add:hover,
 .highlighted,
 .mode-switch:hover,
 .edit-button:hover,
@@ -244,6 +245,7 @@ button:hover,
     fill 1s ease;
 }
 
+.light-mode .table-add:hover,
 .light-mode .highlighted,
 .light-mode .container-flex::-webkit-scrollbar-thumb:hover,
 .light-mode .mode-switch:hover,
@@ -379,7 +381,30 @@ button:hover,
 }
 
 .table-row {
+  width: min(50vw, 600px);
   display: flex;
+}
+
+.table-box {
+  margin-right: 2px;
+  padding: 4px;
+  border: 2px solid #ffffff80;
+  border-radius: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 0 0 calc(100% / 6 - 14px);
+  transition:
+    background-color 1s ease,
+    color 1s ease;
+}
+
+.table-add {
+  cursor: pointer;
+  border: 2px solid white;
+  border-radius: 4px;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
 }
 
 /* Projects page */
@@ -798,6 +823,8 @@ input,
   fill: black;
 }
 
+.light-mode .table-box,
+.light-mode .table-add,
 .light-mode .dropdown-toggle,
 .light-mode .dropdown-menu li,
 .light-mode input,
