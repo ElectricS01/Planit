@@ -16,8 +16,8 @@
   "dependencies": {
     "@types/nodemailer": "^6.4.15",
     "@types/sequelize": "^4.28.20",
-    "@typescript-eslint/eslint-plugin": "^8.0.1",
-    "@typescript-eslint/parser": "^8.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.1.0",
+    "@typescript-eslint/parser": "^8.1.0",
     "argon2": "^0.40.3",
     "crypto-random-string": "^5.0.0",
     "dayjs": "^1.11.12",

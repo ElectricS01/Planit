@@ -606,64 +606,146 @@
         </div>
       </div>
       <!-- Gantt Chart page, this page contains a Gantt Chart -->
-      <div v-else-if="page === 1" class="table">
-        <div class="table-row">
-          <div class="table-box">Name</div>
-          <div class="table-box">Description</div>
-          <div class="table-box">Icon</div>
-          <div class="table-box">Start</div>
-          <div class="table-box">End</div>
-          <div class="table-box">Resources</div>
+      <div v-else-if="page === 1" style="display: flex">
+        <div class="table">
+          <div class="table-row">
+            <div class="table-box">Name</div>
+            <div class="table-box">Description</div>
+            <div class="table-box">Icon</div>
+            <div class="table-box">Start</div>
+            <div class="table-box">End</div>
+            <div class="table-box">Resources</div>
+          </div>
+          <div
+            v-for="(task, index) in currentProject.tasks"
+            :key="task.id"
+            class="table-row"
+          >
+            <div
+              v-if="ganttEdit !== index || editType !== 0"
+              class="table-box"
+              @click="
+                (ganttEdit = index), (editType = 0), (taskNameInput = task.name)
+              "
+            >
+              {{ task.name }}
+            </div>
+            <input
+              v-else
+              :id="'name-' + index"
+              v-model="taskNameInput"
+              class="table-input"
+              @keydown.enter="ganttSave(task)"
+            />
+            <div
+              v-if="ganttEdit !== index || editType !== 1"
+              class="table-box"
+              @click="
+                (ganttEdit = index),
+                  (editType = 1),
+                  (taskDescriptionInput = task.description)
+              "
+            >
+              {{ task.description }}
+            </div>
+            <input
+              v-else
+              :id="'description-' + index"
+              v-model="taskDescriptionInput"
+              class="table-input"
+              @keydown.enter="ganttSave(task)"
+            />
+            <div
+              v-if="ganttEdit !== index || editType !== 2"
+              class="table-box"
+              @click="
+                (ganttEdit = index), (editType = 2), (taskIconInput = task.icon)
+              "
+            >
+              {{ task.icon || "No icon" }}
+            </div>
+            <input
+              v-else
+              :id="'icon-' + index"
+              v-model="taskIconInput"
+              class="table-input"
+              @keydown.enter="ganttSave(task)"
+            />
+            <div
+              v-if="ganttEdit !== index || editType !== 3"
+              class="table-box"
+              @click="
+                (ganttEdit = index),
+                  (editType = 3),
+                  (taskStartInput = task.startAt
+                    ? dayjs(task.startAt).format('MM/DD/YYYY')
+                    : '')
+              "
+            >
+              {{ dayjs(task.startAt).format("DD/MM/YYYY HH:mm:ss") }}
+            </div>
+            <input
+              v-else
+              :id="'start-' + index"
+              v-model="taskStartInput"
+              class="table-input"
+              @keydown.enter="ganttSave(task)"
+            />
+            <div
+              v-if="ganttEdit !== index || editType !== 4"
+              class="table-box"
+              @click="
+                (ganttEdit = index),
+                  (editType = 4),
+                  (taskEndInput = task.dueAt
+                    ? dayjs(task.dueAt).format('MM/DD/YYYY')
+                    : '')
+              "
+            >
+              {{ dayjs(task.dueAt).format("DD/MM/YYYY HH:mm:ss") }}
+            </div>
+            <input
+              v-else
+              :id="'end-' + index"
+              v-model="taskEndInput"
+              class="table-input"
+              @keydown.enter="ganttSave(task)"
+            />
+            <div
+              v-if="ganttEdit !== index || editType !== 5"
+              class="table-box"
+              @click="(ganttEdit = index), (editType = 5)"
+            >
+              {{ task.resources || "No icon" }}
+            </div>
+            <input v-else class="table-input" />
+          </div>
+          <div class="table-add" @click="createTask(true)">+</div>
         </div>
-        <div
-          v-for="(task, index) in currentProject.tasks"
-          :key="task.id"
-          class="table-row"
-        >
-          <div
-            v-if="ganttEdit !== index"
-            class="table-box"
-            @click="ganttEdit = index"
-          >
-            {{ task.name }}
+        <div class="table">
+          <div class="table-row">
+            <div class="table-box">{{ dayjs() }}</div>
+            <div class="table-box">{{ dayjs().add(1, "day") }}</div>
+            <div class="table-box">{{ dayjs().add(2, "day") }}</div>
+            <div class="table-box">{{ dayjs().add(3, "day") }}</div>
+            <div class="table-box">{{ dayjs().add(4, "day") }}</div>
+            <div class="table-box">{{ dayjs().add(5, "day") }}</div>
           </div>
           <div
-            v-if="ganttEdit !== index"
-            class="table-box"
-            @click="ganttEdit = index"
+            v-for="task in currentProject.tasks"
+            :key="task.id"
+            class="table-row"
           >
-            {{ task.description }}
-          </div>
-          <div
-            v-if="ganttEdit !== index"
-            class="table-box"
-            @click="ganttEdit = index"
-          >
-            {{ task.icon || "No icon" }}
-          </div>
-          <div
-            v-if="ganttEdit !== index"
-            class="table-box"
-            @click="ganttEdit = index"
-          >
-            {{ dayjs(task.startAt).format("DD/MM/YYYY HH:mm:ss") }}
-          </div>
-          <div
-            v-if="ganttEdit !== index"
-            class="table-box"
-            @click="ganttEdit = index"
-          >
-            {{ dayjs(task.dueAt).format("DD/MM/YYYY HH:mm:ss") }}
-          </div>
-          <div
-            v-if="ganttEdit !== index"
-            class="table-box"
-            @click="ganttEdit = index"
-          >
-            {{ task.resources || "No icon" }}
+            <div class="table-line">
+              <div
+                v-if="task.startAt && task.dueAt"
+                style="background-color: #00f"
+              >
+                .
+              </div>
+            </div>
           </div>
         </div>
-        <div class="table-add" @click="createTask(true)">+</div>
       </div>
       <!-- Charts page containing an assortment of different charts -->
       <div v-else-if="page === 2">
@@ -709,6 +791,7 @@ const typeOpen = ref(-1)
 const addOpen = ref(-1)
 const page = ref(0)
 const ganttEdit = ref(-1)
+const editType = ref(-1)
 
 // These variables are for filters
 const pendingTasks = ref(true)
@@ -882,6 +965,26 @@ const toggle = (type) => {
   }
 }
 
+const ganttSave = (task) => {
+  if (editType.value !== 0) {
+    taskNameInput = task.name
+  }
+  if (editType.value !== 1) {
+    taskDescriptionInput = task.description
+  }
+  if (editType.value !== 2) {
+    taskIconInput = task.icon
+  }
+  if (editType.value !== 3) {
+    taskStartInput.value = task.startAt
+  }
+  if (editType.value !== 4) {
+    taskEndInput.value = task.dueAt
+  }
+  editingTask.value.id = task.id
+  editTask()
+}
+
 // This function is for editing tasks, it takes in the variables from the inputs and validates them
 // before sending the edited details and the projectId and taskId to the edit-task API
 const editTask = () => {
@@ -921,7 +1024,7 @@ const editTask = () => {
 
   // Check if the right menu is open before executing the function
   if (
-    editShown.value &&
+    (editShown.value || ganttEdit.value !== -1) &&
     !store.quickSwitcherShown &&
     !store.notificationsShown &&
     !createShown.value
@@ -949,6 +1052,7 @@ const editTask = () => {
           )
         ] = res.data.task
         editShown.value = false
+        ganttEdit.value = false
         taskNameInput = ""
         taskDescriptionInput = ""
         taskIconInput = ""
