@@ -409,13 +409,19 @@
             "
           >
             <div class="task-sub">
-              <img
+              <object
                 :src="
                   task.icon || 'https://i.electrics01.com/i/55bae440a2b3.png'
                 "
                 alt="Task background"
                 class="task-image"
-              />
+              >
+                <img
+                  src="https://i.electrics01.com/i/55bae440a2b3.png"
+                  alt="Task background"
+                  class="task-image"
+                />
+              </object>
               <p class="text-medium">
                 {{ task.name }}
               </p>
@@ -569,14 +575,20 @@
             "
           >
             <div class="task-sub">
-              <img
+              <object
                 :src="
                   resource.icon ||
                   'https://i.electrics01.com/i/124bd47c48c7.png'
                 "
                 alt="Resource background"
                 class="task-image"
-              />
+              >
+                <img
+                  src="https://i.electrics01.com/i/124bd47c48c7.png"
+                  alt="Resource background"
+                  class="task-image"
+                />
+              </object>
               <p class="text-medium">
                 {{ resource.name }}
               </p>
@@ -727,6 +739,20 @@ if (!localStorage.getItem("token")) {
   router.push("/login")
 }
 
+// Get localStorage values for the filter buttons to avoid the user having to reset the filters every time
+if (localStorage.getItem("pendingTasks")) {
+  pendingTasks.value = localStorage.getItem("pendingTasks") === "true"
+}
+if (localStorage.getItem("ongoingTasks")) {
+  ongoingTasks.value = localStorage.getItem("ongoingTasks") === "true"
+}
+if (localStorage.getItem("completedTasks")) {
+  completedTasks.value = localStorage.getItem("completedTasks") === "true"
+}
+if (localStorage.getItem("hiddenTasks")) {
+  hiddenTasks.value = localStorage.getItem("hiddenTasks") === "true"
+}
+
 // This computed variable updates when you change the filter toggles
 const currentTasks = computed(() =>
   currentProject.value.tasks.filter(
@@ -843,12 +869,16 @@ const toggle = (type) => {
   addOpen.value = -1
   if (type === "pending") {
     pendingTasks.value = !pendingTasks.value
+    localStorage.setItem("pendingTasks", pendingTasks.value)
   } else if (type === "ongoing") {
     ongoingTasks.value = !ongoingTasks.value
+    localStorage.setItem("ongoingTasks", ongoingTasks.value)
   } else if (type === "complete") {
     completedTasks.value = !completedTasks.value
+    localStorage.setItem("completedTasks", completedTasks.value)
   } else if (type === "hidden") {
     hiddenTasks.value = !hiddenTasks.value
+    localStorage.setItem("hiddenTasks", hiddenTasks.value)
   }
 }
 
@@ -1155,8 +1185,9 @@ const drawPieChart = () => {
     ctx.lineWidth = 2
     ctx.strokeStyle = "#fff"
     ctx.stroke()
-
-    if (total === 1) {
+    console.log(data)
+    console.log(data.filter((x) => x > 0).length)
+    if (data.filter((x) => x > 0).length !== 1) {
       // Draw the inside separator lines
       ctx.beginPath()
       ctx.moveTo(centerX, centerY)

@@ -245,13 +245,22 @@
             class="box"
           >
             <router-link class="project-item" :to="`/project/${project.id}`">
-              <img
-                :src="
-                  project.icon || 'https://i.electrics01.com/i/d81dabf74c88.png'
-                "
-                alt="Project background"
-                class="grid-image"
-              />
+              <div style="height: 154px">
+                <object
+                  :src="
+                    project.icon ||
+                    'https://i.electrics01.com/i/d81dabf74c88.png'
+                  "
+                  alt="Project background"
+                  class="grid-image"
+                >
+                  <img
+                    src="https://i.electrics01.com/i/d81dabf74c88.png"
+                    alt="Project background"
+                    class="grid-image"
+                  />
+                </object>
+              </div>
               <div class="small-container">
                 <div class="title-container">
                   <p class="text-medium">
@@ -306,13 +315,22 @@
             class="box"
           >
             <router-link class="project-item" :to="`/project/${project.id}`">
-              <img
-                :src="
-                  project.icon || 'https://i.electrics01.com/i/d81dabf74c88.png'
-                "
-                alt="Project background"
-                class="grid-image"
-              />
+              <div style="height: 154px">
+                <object
+                  :src="
+                    project.icon ||
+                    'https://i.electrics01.com/i/124bd47c48c7.png'
+                  "
+                  alt="Project background"
+                  class="grid-image"
+                >
+                  <img
+                    src="https://i.electrics01.com/i/124bd47c48c7.png"
+                    alt="Resource background"
+                    class="task-image"
+                  />
+                </object>
+              </div>
               <div class="small-container">
                 <div class="title-container">
                   <p class="text-medium">
