@@ -960,7 +960,7 @@ serve({
         return new Response("associationId is required", { status: 400 })
       }
 
-      // Check the user's permission to remove the task, only project owners and editors can remove them
+      // Check the user's permission to remove the association, only project owners and editors can remove them
       const permission = await Permissions.findOne({
         where: { userId: user.id, projectId: body.id }
       })
@@ -1061,6 +1061,83 @@ serve({
       })
       await Permissions.destroy({
         where: { projectId: body.id }
+      })
+
+      // Return 204 No Content
+      return new Response("", { status: 204 })
+    }
+
+    // Delete a task, this can only be done by project owners and editors
+    else if (url.pathname === "/api/delete-task" && request.method === "POST") {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Check if a ProjectID is provided
+      if (!body.id) {
+        return new Response("Invalid Project ID", { status: 400 })
+      }
+
+      // Check the user's permission to delete the task, only project owners and editors can delete them
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.id }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response("You do not have permission to delete this task", {
+          status: 400
+        })
+      }
+
+      // Delete the task
+      await Tasks.destroy({
+        where: { id: body.taskId }
+      })
+      await ResourceAssociations.destroy({
+        where: { taskId: body.taskId }
+      })
+
+      // Return 204 No Content
+      return new Response("", { status: 204 })
+    } else if (
+      /*
+       * This API is for deleting resources, it is very similar to the delete-task API,
+       * id can only be donne by project owners and editors
+       */
+      url.pathname === "/api/delete-resource" &&
+      request.method === "POST"
+    ) {
+      // Authenticate the user
+      const user = await auth(request)
+      if (user instanceof Response) {
+        return user
+      }
+
+      // Check if a ProjectID is provided
+      if (!body.id) {
+        return new Response("Invalid Project ID", { status: 400 })
+      }
+
+      // Check the user's permission to delete the resource, only project owners and editors can delete them
+      const permission = await Permissions.findOne({
+        where: { userId: user.id, projectId: body.id }
+      })
+      if (!permission || permission.type === 2) {
+        return new Response(
+          "You do not have permission to delete this resource",
+          {
+            status: 400
+          }
+        )
+      }
+
+      // Delete the resource
+      await Resources.destroy({
+        where: { id: body.resourceId }
+      })
+      await ResourceAssociations.destroy({
+        where: { resourceId: body.resourceId }
       })
 
       // Return 204 No Content

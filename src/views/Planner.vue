@@ -70,7 +70,7 @@
           <input
             id="task-start"
             v-model="taskStartInput"
-            placeholder="Task start date"
+            placeholder="MM/DD/YYYY"
             @keydown.enter="createTask"
           />
           <div class="text-small">
@@ -79,7 +79,7 @@
           <input
             id="task-end"
             v-model="taskEndInput"
-            placeholder="Task end date"
+            placeholder="MM/DD/YYYY"
             @keydown.enter="createTask"
           />
         </div>
@@ -153,7 +153,7 @@
           <input
             id="task-start"
             v-model="taskStartInput"
-            placeholder="Task start date"
+            placeholder="MM/DD/YYYY"
             @keydown.enter="editTask"
           />
           <div class="text-small">
@@ -162,11 +162,18 @@
           <input
             id="task-end"
             v-model="taskEndInput"
-            placeholder="Task end date"
+            placeholder="MM/DD/YYYY"
             @keydown.enter="editTask"
           />
         </div>
         <button @click="editTask">Edit</button>
+        <button
+          v-if="currentProject.owner === store.userData.id"
+          style="color: red"
+          @click="deleteTask"
+        >
+          Delete
+        </button>
       </div>
     </modal>
   </transition>
@@ -292,7 +299,14 @@
             @keydown.enter="editResource"
           />
         </div>
-        <button @click="editResource">Edit</button>
+        <button @click="editResource">Save</button>
+        <button
+          v-if="currentProject.owner === store.userData.id"
+          style="color: red"
+          @click="deleteResource"
+        >
+          Delete
+        </button>
       </div>
     </modal>
   </transition>
@@ -318,6 +332,30 @@
         <div class="spacer" />
         <!-- This is visible if your project has loaded -->
         <div v-if="!loadingProject" class="menu-section">
+          <!-- This button opens the create task menu, it is only visible if you are an editor or owner of this project -->
+          <div
+            v-if="
+              currentProject.permissions.find(
+                (permissions) => permissions.userId === store.userData.id
+              )?.type !== 2
+            "
+            class="task-item"
+            @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
+          >
+            <div class="task-sub">
+              <img
+                src="https://i.electrics01.com/i/3cdfb7b801b9.png"
+                alt="Create a new task"
+                class="task-image"
+              />
+              <p class="text-medium">Create a New Task</p>
+            </div>
+            <div class="task-container">
+              <p class="text-medium-grey">
+                Create a New Planit Task, Customise Description, Add Resources
+              </p>
+            </div>
+          </div>
           <!-- these are check boxes to filter your tasks by their type -->
           <div class="toggle-container">
             <p>Filters:</p>
@@ -358,30 +396,7 @@
               <label for="hidden">Hidden</label>
             </div>
           </div>
-          <!-- This button opens the create task menu, it is only visible if you are an editor or owner of this project -->
-          <div
-            v-if="
-              currentProject.permissions.find(
-                (permissions) => permissions.userId === store.userData.id
-              )?.type !== 2
-            "
-            class="task-item"
-            @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
-          >
-            <div class="task-sub">
-              <img
-                src="https://i.electrics01.com/i/55bae440a2b3.png"
-                alt="Create a new task"
-                class="task-image"
-              />
-              <p class="text-medium">Create a New Task</p>
-            </div>
-            <div class="task-container">
-              <p class="text-medium-grey">
-                Create a New Planit Task, Customise Description, Add Resources
-              </p>
-            </div>
-          </div>
+          <div class="spacer" />
           <!-- This message is visiable if your project doesn't have any tasks -->
           <p v-if="!currentProject.tasks?.length">This project has no tasks</p>
           <!-- This message is shown if you're filters have hidden all the tasks -->
@@ -440,11 +455,13 @@
             <div class="task-sub">
               <p
                 v-if="
-                  task.resources?.length ||
-                  currentProject.permissions.find(
-                    (permissions) => permissions.userId === store.userData.id
-                  )?.type !== 2
+                  (task.resources?.length ||
+                    currentProject.permissions.find(
+                      (permissions) => permissions.userId === store.userData.id
+                    )?.type !== 2) &&
+                  currentProject.resources.length
                 "
+                class="text-medium"
               >
                 Resources:
               </p>
@@ -542,7 +559,7 @@
           >
             <div class="task-sub">
               <img
-                src="https://i.electrics01.com/i/124bd47c48c7.png"
+                src="https://i.electrics01.com/i/10f2400e2ad0.png"
                 alt="Create a new resource"
                 class="task-image"
               />
@@ -554,6 +571,7 @@
               </p>
             </div>
           </div>
+          <div class="spacer" />
           <!-- This message is visiable if your project doesn't have any resources -->
           <p v-if="!currentProject.resources?.length">
             This project has no resources
@@ -908,6 +926,63 @@ const removeResource = (resourceId, associationId, taskId) => {
       ].resources.filter((resource) => resource.id !== associationId)
       typeOpen.value = -1
       addOpen.value = -1
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
+}
+
+const deleteTask = () => {
+  axios
+    .post("/api/delete-task", {
+      id: currentProject.value.id,
+      taskId: editingTask.value.id
+    })
+    .then(() => {
+      currentProject.value.tasks.splice(
+        currentProject.value.tasks.indexOf(
+          currentProject.value.tasks.find(
+            (task) => task.id === editingTask.value.id
+          )
+        ),
+        1
+      )
+      editShown.value = false
+      ganttEdit.value = false
+      taskNameInput = ""
+      taskDescriptionInput = ""
+      taskIconInput = ""
+      taskStartInput.value = ""
+      taskEndInput.value = ""
+      editingTask.value = {}
+    })
+    .catch((e) => {
+      store.error = e.response?.data || e.message
+      setTimeout(store.errorFalse, 5000)
+    })
+}
+
+const deleteResource = () => {
+  axios
+    .post("/api/delete-resource", {
+      id: currentProject.value.id,
+      resourceId: editingResource.value.id
+    })
+    .then(() => {
+      currentProject.value.resources.splice(
+        currentProject.value.resources.indexOf(
+          currentProject.value.resources.find(
+            (resource) => resource.id === editingResource.value.id
+          )
+        ),
+        1
+      )
+      editResourceShown.value = false
+      resourceNameInput = ""
+      resourceDescriptionInput = ""
+      resourceIconInput = ""
+      editingResource.value = {}
     })
     .catch((e) => {
       store.error = e.response?.data || e.message

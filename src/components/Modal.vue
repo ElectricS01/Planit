@@ -46,6 +46,7 @@ const closeModal = () => emit("close")
   height: 100%;
   background-color: #0008;
   z-index: 2;
+  backdrop-filter: blur(8px);
 }
 
 .modal {
