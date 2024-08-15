@@ -1160,12 +1160,12 @@ serve({
       // Get the list of user IDs from body.users
       const userIds = body.users.map((u: Permissions) => u.userId)
 
-      // Find permissions to delete
+      // Find permissions to delete, excluding the permission for user.id
       const permissionsToDelete = currentPermissions
-        .filter((p) => !userIds.includes(p.userId))
+        .filter((p) => !userIds.includes(p.userId) && p.userId !== user.id)
         .map((p) => p.userId)
 
-      // Delete the permissions that are not in body.users
+      // Delete the permissions that are not in body.users, except for user.id
       await Permissions.destroy({
         where: {
           userId: permissionsToDelete,
