@@ -768,7 +768,7 @@
                 class="table-box"
               >
                 {{
-                  dayjs(earliestTask.startAt)
+                  dayjs(earliestTask?.startAt)
                     .add(index - 1, dateRange.type)
                     .format("DD/MM/YY")
                 }}
@@ -786,14 +786,19 @@
                     left:
                       (dayjs(task.startAt).diff(
                         earliestTask.startAt,
-                        dateRange.type
+                        dateRange.type,
+                        true
                       ) /
                         dateRange.count) *
                         100 +
                       '%',
                     right:
-                      (dayjs(task.dueAt).diff(lastTask.dueAt, dateRange.type) /
-                        dateRange.count) *
+                      (dayjs(task.dueAt).diff(
+                        lastTask.dueAt,
+                        dateRange.type,
+                        true
+                      ) /
+                        -dateRange.count) *
                         100 +
                       '%'
                   }"
@@ -934,7 +939,7 @@ const earliestTask = computed(() => {
 // Find the last task in the project
 const lastTask = computed(() => {
   return currentProject.value.tasks.reduce((earliest, task) => {
-    if (!earliest || task?.dueAt > earliest?.dueAt) {
+    if (!earliest?.dueAt || task?.dueAt > earliest?.dueAt) {
       return task
     }
     return earliest
@@ -942,6 +947,7 @@ const lastTask = computed(() => {
 })
 
 const dateRange = computed(() => {
+  if (currentProject.value.tasks.length === 0) return { count: 0, type: "day" }
   if (dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") < 60)
     return {
       count:
@@ -1464,8 +1470,6 @@ const drawPieChart = () => {
     ctx.lineWidth = 2
     ctx.strokeStyle = "#fff"
     ctx.stroke()
-    console.log(data)
-    console.log(data.filter((x) => x > 0).length)
     if (data.filter((x) => x > 0).length !== 1) {
       // Draw the inside separator lines
       ctx.beginPath()
@@ -1500,9 +1504,7 @@ async function getProject(id) {
       if (e.response?.status === 400 || e.response?.status === 401) {
         router.push("/projects")
       } else {
-        store.error = `Error ${e.request.status}, ${
-          e.response.data.message || e.request.statusMessage
-        }`
+        store.error = e.response?.data || e.message
         setTimeout(store.errorFalse, 5000)
       }
     })

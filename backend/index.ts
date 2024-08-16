@@ -754,7 +754,7 @@ serve({
         where: {
           projectId: body.id,
           startAt: {
-            [Op.gt]: dayjs().toISOString() // Get tasks starting after the current time
+            [Op.gt]: dayjs().toISOString()
           }
         },
         attributes: ["startAt"],
@@ -778,31 +778,6 @@ serve({
       return new Response(JSON.stringify({ task: newTask }), {
         status: 200
       })
-    }
-
-    // Add items to the user's QuickSwitcher
-    else if (url.pathname === "/api/history" && request.method === "POST") {
-      // Authenticate the user
-      const user = await auth(request)
-      if (user instanceof Response) {
-        return user
-      }
-
-      // Validate that there are history items
-      if (body.history.length < 1) {
-        return new Response("History has no content", { status: 400 })
-      }
-
-      //Validate that there arn't too many history items
-      if (body.history.length > 50) {
-        return new Response("History too long", { status: 400 })
-      }
-
-      // Update the user's history
-      await user.update({ switcherHistory: body.history })
-
-      // Return 204 No Content to say that nothing should be sent back
-      return new Response("", { status: 204 })
     }
 
     // This API is very similar in layout to the other create APIs, it validates the resource's details and then creates it
@@ -1256,27 +1231,27 @@ serve({
       )
 
       // Add, update, or modify permissions
-      for (const user of body.users) {
+      for (const userPermission of body.users) {
         const existingPermission = await Permissions.findOne({
           where: {
-            userId: user.userId,
+            userId: userPermission.userId,
             projectId: body.id
           }
         })
         if (!existingPermission) {
           const newPermission = await Permissions.create({
             projectId: body.id,
-            userId: user.userId,
-            type: user.type
+            userId: userPermission.userId,
+            type: userPermission.type
           })
           editedProject.permissions.push(newPermission)
           await Notifications.create({
             otherId: body.id,
             type: 1,
-            userId: user.userId
+            userId: userPermission.userId
           })
-        } else if (existingPermission.type !== user.type) {
-          await existingPermission.update({ type: user.type })
+        } else if (existingPermission.type !== userPermission.type) {
+          await existingPermission.update({ type: userPermission.type })
         }
       }
 
