@@ -319,15 +319,15 @@
                 <object
                   :src="
                     project.icon ||
-                    'https://i.electrics01.com/i/124bd47c48c7.png'
+                    'https://i.electrics01.com/i/d81dabf74c88.png'
                   "
                   alt="Project background"
                   class="grid-image"
                 >
                   <img
-                    src="https://i.electrics01.com/i/124bd47c48c7.png"
-                    alt="Resource background"
-                    class="task-image"
+                    src="https://i.electrics01.com/i/d81dabf74c88.png"
+                    alt="Project background"
+                    class="grid-image"
                   />
                 </object>
               </div>
@@ -579,9 +579,9 @@ const displayTime = (date, end) => {
   if (dayjs(date) > dayjs()) {
     if (hoursDifference > 24) {
       if (end) {
-        return `Ends on ${dayjs(date).format("DD/MM/YYYY HH:mm:ss")}`
+        return `Ends on ${dayjs(date).format("MM/DD/YYYY HH:mm:ss")}`
       } else {
-        return `Starts on ${dayjs(date).format("DD/MM/YYYY HH:mm:ss")}`
+        return `Starts on ${dayjs(date).format("MM/DD/YYYY HH:mm:ss")}`
       }
     } else {
       if (end) {

@@ -310,7 +310,7 @@
       </div>
     </modal>
   </transition>
-  <div class="container-flex">
+  <div class="container-flex" @click="ganttEdit = false">
     <div class="menu">
       <!-- Navigation buttons for changing pages -->
       <button :class="{ highlighted: page === 0 }" @click="page = 0">
@@ -642,7 +642,7 @@
             <div
               v-if="ganttEdit !== index || editType !== 0"
               class="table-box"
-              @click="
+              @click.stop="
                 (ganttEdit = index), (editType = 0), (taskNameInput = task.name)
               "
             >
@@ -654,11 +654,12 @@
               v-model="taskNameInput"
               class="table-input"
               @keydown.enter="ganttSave(task)"
+              @click.stop=""
             />
             <div
               v-if="ganttEdit !== index || editType !== 1"
               class="table-box"
-              @click="
+              @click.stop="
                 (ganttEdit = index),
                   (editType = 1),
                   (taskDescriptionInput = task.description)
@@ -672,11 +673,12 @@
               v-model="taskDescriptionInput"
               class="table-input"
               @keydown.enter="ganttSave(task)"
+              @click.stop=""
             />
             <div
               v-if="ganttEdit !== index || editType !== 2"
               class="table-box"
-              @click="
+              @click.stop="
                 (ganttEdit = index), (editType = 2), (taskIconInput = task.icon)
               "
             >
@@ -688,11 +690,12 @@
               v-model="taskIconInput"
               class="table-input"
               @keydown.enter="ganttSave(task)"
+              @click.stop=""
             />
             <div
               v-if="ganttEdit !== index || editType !== 3"
               class="table-box"
-              @click="
+              @click.stop="
                 (ganttEdit = index),
                   (editType = 3),
                   (taskStartInput = task.startAt
@@ -700,7 +703,7 @@
                     : '')
               "
             >
-              {{ dayjs(task.startAt).format("DD/MM/YYYY HH:mm:ss") }}
+              {{ dayjs(task.startAt).format("MM/DD/YYYY HH:mm:ss") }}
             </div>
             <input
               v-else
@@ -708,11 +711,12 @@
               v-model="taskStartInput"
               class="table-input"
               @keydown.enter="ganttSave(task)"
+              @click.stop=""
             />
             <div
               v-if="ganttEdit !== index || editType !== 4"
               class="table-box"
-              @click="
+              @click.stop="
                 (ganttEdit = index),
                   (editType = 4),
                   (taskEndInput = task.dueAt
@@ -720,7 +724,11 @@
                     : '')
               "
             >
-              {{ dayjs(task.dueAt).format("DD/MM/YYYY HH:mm:ss") }}
+              {{
+                task.dueAt
+                  ? dayjs(task.dueAt).format("MM/DD/YYYY HH:mm:ss")
+                  : "No due date"
+              }}
             </div>
             <input
               v-else
@@ -728,38 +736,71 @@
               v-model="taskEndInput"
               class="table-input"
               @keydown.enter="ganttSave(task)"
+              @click.stop=""
             />
             <div
               v-if="ganttEdit !== index || editType !== 5"
               class="table-box"
-              @click="(ganttEdit = index), (editType = 5)"
+              @click.stop="(ganttEdit = index), (editType = 5)"
             >
               {{ task.resources || "No icon" }}
             </div>
-            <input v-else class="table-input" />
-          </div>
-          <div class="table-add" @click="createTask(true)">+</div>
-        </div>
-        <div class="table">
-          <div class="table-row">
-            <div class="table-box">{{ dayjs() }}</div>
-            <div class="table-box">{{ dayjs().add(1, "day") }}</div>
-            <div class="table-box">{{ dayjs().add(2, "day") }}</div>
-            <div class="table-box">{{ dayjs().add(3, "day") }}</div>
-            <div class="table-box">{{ dayjs().add(4, "day") }}</div>
-            <div class="table-box">{{ dayjs().add(5, "day") }}</div>
+            <input v-else class="table-input" @click.stop="" />
           </div>
           <div
-            v-for="task in currentProject.tasks"
-            :key="task.id"
-            class="table-row"
+            v-if="
+              currentProject.permissions.find(
+                (permissions) => permissions.userId === store.userData.id
+              )?.type !== 2
+            "
+            class="table-add"
+            @click="createTask(true)"
           >
-            <div class="table-line">
+            +
+          </div>
+        </div>
+        <div class="table" style="display: flex">
+          <div>
+            <div class="table-line-row">
               <div
-                v-if="task.startAt && task.dueAt"
-                style="background-color: #00f"
+                v-for="index in Math.max(dateRange.count, 7)"
+                :key="index"
+                class="table-box"
               >
-                .
+                {{
+                  dayjs(earliestTask.startAt)
+                    .add(index - 1, dateRange.type)
+                    .format("DD/MM/YY")
+                }}
+              </div>
+            </div>
+            <div
+              v-for="task in currentProject.tasks"
+              :key="task.id"
+              class="table-line-row"
+            >
+              <div class="table-line">
+                <div
+                  v-if="task.startAt && task.dueAt"
+                  :style="{
+                    left:
+                      (dayjs(task.startAt).diff(
+                        earliestTask.startAt,
+                        dateRange.type
+                      ) /
+                        dateRange.count) *
+                        100 +
+                      '%',
+                    right:
+                      (dayjs(task.dueAt).diff(lastTask.dueAt, dateRange.type) /
+                        dateRange.count) *
+                        100 +
+                      '%'
+                  }"
+                  style="background-color: #00f; position: absolute"
+                >
+                  .
+                </div>
               </div>
             </div>
           </div>
@@ -878,6 +919,64 @@ const options = computed(() => {
         (res) => res.resourceId === resource.id
       )
   )
+})
+
+// Find the earliest task in the project
+const earliestTask = computed(() => {
+  return currentProject.value.tasks.reduce((earliest, task) => {
+    if (!earliest || task.startAt < earliest.startAt) {
+      return task
+    }
+    return earliest
+  }, null)
+})
+
+// Find the last task in the project
+const lastTask = computed(() => {
+  return currentProject.value.tasks.reduce((earliest, task) => {
+    if (!earliest || task?.dueAt > earliest?.dueAt) {
+      return task
+    }
+    return earliest
+  }, null)
+})
+
+const dateRange = computed(() => {
+  if (dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") < 60)
+    return {
+      count:
+        dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") + 1,
+      type: "day"
+    }
+
+  if (dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "week") < 24)
+    return {
+      count:
+        dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "week") +
+        1,
+      type: "week"
+    }
+  if (
+    dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "month") < 24
+  )
+    return {
+      count:
+        dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "month") +
+        1,
+      type: "month"
+    }
+  if (dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "year") < 12)
+    return {
+      count:
+        dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "year") +
+        1,
+      type: "year"
+    }
+  return {
+    count:
+      dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") + 1,
+    type: "day"
+  }
 })
 
 // This function takes in a projectId, resourceId, and taskId, and posts it to
@@ -1197,6 +1296,7 @@ const createTask = (gantt) => {
         res.data.task.resources = []
         currentProject.value.tasks.push(res.data.task)
         createShown.value = false
+        ganttEdit.value = false
         taskNameInput = ""
         taskDescriptionInput = ""
         taskIconInput = ""
@@ -1283,9 +1383,9 @@ const displayTime = (date, end) => {
   if (dayjs(date) > dayjs()) {
     if (hoursDifference > 24) {
       if (end) {
-        return `Ends on ${dayjs(date).format("DD/MM/YYYY")}`
+        return `Ends on ${dayjs(date).format("MM/DD/YYYY")}`
       } else {
-        return `Starts on ${dayjs(date).format("DD/MM/YYYY")}`
+        return `Starts on ${dayjs(date).format("MM/DD/YYYY")}`
       }
     } else {
       if (end) {
@@ -1297,7 +1397,7 @@ const displayTime = (date, end) => {
   } else if (!end && dayjs(end) > dayjs()) {
     return "Currently Occurring"
   } else {
-    return `Task started on ${dayjs(date).format("DD/MM/YYYY")}`
+    return `Task started on ${dayjs(date).format("MM/DD/YYYY")}`
   }
 }
 

@@ -242,6 +242,7 @@ button:hover,
   background-color: #ffffff1a;
   transition:
     background-color 0.25s ease,
+    color 1s ease,
     fill 1s ease;
 }
 
@@ -389,6 +390,7 @@ button:hover,
 }
 
 .table-box {
+  min-width: 70px;
   height: 20px;
   margin-right: 2px;
   padding: 4px;
@@ -408,14 +410,28 @@ button:hover,
   border: 2px solid #ffffff80;
 }
 
+.table-line-row {
+  width: calc(100% - 2px);
+  display: flex;
+  margin: 2px 0 2px 2px;
+}
+
 .table-line {
+  position: relative;
   border: 2px solid #ffffff80;
   border-radius: 4px;
   height: 28px;
   width: 100%;
+  margin-right: 2px;
 }
 
 .table-add {
+  height: 28px;
+  width: max(594px, calc(50vw - 49px));
+  margin: 2px 0 2px 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
   border: 2px solid white;
   border-radius: 4px;
