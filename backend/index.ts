@@ -592,7 +592,11 @@ serve({
       }
 
       // Validate that the icon is a valid URL
-      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+      if (
+        body.icon &&
+        body.icon.length < 256 &&
+        !body.icon.match(/(https?:\/\/\S+)/g)
+      ) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
 
@@ -678,7 +682,11 @@ serve({
       }
 
       // Validate that the icon is a valid URL
-      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+      if (
+        body.icon &&
+        body.icon.length < 256 &&
+        !body.icon.match(/(https?:\/\/\S+)/g)
+      ) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
 
@@ -797,7 +805,11 @@ serve({
       }
 
       // Validate that the icon is a valid URL
-      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+      if (
+        body.icon &&
+        body.icon.length < 256 &&
+        !body.icon.match(/(https?:\/\/\S+)/g)
+      ) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
 
@@ -1136,7 +1148,11 @@ serve({
       }
 
       // Validate that the icon is a valid URL
-      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+      if (
+        body.icon &&
+        body.icon.length < 256 &&
+        !body.icon.match(/(https?:\/\/\S+)/g)
+      ) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
 
@@ -1355,7 +1371,11 @@ serve({
       }
 
       // Validate that the icon is a valid URL
-      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+      if (
+        body.icon &&
+        body.icon.length < 256 &&
+        !body.icon.match(/(https?:\/\/\S+)/g)
+      ) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
 
@@ -1471,7 +1491,11 @@ serve({
       }
 
       // Validate that the icon is a valid URL
-      if (body.icon && !body.icon.match(/(https?:\/\/\S+)/g)) {
+      if (
+        body.icon &&
+        body.icon.length < 256 &&
+        !body.icon.match(/(https?:\/\/\S+)/g)
+      ) {
         return new Response("Icon is not a valid URL", { status: 400 })
       }
 
