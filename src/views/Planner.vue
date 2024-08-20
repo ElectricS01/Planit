@@ -166,7 +166,7 @@
             @keydown.enter="editTask"
           />
         </div>
-        <button @click="editTask">Edit</button>
+        <button @click="editTask">Save</button>
         <button
           v-if="currentProject.owner === store.userData.id"
           style="color: red"
@@ -738,14 +738,40 @@
               @keydown.enter="ganttSave(task)"
               @click.stop=""
             />
-            <div
-              v-if="ganttEdit !== index || editType !== 5"
-              class="table-box"
-              @click.stop="(ganttEdit = index), (editType = 5)"
-            >
-              {{ task.resources || "No icon" }}
+            <div class="dropdown-gantt">
+              <div
+                class="dropdown-toggle-gantt"
+                @click.stop="
+                  (ganttEdit =
+                    ganttEdit === index && editType === 5 ? -1 : index),
+                    ganttEdit === index && editType === 5 ? -1 : (editType = 5)
+                "
+              >
+                Show
+              </div>
+              <ul
+                v-if="ganttEdit === index && editType === 5"
+                style="width: unset"
+                class="dropdown-menu"
+              >
+                Resources:
+                <li
+                  v-for="option in ganttOptionsAdded"
+                  :key="option"
+                  @click.stop="addResource(task.id, option.id)"
+                >
+                  {{ option.name }}
+                </li>
+                Add:
+                <li
+                  v-for="option in ganttOptionsToAdd"
+                  :key="option"
+                  @click.stop="addResource(task.id, option.id)"
+                >
+                  {{ option.name }}
+                </li>
+              </ul>
             </div>
-            <input v-else class="table-input" @click.stop="" />
           </div>
           <div
             v-if="
@@ -926,6 +952,28 @@ const options = computed(() => {
   )
 })
 
+// This computed variable updates when you add resources to tasks in the Gantt Chart
+const ganttOptionsAdded = computed(() => {
+  return currentProject.value.resources.filter(
+    (resource) =>
+      currentTasks.value[ganttEdit.value].resources.length === 0 ||
+      currentTasks.value[ganttEdit.value].resources.find(
+        (res) => res.resourceId === resource.id
+      )
+  )
+})
+
+// This computed variable updates when you can add resources to tasks in the Gantt Chart
+const ganttOptionsToAdd = computed(() => {
+  return currentProject.value.resources.filter(
+    (resource) =>
+      currentTasks.value[ganttEdit.value].resources.length === 0 ||
+      !currentTasks.value[ganttEdit.value].resources.find(
+        (res) => res.resourceId === resource.id
+      )
+  )
+})
+
 // Find the earliest task in the project
 const earliestTask = computed(() => {
   return currentProject.value.tasks.reduce((earliest, task) => {
@@ -946,6 +994,8 @@ const lastTask = computed(() => {
   }, null)
 })
 
+// Get the range of dates to display in the Gantt chart, this is so there aren't too many dates being
+// displayed for larger multi-year projects. This improves performance and prevents stutter
 const dateRange = computed(() => {
   if (currentProject.value.tasks.length === 0) return { count: 0, type: "day" }
   if (dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") < 60)
@@ -954,7 +1004,6 @@ const dateRange = computed(() => {
         dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") + 1,
       type: "day"
     }
-
   if (dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "week") < 24)
     return {
       count:
@@ -980,8 +1029,8 @@ const dateRange = computed(() => {
     }
   return {
     count:
-      dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "day") + 1,
-    type: "day"
+      dayjs(lastTask.value.dueAt).diff(earliestTask.value.startAt, "year") + 1,
+    type: "year"
   }
 })
 
@@ -1402,6 +1451,8 @@ const displayTime = (date, end) => {
     }
   } else if (!end && dayjs(end) > dayjs()) {
     return "Currently Occurring"
+  } else if (end) {
+    return `Task finished on ${dayjs(date).format("MM/DD/YYYY")}`
   } else {
     return `Task started on ${dayjs(date).format("MM/DD/YYYY")}`
   }

@@ -670,6 +670,13 @@ input:focus {
   width: 120px;
 }
 
+.dropdown-gantt {
+  position: relative;
+  flex: 1 0 0%;
+  padding: 0 6px;
+  margin-right: 2px;
+}
+
 .dropdown-fixed {
   position: absolute;
   display: inline-block;
@@ -685,6 +692,22 @@ input:focus {
   text-transform: capitalize;
   background-color: #212425;
   transition: background-color 1s ease;
+}
+
+.dropdown-toggle-gantt {
+  position: relative;
+  min-width: 70px;
+  height: 20px;
+  margin-right: 2px;
+  padding: 4px 0;
+  border: 2px solid #ffffff80;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 4px;
+  transition:
+    background-color 1s ease,
+    color 1s ease;
 }
 
 .dropdown-menu {
@@ -858,11 +881,10 @@ input,
 
 .light-mode .table-box,
 .light-mode .table-add,
-.light-mode .dropdown-toggle,
-.light-mode .dropdown-menu li,
 .light-mode input,
 .light-mode .icon-mobile,
 .light-mode .dropdown-toggle,
+.light-mode .dropdown-toggle-gantt,
 .light-mode .dropdown-menu li,
 .light-mode button,
 .light-mode .menu-button,
