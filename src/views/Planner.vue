@@ -828,10 +828,12 @@
                         100 +
                       '%'
                   }"
-                  style="background-color: #00f; position: absolute"
-                >
-                  .
-                </div>
+                  style="
+                    background-color: #00f;
+                    position: absolute;
+                    height: 28px;
+                  "
+                ></div>
               </div>
             </div>
           </div>
