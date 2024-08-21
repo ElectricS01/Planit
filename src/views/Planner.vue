@@ -328,6 +328,8 @@
       <p class="title-menu">{{ currentProject?.name }}</p>
       <!-- Tasks and resources page, this contains a list of the project's tasks and resources -->
       <div v-if="page === 0">
+        <p class="title-sub">{{ currentProject?.description }}</p>
+        <div class="spacer" />
         <p class="title-sub">Tasks</p>
         <div class="spacer" />
         <!-- This is visible if your project has loaded -->
