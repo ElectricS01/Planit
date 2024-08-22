@@ -22,9 +22,9 @@
       </router-link>
       <router-link
         v-if="store.userData.id"
-        class="right"
         to="/projects"
-        title="Settings"
+        :class="{ active: active('/about') }"
+        title="Projects"
         @click="responsiveNavbar()"
       >
         Projects
@@ -44,6 +44,7 @@
         @click="toggleMode()"
       />
       <icons
+        v-if="store.userData.id"
         style="right: 88px"
         icon="bell"
         :class="{ active: store.notificationsShown == true }"
