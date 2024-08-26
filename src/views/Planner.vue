@@ -434,7 +434,9 @@
                 class="task-image"
               >
                 <img
-                  src="https://i.electrics01.com/i/55bae440a2b3.png"
+                  :src="
+                    task.icon || 'https://i.electrics01.com/i/55bae440a2b3.png'
+                  "
                   alt="Task background"
                   class="task-image"
                 />
@@ -604,7 +606,10 @@
                 class="task-image"
               >
                 <img
-                  src="https://i.electrics01.com/i/124bd47c48c7.png"
+                  :src="
+                    resource.icon ||
+                    'https://i.electrics01.com/i/124bd47c48c7.png'
+                  "
                   alt="Resource background"
                   class="task-image"
                 />
