@@ -23,7 +23,7 @@
       <router-link
         v-if="store.userData.id"
         to="/projects"
-        :class="{ active: active('/about') }"
+        :class="{ active: active('/projects') }"
         title="Projects"
         @click="responsiveNavbar()"
       >
