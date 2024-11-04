@@ -1573,7 +1573,7 @@ serve({
    */
   error(error) {
     console.log(`${error}\n${error.stack}`)
-    return new Response(error.message, {
+    return new Response("Internal server error", {
       headers,
       status: 500
     })
