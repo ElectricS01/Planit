@@ -321,7 +321,7 @@
       </button>
       <button
         :class="{ highlighted: page === 2 }"
-        @click="(page = 2), nextTick(() => drawPieChart())"
+        @click="((page = 2), nextTick(() => drawPieChart()))"
       >
         Graphs
       </button>
@@ -342,7 +342,7 @@
               )?.type !== 2
             "
             class="task-item"
-            @click="(createShown = true), (typeOpen = -1), (addOpen = -1)"
+            @click="((createShown = true), (typeOpen = -1), (addOpen = -1))"
           >
             <div class="task-sub">
               <img
@@ -410,19 +410,19 @@
             :key="task.id"
             class="task-item"
             @click="
-              (editShown = true),
-                (typeOpen = -1),
-                (addOpen = -1),
-                (editingTask = task),
-                (taskNameInput = task.name),
-                (taskDescriptionInput = task.description),
-                (taskIconInput = task.icon),
-                (taskStartInput = task.startAt
-                  ? dayjs(task.startAt).format('MM/DD/YYYY')
-                  : ''),
-                (taskEndInput = task.dueAt
-                  ? dayjs(task.dueAt).format('MM/DD/YYYY')
-                  : '')
+              ((editShown = true),
+              (typeOpen = -1),
+              (addOpen = -1),
+              (editingTask = task),
+              (taskNameInput = task.name),
+              (taskDescriptionInput = task.description),
+              (taskIconInput = task.icon),
+              (taskStartInput = task.startAt
+                ? dayjs(task.startAt).format('MM/DD/YYYY')
+                : ''),
+              (taskEndInput = task.dueAt
+                ? dayjs(task.dueAt).format('MM/DD/YYYY')
+                : ''))
             "
           >
             <div class="task-sub">
@@ -496,7 +496,8 @@
                 <div
                   class="dropdown-toggle"
                   @click.stop="
-                    (addOpen = addOpen === index ? -1 : index), (typeOpen = -1)
+                    ((addOpen = addOpen === index ? -1 : index),
+                    (typeOpen = -1))
                   "
                 >
                   Add
@@ -521,7 +522,7 @@
                 "
                 class="dropdown-toggle"
                 @click.stop="
-                  (typeOpen = typeOpen === index ? -1 : index), (addOpen = -1)
+                  ((typeOpen = typeOpen === index ? -1 : index), (addOpen = -1))
                 "
               >
                 {{ typeOptions[task.type] }}
@@ -558,7 +559,7 @@
             "
             class="task-item"
             @click="
-              (createResourceShown = true), (typeOpen = -1), (addOpen = -1)
+              ((createResourceShown = true), (typeOpen = -1), (addOpen = -1))
             "
           >
             <div class="task-sub">
@@ -587,13 +588,13 @@
             :key="resource.id"
             class="task-item"
             @click="
-              (editResourceShown = true),
-                (typeOpen = -1),
-                (addOpen = -1),
-                (editingResource = resource),
-                (resourceNameInput = resource.name),
-                (resourceDescriptionInput = resource.description),
-                (resourceIconInput = resource.icon)
+              ((editResourceShown = true),
+              (typeOpen = -1),
+              (addOpen = -1),
+              (editingResource = resource),
+              (resourceNameInput = resource.name),
+              (resourceDescriptionInput = resource.description),
+              (resourceIconInput = resource.icon))
             "
           >
             <div class="task-sub">
@@ -650,7 +651,9 @@
               v-if="ganttEdit !== index || editType !== 0"
               class="table-box"
               @click.stop="
-                (ganttEdit = index), (editType = 0), (taskNameInput = task.name)
+                ((ganttEdit = index),
+                (editType = 0),
+                (taskNameInput = task.name))
               "
             >
               {{ task.name }}
@@ -667,9 +670,9 @@
               v-if="ganttEdit !== index || editType !== 1"
               class="table-box"
               @click.stop="
-                (ganttEdit = index),
-                  (editType = 1),
-                  (taskDescriptionInput = task.description)
+                ((ganttEdit = index),
+                (editType = 1),
+                (taskDescriptionInput = task.description))
               "
             >
               {{ task.description }}
@@ -686,7 +689,9 @@
               v-if="ganttEdit !== index || editType !== 2"
               class="table-box"
               @click.stop="
-                (ganttEdit = index), (editType = 2), (taskIconInput = task.icon)
+                ((ganttEdit = index),
+                (editType = 2),
+                (taskIconInput = task.icon))
               "
             >
               {{ task.icon || "No icon" }}
@@ -703,11 +708,11 @@
               v-if="ganttEdit !== index || editType !== 3"
               class="table-box"
               @click.stop="
-                (ganttEdit = index),
-                  (editType = 3),
-                  (taskStartInput = task.startAt
-                    ? dayjs(task.startAt).format('MM/DD/YYYY')
-                    : '')
+                ((ganttEdit = index),
+                (editType = 3),
+                (taskStartInput = task.startAt
+                  ? dayjs(task.startAt).format('MM/DD/YYYY')
+                  : ''))
               "
             >
               {{ dayjs(task.startAt).format("MM/DD/YYYY HH:mm:ss") }}
@@ -724,11 +729,11 @@
               v-if="ganttEdit !== index || editType !== 4"
               class="table-box"
               @click.stop="
-                (ganttEdit = index),
-                  (editType = 4),
-                  (taskEndInput = task.dueAt
-                    ? dayjs(task.dueAt).format('MM/DD/YYYY')
-                    : '')
+                ((ganttEdit = index),
+                (editType = 4),
+                (taskEndInput = task.dueAt
+                  ? dayjs(task.dueAt).format('MM/DD/YYYY')
+                  : ''))
               "
             >
               {{
@@ -749,9 +754,9 @@
               <div
                 class="dropdown-toggle-gantt"
                 @click.stop="
-                  (ganttEdit =
+                  ((ganttEdit =
                     ganttEdit === index && editType === 5 ? -1 : index),
-                    ganttEdit === index && editType === 5 ? -1 : (editType = 5)
+                  ganttEdit === index && editType === 5 ? -1 : (editType = 5))
                 "
               >
                 Show
@@ -1483,9 +1488,9 @@ const drawPieChart = () => {
   }, {})
 
   currentProject.value.tasks.forEach((task) => {
-    if (counts.hasOwnProperty(task.type)) {
-      counts[task.type] += 1
-    }
+    console.log(counts)
+    console.log(task.type)
+    counts[task.type] += 1
   })
 
   const data = [0, 1, 2, 3].map((type) => counts[type])

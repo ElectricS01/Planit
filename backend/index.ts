@@ -676,7 +676,7 @@ serve({
         return user
       }
 
-      // Existance testing on the projectId of the new task
+      // Existence testing on the projectId of the new task
       if (!body.id) {
         return new Response("projectId is required", { status: 400 })
       }
@@ -799,7 +799,7 @@ serve({
         return user
       }
 
-      // Existance testing on the projectId of the new resource
+      // Existence testing on the projectId of the new resource
       if (!body.id) {
         return new Response("projectId is required", { status: 400 })
       }
@@ -859,22 +859,22 @@ serve({
         return user
       }
 
-      // Existance testing on the projectId of the new resource
+      // Existence testing on the projectId of the new resource
       if (!body.id) {
         return new Response("projectId is required", { status: 400 })
       }
 
-      // Existance testing on the resourceId of the new resource
+      // Existence testing on the resourceId of the new resource
       if (!body.resourceId) {
         return new Response("resourceId is required", { status: 400 })
       }
 
-      // Existance testing on the taskId of the new resource
+      // Existence testing on the taskId of the new resource
       if (!body.taskId) {
         return new Response("taskId is required", { status: 400 })
       }
 
-      // Check the user's permission to add the resoource, only project owners and editors can add them
+      // Check the user's permission to add the resource, only project owners and editors can add them
       const permission = await Permissions.findOne({
         where: { userId: user.id, projectId: body.id }
       })
@@ -891,7 +891,7 @@ serve({
         return new Response("Resource not found", { status: 400 })
       }
 
-      // If the resource is already assiciated to the task then return 400 Bad Request to the client
+      // If the resource is already associated to the task then return 400 Bad Request to the client
       const existing = await ResourceAssociations.findOne({
         where: { taskId: body.taskId, resourceId: body.resourceId }
       })
@@ -932,17 +932,17 @@ serve({
         return user
       }
 
-      // Existance testing on the projectId of the new resource
+      // Existence testing on the projectId of the new resource
       if (!body.id) {
         return new Response("associationId is required", { status: 400 })
       }
 
-      // Existance testing on the resourceId of the new resource
+      // Existence testing on the resourceId of the new resource
       if (!body.resourceId) {
         return new Response("resourceId is required", { status: 400 })
       }
 
-      // Existance testing on the associationId of the new resource
+      // Existence testing on the associationId of the new resource
       if (!body.associationId) {
         return new Response("associationId is required", { status: 400 })
       }
@@ -967,7 +967,7 @@ serve({
         return new Response("Resource not found", { status: 400 })
       }
 
-      // If the resource isn't assiciated to the resource then return 400 Bad Request to the client
+      // If the resource isn't associated to the resource then return 400 Bad Request to the client
       const association = await ResourceAssociations.findOne({
         where: { id: body.associationId, resourceId: body.resourceId }
       })
@@ -1363,7 +1363,7 @@ serve({
         return user
       }
 
-      // Existance testing on the projectId of the task
+      // Existence testing on the projectId of the task
       if (!body.id || !body.projectId) {
         return new Response("The ProjectID and TaskID is required", {
           status: 400
@@ -1483,7 +1483,7 @@ serve({
         return user
       }
 
-      // Existance testing on the projectId of the resource
+      // Existence testing on the projectId of the resource
       if (!body.id || !body.projectId) {
         return new Response("The ProjectID and ResourceID is required", {
           status: 400

@@ -28,6 +28,7 @@ module.exports = {
     "no-extra-parens": "off",
     "no-magic-numbers": "off",
     "no-ternary": "off",
+    "no-plusplus": 0,
     "no-undefined": "off",
     "no-useless-return": "off",
     "nonblock-statement-body-position": "off",

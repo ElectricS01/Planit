@@ -14,7 +14,7 @@
         Planit is developed by
         <a href="https://electrics01.com">ElectricS01</a>
       </p>
-      <p class="small">Version: 0.2.2</p>
+      <p class="small">Version: 0.2.3</p>
     </div>
   </div>
 </template>
