@@ -4,6 +4,9 @@ Description=Planit Backend Service
 [Service]
 Type=simple
 WorkingDirectory=/var/www/html/planit/backend
-ExecStart=bun prod
+ExecStart=bun run prod
 Restart=always
 RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
